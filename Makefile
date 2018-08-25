@@ -1,3 +1,6 @@
+run:
+	python3 -m jupyterlab_celltests.tests Untitled.ipynb
+
 tests: ## Clean and Make unit tests
 	python3 -m nose -v tests --with-coverage --cover-erase --cover-package=`find jupyterlab_celltests -name "*.py" | sed "s=\./==g" | sed "s=/=.=g" | sed "s/\.py//g" | tr '\n' ',' | rev | cut -c2- | rev`
 	
