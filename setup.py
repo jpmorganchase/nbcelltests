@@ -9,11 +9,11 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='jupyterlab_celltests',
-    version='0.0.1',
+    version='0.0.2',
     description='Cell-by-cell tests for JupyterLab',
     long_description=long_description,
     url='https://github.com/timkpaine/jupyterlab_celltests',
-    download_url='https://github.com/timkpaine/jupyterlab_celltests/archive/v0.0.1.tar.gz',
+    download_url='https://github.com/timkpaine/jupyterlab_celltests/archive/v0.0.2.tar.gz',
     author='Tim Paine',
     author_email='t.paine154@gmail.com',
     license='Apache 2.0',
