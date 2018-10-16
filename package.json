@@ -1,6 +1,6 @@
 {
   "name": "jupyterlab_celltests",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A JupyterLab extension.",
   "author": "Tim Paine",
   "main": "lib/index.js",
@@ -22,17 +22,17 @@
     "extension": true
   },
   "dependencies": {
-    "@jupyterlab/application": "^0.18.0",
-    "@jupyterlab/apputils": "^0.18.0",
-    "@jupyterlab/coreutils": "^2.1.0",
-    "@jupyterlab/docmanager": "^0.18.0",
-    "@jupyterlab/filebrowser": "^0.18.0",
-    "@jupyterlab/launcher": "^0.18.0",
-    "@jupyterlab/mainmenu": "^0.7.0",
+    "@jupyterlab/application": "^0.19.0",
+    "@jupyterlab/apputils": "^0.19.0",
+    "@jupyterlab/coreutils": "^2.2.0",
+    "@jupyterlab/docmanager": "^0.19.0",
+    "@jupyterlab/filebrowser": "^0.19.0",
+    "@jupyterlab/launcher": "^0.19.0",
+    "@jupyterlab/mainmenu": "^0.8.0",
     "@phosphor/disposable": "^1.1.2"
   },
   "devDependencies": {
     "rimraf": "^2.6.1",
-    "typescript": "~2.6.2"
+    "typescript": "~3.1.1"
   }
 }
