@@ -11,6 +11,16 @@ test: ## run the tests for travis CI
 	@ python3 -m nose -v tests --with-coverage --cover-erase --cover-package=`find jupyterlab_celltests -name "*.py" | sed "s=\./==g" | sed "s=/=.=g" | sed "s/\.py//g" | tr '\n' ',' | rev | cut -c2- | rev`
 	npm install && npm run test
 
+lint: ## run linter
+	pylint jupyterlab_celltests || echo
+	flake8 jupyterlab_celltests 
+
+annotate: ## MyPy type annotation check
+	mypy -s jupyterlab_celltests
+
+annotate_l: ## MyPy type annotation check - count only
+	mypy -s jupyterlab_celltests | wc -l 
+
 clean: ## clean the repository
 	find . -name "__pycache__" | xargs  rm -rf 
 	find . -name "*.pyc" | xargs rm -rf 
