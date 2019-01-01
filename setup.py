@@ -7,6 +7,9 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
+with open(path.join(here, 'requirements.txt'), encoding='utf-8') as f:
+    requires = f.read().split()
+
 setup(
     name='jupyterlab_celltests',
     version='0.0.2',
@@ -31,6 +34,8 @@ setup(
     keywords='jupyter jupyterlab',
 
     packages=find_packages(exclude=['tests', ]),
+    install_requires=requires,
+    extras_require={'dev': requires + ['nose2', 'pylint', 'flake8']},
     include_package_data=True,
     zip_safe=False,
 )
