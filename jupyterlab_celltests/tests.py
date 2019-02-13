@@ -3,7 +3,7 @@ import sys
 import subprocess
 import os
 import os.path
-import tempfile
+
 
 base = '''import unittest
 
