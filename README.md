@@ -26,4 +26,8 @@ This doesn't necessarily help you if your data sources go down, but its likely y
 ### So what does this do?
 Given a notebook, you can write mocks and assertions for individual cells. You can then generate a testing script for this notebook, allowing you to hook it into your testing system and thereby provide unittests of your report. 
 
+## Writing tests
 ![](https://raw.githubusercontent.com/timkpaine/jupyterlab_celltests/master/docs/demo.gif)
+
+## Running tests
+![](https://raw.githubusercontent.com/timkpaine/jupyterlab_celltests/master/docs/demo2.gif)
