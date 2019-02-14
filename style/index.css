@@ -5,7 +5,6 @@ div.CelltestTool {
 div.CelltestsOptions {
     display: flex;
     flex-direction: column;
-    background: cyan;
     padding: 7px;
 }
 
