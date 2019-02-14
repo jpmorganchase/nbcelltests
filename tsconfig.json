@@ -4,9 +4,10 @@
     "noImplicitAny": true,
     "noEmitOnError": true,
     "noUnusedLocals": true,
+    "allowSyntheticDefaultImports": true,
     "module": "commonjs",
     "moduleResolution": "node",
-    "target": "ES5",
+    "target": "ES6",
     "outDir": "./lib",
     "lib": ["ES5", "ES2015.Promise", "DOM", "ES2015.Collection"],
     "types": ["jest"]

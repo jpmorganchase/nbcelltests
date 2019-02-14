@@ -1,0 +1,42 @@
+div.CelltestTool {
+
+}
+
+div.CelltestsOptions {
+    display: flex;
+    flex-direction: column;
+    background: cyan;
+    padding: 7px;
+}
+
+div.CelltestsOptions > label {
+    font-size: 13px;
+    text-transform: uppercase;
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+div.CelltestsOptions > div {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+div.CelltestsOptions > div > button {
+    width: 50%;
+}
+div.CelltestsOptions > div > button:hover {
+    background: var(--jp-layout-color2);
+}
+
+div.CelltestsEditor {
+    display: flex;
+    flex-direction: column;
+    background: cyan;
+    margin-bottom: 5px;
+}
+
+
+div.CelltestsEditor div.CodeMirror-lines {
+    border: 1px solid lightgrey;
+}

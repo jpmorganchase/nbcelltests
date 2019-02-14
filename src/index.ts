@@ -1,48 +1,22 @@
-import {
-  JupyterLab, JupyterLabPlugin, ILayoutRestorer
-} from '@jupyterlab/application';
+import {JupyterLabPlugin} from '@jupyterlab/application';
+import {ICommandPalette} from '@jupyterlab/apputils';
+import {IDocumentManager} from '@jupyterlab/docmanager';
+import {ILauncher} from '@jupyterlab/launcher';
+import {ICellTools, INotebookTracker} from "@jupyterlab/notebook";
 
-import {
-  ICommandPalette
-} from '@jupyterlab/apputils';
-
-import {
-  IDocumentManager
-} from '@jupyterlab/docmanager';
-
-import {
-  IFileBrowserFactory
-} from '@jupyterlab/filebrowser';
-
-import {
-  ILauncher
-} from '@jupyterlab/launcher';
-
-import {
-  IMainMenu
-} from '@jupyterlab/mainmenu';
-
+import {activate} from './activate';
 import '../style/index.css';
+
 
 const extension: JupyterLabPlugin<void> = {
   id: 'jupyterlab_celltests',
   autoStart: true,
-  requires: [IDocumentManager, ICommandPalette, ILayoutRestorer, IMainMenu, IFileBrowserFactory],
+  requires: [IDocumentManager,
+             ICommandPalette,
+             INotebookTracker,
+             ICellTools],
   optional: [ILauncher],
   activate: activate
-};
-
-
-
-function activate(app: JupyterLab,
-                  docManager: IDocumentManager,
-                  palette: ICommandPalette,
-                  restorer: ILayoutRestorer,
-                  mainMenu: IMainMenu,
-                  browser: IFileBrowserFactory,
-                  launcher: ILauncher | null) {
-
-  console.log('JupyterLab extension jupyterlab_celltests is activated!');
 };
 
 

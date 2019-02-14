@@ -5,10 +5,10 @@ testjs: ## Clean and Make js tests
 	npm run test
 
 testpy: ## Clean and Make unit tests
-	python3 -m pytest tests --cov=jupyterlab_celltests
+	python3 -m pytest -v tests --cov=jupyterlab_celltests
 
 test: lint ## run the tests for travis CI
-	@ python3 -m pytest tests --cov=jupyterlab_celltests
+	@ python3 -m pytest -v tests --cov=jupyterlab_celltests
 
 lint: ## run linter
 	pylint jupyterlab_celltests || echo
@@ -33,7 +33,11 @@ install:  ## install to site-packages
 serverextension: install ## enable serverextension
 	jupyter serverextension enable --py jupyterlab_celltests
 
-labextension: install ## enable labextension
+js:  ## build javascript
+	yarn
+	yarn build
+
+labextension: js ## enable labextension
 	jupyter labextension install .
 
 dist:  ## dist to pypi
