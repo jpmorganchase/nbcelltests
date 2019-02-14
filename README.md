@@ -27,7 +27,10 @@ This doesn't necessarily help you if your data sources go down, but its likely y
 Given a notebook, you can write mocks and assertions for individual cells. You can then generate a testing script for this notebook, allowing you to hook it into your testing system and thereby provide unittests of your report. 
 
 ## Writing tests
+When you write tests for a cell, we create a new method on a `unittest` class corresponding to the index of your cell, and including the cumulative tests for all previous cells (to mimic what has happened so far in the notebook's linear execution). You can write whatever mocking and asserts you like, and can call `%cell` to inject the contents of the cell into your test. 
 ![](https://raw.githubusercontent.com/timkpaine/jupyterlab_celltests/master/docs/demo.gif)
+The tests themselves are stored in the cell metadata, similar to celltags, slide information, etc. 
 
 ## Running tests
+You can run the tests offline from an `.ipynb` file, or you can execute them from the browser and view the results of `pytest-html`'s html plugin.
 ![](https://raw.githubusercontent.com/timkpaine/jupyterlab_celltests/master/docs/demo2.gif)
