@@ -35,7 +35,7 @@ setup(
 
     packages=find_packages(exclude=['tests', ]),
     install_requires=requires,
-    extras_require={'dev': requires + ['nose2', 'pylint', 'flake8']},
+    extras_require={'dev': requires + ['pytest', 'pytest-cov', 'pylint', 'flake8']},
     include_package_data=True,
     zip_safe=False,
 )
