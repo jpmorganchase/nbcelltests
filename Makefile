@@ -11,7 +11,7 @@ test: lint ## run the tests for travis CI
 	@ python3 -m pytest -v tests --cov=jupyterlab_celltests
 
 lint: ## run linter
-	pylint jupyterlab_celltests || echo
+	# pylint jupyterlab_celltests || echo
 	flake8 jupyterlab_celltests 
 
 annotate: ## MyPy type annotation check

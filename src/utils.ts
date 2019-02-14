@@ -2,13 +2,13 @@ import {JupyterLab} from '@jupyterlab/application';
 import {IDocumentManager} from '@jupyterlab/docmanager';
 
 export
-const CELLTESTS_CATEGORY = 'AAAAAA';
+const CELLTESTS_CATEGORY = 'Celltests';
 
 export 
 const CELLTESTS_RUN_ID = 'celltests:newtest';
 
 export
-const CELLTESTS_RUN_CAPTION = 'New Celltest';
+const CELLTESTS_RUN_CAPTION = 'Run Celltests';
 
 export
 const CELLTEST_TOOL_CLASS = 'CelltestTool';
