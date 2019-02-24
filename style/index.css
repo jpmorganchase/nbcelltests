@@ -2,30 +2,60 @@ div.CelltestTool {
 
 }
 
-div.CelltestsOptions {
+div.CelltestsControls {
     display: flex;
     flex-direction: column;
     padding: 7px;
 }
 
-div.CelltestsOptions > label {
+div.CelltestsControls > label {
     font-size: 13px;
     text-transform: uppercase;
     width: 100%;
     margin-bottom: 5px;
 }
 
-div.CelltestsOptions > div {
+div.CelltestsControls > div {
     display: flex;
     flex-direction: row;
     width: 100%;
 }
 
-div.CelltestsOptions > div > button {
+div.CelltestsControls > div > button {
     width: 50%;
 }
-div.CelltestsOptions > div > button:hover {
+div.CelltestsControls > div > button:hover {
     background: var(--jp-layout-color2);
+}
+
+div.CelltestsRules {
+    display: flex;
+    flex-direction: column;
+    padding: 7px;
+}
+
+div.CelltestsRules > label {
+    font-size: 13px;
+    text-transform: uppercase;
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+
+div.CelltestsRules > div {
+    display: flex;
+    flex-direction: column;
+}
+
+div.CelltestsRules > div > div {
+    display: flex;
+    flex-direction: row;
+}
+
+div.CelltestsRules > div > div > span,
+div.CelltestsRules > div > div > input[type="number"] {
+    flex: 1;
+    width: 45%;
 }
 
 div.CelltestsEditor {

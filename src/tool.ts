@@ -17,6 +17,7 @@ export class CelltestsTool extends CellTools.Tool {
 
     this.addClass(CELLTEST_TOOL_CLASS);
     this.widget = new CelltestsWidget();
+    this.widget.notebookTracker = notebook_Tracker;
 
     layout.addWidget(this.widget);
   }
@@ -30,23 +31,27 @@ export class CelltestsTool extends CellTools.Tool {
   }
 
   protected onAfterShow() {
-    // this.widget.getAllTagsInNotebook();
+
   }
 
   protected onAfterAttach() {
     this.notebookTracker.currentWidget.context.ready.then(() => {
-      // this.widget.getAllTagsInNotebook();
+      this.widget.loadTestsForActiveCell();
+      this.widget.loadRulesForCurrentNotebook();
     });
     this.notebookTracker.currentChanged.connect(() => {
-      // this.widget.getAllTagsInNotebook();
+      this.widget.loadTestsForActiveCell();
+      this.widget.loadRulesForCurrentNotebook();
     });
     this.notebookTracker.currentWidget.model.cells.changed.connect(() => {
-      // this.widget.getAllTagsInNotebook();
+      this.widget.loadTestsForActiveCell();
+      this.widget.loadRulesForCurrentNotebook();
     });
   }
 
   protected onMetadataChanged(msg: ObservableJSON.ChangeMessage): void {
-        this.widget.loadTestsForActiveCell();
+    this.widget.loadTestsForActiveCell();
+    this.widget.loadRulesForCurrentNotebook();
   }
 
   private widget: CelltestsWidget = null;

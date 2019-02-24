@@ -14,7 +14,10 @@ export
 const CELLTEST_TOOL_CLASS = 'CelltestTool';
 
 export
-const CELLTEST_TOOL_OPTIONS_CLASS = 'CelltestsOptions';
+const CELLTEST_TOOL_CONTROLS_CLASS = 'CelltestsControls';
+
+export
+const CELLTEST_TOOL_RULES_CLASS = 'CelltestsRules';
 
 export
 const CELLTEST_TOOL_EDITOR_CLASS = 'CelltestsEditor';
