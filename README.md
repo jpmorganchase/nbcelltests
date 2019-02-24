@@ -43,8 +43,10 @@ You can run the tests offline from an `.ipynb` file, or you can execute them fro
 - Percentage of cells tested
 
 ## Example
-In the committed `Untitled.ipynb` notebook:
+In the committed `Untitled.ipynb` notebook, but modified so that cell 0 has its import statement copied 10 times (to trigger test and lint failures):
 
+
+### Tests
 ```bash
 Untitled_test.py::TestExtension::test_cell0 PASSED                                                                                     [  8%]
 Untitled_test.py::TestExtension::test_cell1 PASSED                                                                                     [ 16%]
@@ -54,8 +56,20 @@ Untitled_test.py::TestExtension::test_cell_coverage PASSED                      
 Untitled_test.py::TestExtension::test_cells_per_notebook PASSED                                                                        [ 50%]
 Untitled_test.py::TestExtension::test_class_definition_count PASSED                                                                    [ 58%]
 Untitled_test.py::TestExtension::test_function_definition_count PASSED                                                                 [ 66%]
-Untitled_test.py::TestExtension::test_lines_per_cell_0 PASSED                                                                          [ 75%]
+Untitled_test.py::TestExtension::test_lines_per_cell_0 FAILED                                                                          [ 75%]
 Untitled_test.py::TestExtension::test_lines_per_cell_1 PASSED                                                                          [ 83%]
 Untitled_test.py::TestExtension::test_lines_per_cell_2 PASSED                                                                          [ 91%]
 Untitled_test.py::TestExtension::test_lines_per_cell_3 PASSED                                                                          [100%]
 ```
+### Lint
+```bash
+Checking lines in cell 0:   FAILED
+Checking lines in cell 1:   PASSED
+Checking lines in cell 2:   PASSED
+Checking lines in cell 3:   PASSED
+Checking cells per notebook <= 10:  PASSED
+Checking functions per notebook <= 10:  PASSED
+Checking classes per notebook <= 10:    PASSED
+Checking cell test coverage >= 50:  PASSED
+```
+
