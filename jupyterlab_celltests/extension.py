@@ -31,6 +31,17 @@ class RunCelltestsHandler(IPythonHandler):
             self.finish({'status': 0, 'test': ret})
 
 
+class RunLintsHandler(IPythonHandler):
+    def initialize(self):
+        pass
+
+    def get(self):
+        self.finish({'status': 0, 'lint': ''})
+
+    def post(self):
+        self.finish({'status': 0, 'lint': ''})
+
+
 def load_jupyter_server_extension(nb_server_app):
     """
     Called when the extension is loaded.
@@ -45,4 +56,5 @@ def load_jupyter_server_extension(nb_server_app):
     # host_pattern = '.*$'
     print('Installing jupyterlab_celltests handler on path %s' % url_path_join(base_url, 'celltests'))
 
-    web_app.add_handlers(host_pattern, [(url_path_join(base_url, 'celltests/run'), RunCelltestsHandler, {})])
+    web_app.add_handlers(host_pattern, [(url_path_join(base_url, 'celltests/test/run'), RunCelltestsHandler, {})])
+    web_app.add_handlers(host_pattern, [(url_path_join(base_url, 'celltests/lint/run'), RunCelltestsHandler, {})])

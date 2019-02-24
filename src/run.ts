@@ -27,7 +27,7 @@ function runCellTests(app: JupyterLab, docManager: IDocumentManager): void {
 
         return new Promise(function(resolve) {
             request('post',
-                PageConfig.getBaseUrl() + "celltests/run",
+                PageConfig.getBaseUrl() + "celltests/test/run",
                 {},
                 {'path': path, 'model': model}
                 ).then((res:RequestResult) => {

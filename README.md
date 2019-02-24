@@ -34,3 +34,27 @@ The tests themselves are stored in the cell metadata, similar to celltags, slide
 ## Running tests
 You can run the tests offline from an `.ipynb` file, or you can execute them from the browser and view the results of `pytest-html`'s html plugin.
 ![](https://raw.githubusercontent.com/timkpaine/jupyterlab_celltests/master/docs/demo2.gif)
+
+## Extra Tests
+- Max number of lines per cell
+- Max number of cells per notebook
+- Max number of function definitions per notebook
+- Max number of class definitions per notebook
+- Percentage of cells tested
+
+## Example
+In the committed `Untitled.ipynb` notebook:
+
+```bash
+Untitled_test.py::TestExtension::test_cell0 PASSED                                                                                     [  9%]
+Untitled_test.py::TestExtension::test_cell1 PASSED                                                                                     [ 18%]
+Untitled_test.py::TestExtension::test_cell2 PASSED                                                                                     [ 27%]
+Untitled_test.py::TestExtension::test_cell3 PASSED                                                                                     [ 36%]
+Untitled_test.py::TestExtension::test_cells_per_notebook PASSED                                                                        [ 45%]
+Untitled_test.py::TestExtension::test_class_definition_count PASSED                                                                    [ 54%]
+Untitled_test.py::TestExtension::test_function_definition_count PASSED                                                                 [ 63%]
+Untitled_test.py::TestExtension::test_lines_per_cell_0 PASSED                                                                          [ 72%]
+Untitled_test.py::TestExtension::test_lines_per_cell_1 PASSED                                                                          [ 81%]
+Untitled_test.py::TestExtension::test_lines_per_cell_2 PASSED                                                                          [ 90%]
+Untitled_test.py::TestExtension::test_lines_per_cell_3 PASSED                                                                          [100%]
+```
