@@ -164,3 +164,8 @@ ENV/
 
 .DS_Store
 .autoversion
+yarn.lock
+
+# generated
+Untitled_test.html
+Untitled_test.py
