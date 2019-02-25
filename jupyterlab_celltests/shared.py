@@ -49,3 +49,8 @@ def extract_extrametadata(notebook, override=None):
         base.update(override)
 
     return base
+
+
+def get_coverage(notebook):
+    meta = extract_extrametadata(notebook)
+    return meta['cell_tested']/meta['cell_count']*100

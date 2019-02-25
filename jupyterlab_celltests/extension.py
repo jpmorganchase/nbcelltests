@@ -9,7 +9,8 @@ try:
 except ImportError:
     from tempfile import TemporaryDirectory
 
-from .tests import runWithHTMLReturn
+from .tests import runWithHTMLReturn as runTest
+from .lint import runWithHTMLReturn as runLint
 
 
 class RunCelltestsHandler(IPythonHandler):
@@ -27,19 +28,27 @@ class RunCelltestsHandler(IPythonHandler):
             path = os.path.abspath(os.path.join(tempdir, name))
             node = nbformat.from_dict(body.get('model'))
             nbformat.write(node, path)
-            ret = runWithHTMLReturn(path)
+            ret = runTest(path)
             self.finish({'status': 0, 'test': ret})
 
 
 class RunLintsHandler(IPythonHandler):
-    def initialize(self):
-        pass
+    def initialize(self, rules=None):
+        self.rules = rules
 
     def get(self):
-        self.finish({'status': 0, 'lint': ''})
+        self.finish({'status': 0, 'linters': self.rules})
 
     def post(self):
-        self.finish({'status': 0, 'lint': ''})
+        body = json.loads(self.request.body)
+        path = os.path.join(os.getcwd(), body.get('path'))
+        name = path.rsplit('/', 1)[1]
+        with TemporaryDirectory() as tempdir:
+            path = os.path.abspath(os.path.join(tempdir, name))
+            node = nbformat.from_dict(body.get('model'))
+            nbformat.write(node, path)
+            ret, status = runLint(path)
+            self.finish({'status': status, 'lint': ret})
 
 
 def load_jupyter_server_extension(nb_server_app):
@@ -56,5 +65,7 @@ def load_jupyter_server_extension(nb_server_app):
     # host_pattern = '.*$'
     print('Installing jupyterlab_celltests handler on path %s' % url_path_join(base_url, 'celltests'))
 
+    rules = nb_server_app.config.get('JupyterLabCelltests', {}).get('rules', {})
+
     web_app.add_handlers(host_pattern, [(url_path_join(base_url, 'celltests/test/run'), RunCelltestsHandler, {})])
-    web_app.add_handlers(host_pattern, [(url_path_join(base_url, 'celltests/lint/run'), RunCelltestsHandler, {})])
+    web_app.add_handlers(host_pattern, [(url_path_join(base_url, 'celltests/lint/run'), RunLintsHandler, {'rules': rules})])

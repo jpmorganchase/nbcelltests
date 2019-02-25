@@ -5,10 +5,16 @@ export
 const CELLTESTS_CATEGORY = 'Celltests';
 
 export 
-const CELLTESTS_RUN_ID = 'celltests:newtest';
+const CELLTESTS_TEST_ID = 'celltests:test';
+
+export 
+const CELLTESTS_LINT_ID = 'celltests:lint';
 
 export
-const CELLTESTS_RUN_CAPTION = 'Run Celltests';
+const CELLTESTS_TEST_CAPTION = 'Run Celltests';
+
+export
+const CELLTESTS_LINT_CAPTION = 'Run Lint';
 
 export
 const CELLTEST_TOOL_CLASS = 'CelltestTool';

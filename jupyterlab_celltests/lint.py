@@ -118,7 +118,13 @@ def runWithReturn(notebook):
 
 
 def runWithHTMLReturn(notebook):
-    raise NotImplementedError()
+    ret = ''
+    ret_tmp, fail = run(notebook)
+    for split in ret_tmp.split('\n'):
+        ret += '<p>' + split.replace('FAILED', '<span style="color: red;">FAILED</span>') \
+                            .replace('PASSED', '<span style="color: green;">PASSED</span>') \
+                     + '</p>'
+    return '<div style="display: flex; flex-direction: column;">' + ret + '</div>', fail
 
 
 if __name__ == '__main__':
@@ -127,6 +133,7 @@ if __name__ == '__main__':
     notebook = sys.argv[1]
     ret, passed = run(notebook)
     if passed:
+        print(ret)
         sys.exit(0)
     else:
         print(ret)

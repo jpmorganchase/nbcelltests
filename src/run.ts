@@ -60,3 +60,58 @@ function runCellTests(app: JupyterLab, docManager: IDocumentManager): void {
         }
     );
 }
+
+
+export
+function runCellLints(app: JupyterLab, docManager: IDocumentManager): void {
+    showDialog({
+        title: 'Run Lint?',
+        // focusNodeSelector: 'input',
+        buttons: [Dialog.cancelButton(), Dialog.okButton({ label: 'Ok' })]
+    }).then(result => {
+        if (result.button.label === 'CANCEL') {
+            return;
+        }
+        const context = docManager.contextForWidget(app.shell.currentWidget);
+        let path = '';
+        let model = {};
+        if(context){
+            path = context.path; 
+            model = context.model.toJSON();
+        }
+
+        return new Promise(function(resolve) {
+            request('post',
+                PageConfig.getBaseUrl() + "celltests/lint/run",
+                {},
+                {'path': path, 'model': model}
+                ).then((res:RequestResult) => {
+                    if(res.ok){
+                        let div = document.createElement('div');
+                        div.innerHTML = (res.json() as {[key: string]: string})['lint'];
+                        let body = new Widget({node:div});
+
+                        let dialog = new Dialog({
+                            title: 'Lints run!',
+                            body: body,
+                            buttons: [Dialog.okButton({ label: 'Ok' })]
+                        });
+                        (dialog.node.lastChild as HTMLDivElement).style.maxHeight = '750px';
+                        (dialog.node.lastChild as HTMLDivElement).style.maxWidth = '1000px';
+                        (dialog.node.lastChild as HTMLDivElement).style.width = '1000px';
+
+                        dialog.launch().then(() => {
+                            resolve();
+                        })
+                    } else {
+                        showDialog({
+                            title: 'Something went wrong!',
+                            body: 'Check the Jupyter logs for the exception.',
+                            buttons: [Dialog.okButton({ label: 'Ok' })]
+                        }).then(() => {resolve();})
+                    }
+                });
+            });
+        }
+    );
+}

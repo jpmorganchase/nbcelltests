@@ -4,8 +4,8 @@ import {IDocumentManager} from '@jupyterlab/docmanager';
 import {ICellTools, INotebookTracker} from "@jupyterlab/notebook";
 
 import {CelltestsTool} from './tool';
-import {runCellTests} from './run';
-import {isEnabled, CELLTESTS_RUN_CAPTION, CELLTESTS_RUN_ID, CELLTESTS_CATEGORY} from './utils';
+import {runCellTests, runCellLints} from './run';
+import {isEnabled, CELLTESTS_TEST_CAPTION, CELLTESTS_LINT_CAPTION, CELLTESTS_TEST_ID, CELLTESTS_LINT_ID, CELLTESTS_CATEGORY} from './utils';
 
 export
 function activate(app: JupyterLab,
@@ -21,15 +21,24 @@ function activate(app: JupyterLab,
 
 
     /* Add to commands to sidebar */
-    palette.addItem({command: CELLTESTS_RUN_ID, category: CELLTESTS_CATEGORY});
+    palette.addItem({command: CELLTESTS_TEST_ID, category: CELLTESTS_CATEGORY});
+    palette.addItem({command: CELLTESTS_LINT_ID, category: CELLTESTS_CATEGORY});
 
-    app.commands.addCommand(CELLTESTS_RUN_ID, {
-        label: CELLTESTS_RUN_CAPTION,
+    app.commands.addCommand(CELLTESTS_TEST_ID, {
+        label: CELLTESTS_TEST_CAPTION,
         execute: args => {
             runCellTests(app, docManager);
         },
         isEnabled: isEnabled(app, docManager),
-        caption: CELLTESTS_RUN_CAPTION,
-        iconClass: 'fa fa-sign-out jp-IconTest'
+        caption: CELLTESTS_TEST_CAPTION
+    });
+
+    app.commands.addCommand(CELLTESTS_LINT_ID, {
+        label: CELLTESTS_LINT_CAPTION,
+        execute: args => {
+            runCellLints(app, docManager);
+        },
+        isEnabled: isEnabled(app, docManager),
+        caption: CELLTESTS_LINT_CAPTION
     });
 }
