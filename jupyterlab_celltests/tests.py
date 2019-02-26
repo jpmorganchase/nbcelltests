@@ -150,14 +150,14 @@ def run(notebook):
 
 def runWithReturn(notebook):
     name = run(notebook)
-    argv = ['py.test', name, '-v']
+    argv = [sys.executable, '-m', 'pytest', name, '-v']
     return subprocess.check_output(argv)
 
 
 def runWithHTMLReturn(notebook):
     name = run(notebook)
     html = name.replace('.py', '.html')
-    argv = ['py.test', name, '-v', '--html=' + html, '--self-contained-html']
+    argv = [sys.executable, '-m', 'pytest', name, '-v', '--html=' + html, '--self-contained-html']
     subprocess.call(argv)
     with open(html, 'r') as fp:
         return fp.read()
@@ -168,6 +168,6 @@ if __name__ == '__main__':
         raise Exception('Usage:python jupyterlab_celltests.tests <ipynb file>')
     notebook = sys.argv[1]
     name = run(notebook)
-    argv = ['py.test', name, '-v', '--html=' + name.replace('.py', '.html'), '--self-contained-html']
+    argv = [sys.executable, '-m', 'pytest', name, '-v', '--html=' + name.replace('.py', '.html'), '--self-contained-html']
     print(' '.join(argv))
     subprocess.call(argv)
