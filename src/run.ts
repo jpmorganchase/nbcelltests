@@ -97,8 +97,8 @@ function runCellLints(app: JupyterLab, docManager: IDocumentManager): void {
                             buttons: [Dialog.okButton({ label: 'Ok' })]
                         });
                         (dialog.node.lastChild as HTMLDivElement).style.maxHeight = '750px';
-                        (dialog.node.lastChild as HTMLDivElement).style.maxWidth = '1000px';
-                        (dialog.node.lastChild as HTMLDivElement).style.width = '1000px';
+                        (dialog.node.lastChild as HTMLDivElement).style.maxWidth = '500px';
+                        (dialog.node.lastChild as HTMLDivElement).style.width = '500px';
 
                         dialog.launch().then(() => {
                             resolve();
