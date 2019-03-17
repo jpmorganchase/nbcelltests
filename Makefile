@@ -12,6 +12,7 @@ test: lint ## run the tests for travis CI
 
 lint: ## run linter
 	flake8 jupyterlab_celltests 
+	yarn lint
 
 extest:  ## run example test
 	@ python3 -m jupyterlab_celltests.tests Untitled.ipynb
