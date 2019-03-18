@@ -66,18 +66,16 @@ function errorResponse(xhr: XMLHttpRequest, message: string | null = null): IReq
 
 export function request(method: "get" | "post",
                         url: string,
-                        // tslint:disable-next-line:no-shadowed-variable
-                        queryParams: any = {},
+                        queryParamsOther: any = {},
                         body: any = null,
                         options: IRequestOptions = DEFAULT_REQUEST_OPTIONS) {
+    const ignoreCache = options.ignoreCache || DEFAULT_REQUEST_OPTIONS.ignoreCache;
+    const headers = options.headers || DEFAULT_REQUEST_OPTIONS.headers;
+    const timeout = options.timeout || DEFAULT_REQUEST_OPTIONS.timeout;
 
-  const ignoreCache = options.ignoreCache || DEFAULT_REQUEST_OPTIONS.ignoreCache;
-  const headers = options.headers || DEFAULT_REQUEST_OPTIONS.headers;
-  const timeout = options.timeout || DEFAULT_REQUEST_OPTIONS.timeout;
-
-  return new Promise<IRequestResult>((resolve, reject) => {
+    return new Promise<IRequestResult>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open(method, withQuery(url, queryParams));
+    xhr.open(method, withQuery(url, queryParamsOther));
 
     if (headers) {
       Object.keys(headers).forEach((key) => xhr.setRequestHeader(key, headers[key]));
