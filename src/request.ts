@@ -16,7 +16,7 @@ export const DEFAULT_REQUEST_OPTIONS = {
   },
   ignoreCache: false,
   // default max duration for a request
-  timeout: 5000,
+  timeout: 60000,
 };
 
 export interface IRequestResult {
