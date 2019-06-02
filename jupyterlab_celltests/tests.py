@@ -4,9 +4,15 @@ import subprocess
 from .shared import extract_cellsources, extract_celltests, extract_extrametadata
 
 BASE = '''import unittest
+from nbval.kernel import RunningKernel
 
 
 class TestExtension(unittest.TestCase):
+    def setup_class(self):
+        self.kernel = RunningKernel("{kernel_name}")
+
+    def teardown_class(self):
+        self.kernel.stop()
 '''
 
 INDENT = '    '
@@ -45,15 +51,15 @@ def assemble_code(sources, tests):
     return cells
 
 
-def writeout_test(fp, cells):
+def writeout_test(fp, cells, kernel_name):
     # base import and class
-    fp.write(BASE)
+    fp.write(BASE.format(kernel_name=kernel_name))
 
     # grab all code to write out
     for i, code, meth in cells:
         fp.write('\n')
         fp.write(INDENT + meth)
-
+        fp.write(INDENT*2 + 'msg_id = self.kernel.execute_cell_input("""\n')
         to_write = []
 
         for j, code2, _ in cells:
@@ -78,6 +84,9 @@ def writeout_test(fp, cells):
             to_write.append(INDENT + 'pass')
 
         fp.writelines(to_write)
+        fp.write(INDENT*2 + '""")\n')
+        fp.write(INDENT*2 + 'self.kernel.await_reply(msg_id)\n')
+
     fp.write('\n')
 
 
@@ -116,6 +125,8 @@ def run(notebook):
     nb = nbformat.read(notebook, 4)
     name = notebook[:-6] + '_test.py'  # remove .ipynb, replace with _test.py
 
+    kernel_name = nb.metadata.get('kernelspec', {}).get('name', 'python')
+
     sources = extract_cellsources(nb)
     tests = extract_celltests(nb)
     extra_metadata = extract_extrametadata(nb)
@@ -123,7 +134,7 @@ def run(notebook):
 
     # output tests to test file
     with open(name, 'w') as fp:
-        writeout_test(fp, cells)
+        writeout_test(fp, cells, kernel_name)
 
         if 'lines_per_cell' in extra_metadata:
             lines_per_cell = extra_metadata.get('lines_per_cell', -1)
