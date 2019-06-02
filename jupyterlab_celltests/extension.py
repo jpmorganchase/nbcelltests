@@ -2,6 +2,7 @@ import json
 import os
 import os.path
 import nbformat
+import sys
 import tornado.gen
 from tornado.concurrent import run_on_executor
 from concurrent.futures import ThreadPoolExecutor
@@ -19,8 +20,8 @@ from .lint import runWithHTMLReturn as runLint
 class RunCelltestsHandler(IPythonHandler):
     executor = ThreadPoolExecutor(4)
 
-    def initialize(self):
-        pass
+    def initialize(self, executable=None):
+        self.executable = executable
 
     def get(self):
         self.finish({'status': 0, 'test': ''})
@@ -31,7 +32,7 @@ class RunCelltestsHandler(IPythonHandler):
             path = os.path.abspath(os.path.join(tempdir, name))
             node = nbformat.from_dict(body.get('model'))
             nbformat.write(node, path)
-            ret = runTest(path)
+            ret = runTest(path, exectuable=self.executable)
             return ret
 
     @tornado.gen.coroutine
@@ -46,8 +47,9 @@ class RunCelltestsHandler(IPythonHandler):
 class RunLintsHandler(IPythonHandler):
     executor = ThreadPoolExecutor(4)
 
-    def initialize(self, rules=None):
+    def initialize(self, rules=None, executable=None):
         self.rules = rules
+        self.executable = executable
 
     def get(self):
         self.finish({'status': 0, 'linters': self.rules})
@@ -58,7 +60,7 @@ class RunLintsHandler(IPythonHandler):
             path = os.path.abspath(os.path.join(tempdir, name))
             node = nbformat.from_dict(body.get('model'))
             nbformat.write(node, path)
-            ret, status = runLint(path)
+            ret, status = runLint(path, exectuable=self.executable)
             return ret, status
             self.finish({'status': status, 'lint': ret})
 
@@ -86,6 +88,7 @@ def load_jupyter_server_extension(nb_server_app):
     print('Installing jupyterlab_celltests handler on path %s' % url_path_join(base_url, 'celltests'))
 
     rules = nb_server_app.config.get('JupyterLabCelltests', {}).get('rules', {})
+    executable = nb_server_app.config.get('JupyterLabCelltests', {}).get('executable', [sys.executable, '-m', 'pytest', '-v'])
 
-    web_app.add_handlers(host_pattern, [(url_path_join(base_url, 'celltests/test/run'), RunCelltestsHandler, {})])
-    web_app.add_handlers(host_pattern, [(url_path_join(base_url, 'celltests/lint/run'), RunLintsHandler, {'rules': rules})])
+    web_app.add_handlers(host_pattern, [(url_path_join(base_url, 'celltests/test/run'), RunCelltestsHandler, {'executable': executable})])
+    web_app.add_handlers(host_pattern, [(url_path_join(base_url, 'celltests/lint/run'), RunLintsHandler, {'rules': rules, 'executable': executable})])

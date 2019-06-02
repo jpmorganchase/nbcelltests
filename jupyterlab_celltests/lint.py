@@ -112,12 +112,12 @@ def run(notebook):
     return ret, passed
 
 
-def runWithReturn(notebook):
+def runWithReturn(notebook, executable=None):
     ret, fail = run(notebook)
     return ret
 
 
-def runWithHTMLReturn(notebook):
+def runWithHTMLReturn(notebook, executable=None):
     ret = ''
     ret_tmp, fail = run(notebook)
     for split in ret_tmp.split('\n'):
