@@ -3,8 +3,13 @@ import sys
 import subprocess
 from .shared import extract_cellsources, extract_celltests, extract_extrametadata
 
-BASE = '''import unittest
+BASE = '''
+import unittest
 from nbval.kernel import RunningKernel
+try:
+    from Queue import Empty
+except ImportError:
+    from queue import Empty
 
 
 class TestExtension(unittest.TestCase):
@@ -13,6 +18,70 @@ class TestExtension(unittest.TestCase):
 
     def teardown_class(self):
         self.kernel.stop()
+
+    def run_test(self, cell_content):
+        # This code is from nbval
+        # https://github.com/computationalmodelling/nbval
+        msg_id = self.kernel.execute_cell_input(cell_content, allow_stdin=False)
+
+        # Poll the shell channel to get a message
+        try:
+            self.kernel.await_reply(msg_id)
+        except Empty:
+            raise Exception('Kernel timed out waiting for message!')
+
+        while True:
+            # The iopub channel broadcasts a range of messages. We keep reading
+            # them until we find the message containing the side-effects of our
+            # code execution.
+            try:
+                # Get a message from the kernel iopub channel
+                msg = self.kernel.get_message(stream='iopub')
+
+            except Empty:
+                raise Exception('Kernel timed out waiting for message!')
+
+            # now we must handle the message by checking the type and reply
+            # info and we store the output of the cell in a notebook node object
+            msg_type = msg['msg_type']
+            reply = msg['content']
+
+            # Is the iopub message related to this cell execution?
+            if msg['parent_header'].get('msg_id') != msg_id:
+                continue
+
+            # When the kernel starts to execute code, it will enter the 'busy'
+            # state and when it finishes, it will enter the 'idle' state.
+            # The kernel will publish state 'starting' exactly
+            # once at process startup.
+            if msg_type == 'status':
+                if reply['execution_state'] == 'idle':
+                    break
+                else:
+                    continue
+            elif msg_type == 'execute_input':
+                continue
+            elif msg_type.startswith('comm'):
+                continue
+            elif msg_type == 'execute_reply':
+                continue
+            elif msg_type in ('display_data', 'execute_result'):
+                continue
+            elif msg_type == 'stream':
+                continue
+
+            # if the message type is an error then an error has occurred during
+            # cell execution. Therefore raise a cell error and pass the
+            # traceback information.
+            elif msg_type == 'error':
+                traceback = '\\n' + '\\n'.join(reply['traceback'])
+                msg = "Cell execution caused an exception"
+                Exception(msg + '\\n' + traceback)
+
+            # any other message type is not expected
+            # should this raise an error?
+            else:
+                print("unhandled iopub msg:", msg_type)
 '''
 
 INDENT = '    '
@@ -59,7 +128,7 @@ def writeout_test(fp, cells, kernel_name):
     for i, code, meth in cells:
         fp.write('\n')
         fp.write(INDENT + meth)
-        fp.write(INDENT*2 + 'msg_id = self.kernel.execute_cell_input("""\n')
+        fp.write(INDENT*2 + 'self.run_test("""\n')
         to_write = []
 
         for j, code2, _ in cells:
@@ -84,8 +153,7 @@ def writeout_test(fp, cells, kernel_name):
             to_write.append(INDENT + 'pass')
 
         fp.writelines(to_write)
-        fp.write(INDENT*2 + '""")\n')
-        fp.write(INDENT*2 + 'self.kernel.await_reply(msg_id)\n')
+        fp.write('        """)\n')
 
     fp.write('\n')
 
