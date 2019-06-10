@@ -159,16 +159,18 @@ def run(notebook):
     return name
 
 
-def runWithReturn(notebook):
+def runWithReturn(notebook, executable=None):
     name = run(notebook)
-    argv = [sys.executable, '-m', 'pytest', name, '-v']
+    executable = executable or [sys.executable, '-m', 'pytest', '-v']
+    argv = executable + [name]
     return subprocess.check_output(argv)
 
 
-def runWithHTMLReturn(notebook):
+def runWithHTMLReturn(notebook, executable=None):
     name = run(notebook)
     html = name.replace('.py', '.html')
-    argv = [sys.executable, '-m', 'pytest', name, '-v', '--html=' + html, '--self-contained-html']
+    executable = executable or [sys.executable, '-m', 'pytest', '-v', '--html=' + html, '--self-contained-html']
+    argv = executable + [name]
     subprocess.call(argv)
     with open(html, 'r') as fp:
         return fp.read()
