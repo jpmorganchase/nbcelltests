@@ -13,11 +13,11 @@ with open(path.join(here, 'requirements.txt'), encoding='utf-8') as f:
 
 setup(
     name='jupyterlab_celltests',
-    version='0.0.8',
+    version='0.0.9',
     description='Cell-by-cell tests for JupyterLab',
     long_description=long_description,
     url='https://github.com/timkpaine/jupyterlab_celltests',
-    download_url='https://github.com/timkpaine/jupyterlab_celltests/archive/v0.0.8.tar.gz',
+    download_url='https://github.com/timkpaine/jupyterlab_celltests/archive/v0.0.9.tar.gz',
     author='Tim Paine',
     author_email='timothy.k.paine@gmail.com',
     license='Apache 2.0',

@@ -1,3 +1,5 @@
+import os
+import os.path
 import nbformat
 import sys
 import subprocess
@@ -237,8 +239,8 @@ def runWithReturn(notebook, executable=None):
 def runWithHTMLReturn(notebook, executable=None):
     name = run(notebook)
     html = name.replace('.py', '.html')
-    executable = executable or [sys.executable, '-m', 'pytest', '-v', '--html=' + html, '--self-contained-html']
-    argv = executable + [name]
+    executable = executable or [sys.executable, '-m', 'pytest', '-v']
+    argv = executable + ['--html=' + html, '--self-contained-html', name]
     subprocess.call(argv)
     with open(html, 'r') as fp:
         return fp.read()
