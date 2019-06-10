@@ -1,6 +1,6 @@
 {
   "name": "jupyterlab_celltests",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A JupyterLab extension.",
   "author": "Tim Paine",
   "main": "lib/index.js",
