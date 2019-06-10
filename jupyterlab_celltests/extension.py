@@ -32,7 +32,7 @@ class RunCelltestsHandler(IPythonHandler):
             path = os.path.abspath(os.path.join(tempdir, name))
             node = nbformat.from_dict(body.get('model'))
             nbformat.write(node, path)
-            ret = runTest(path, exectuable=self.executable)
+            ret = runTest(path, executable=self.executable)
             return ret
 
     @tornado.gen.coroutine
@@ -60,7 +60,7 @@ class RunLintsHandler(IPythonHandler):
             path = os.path.abspath(os.path.join(tempdir, name))
             node = nbformat.from_dict(body.get('model'))
             nbformat.write(node, path)
-            ret, status = runLint(path, exectuable=self.executable)
+            ret, status = runLint(path, executable=self.executable)
             return ret, status
             self.finish({'status': status, 'lint': ret})
 
