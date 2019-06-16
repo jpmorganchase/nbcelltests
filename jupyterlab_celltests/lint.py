@@ -1,5 +1,9 @@
 import nbformat
+import os
 import sys
+import subprocess
+from nbconvert import ScriptExporter
+from tempfile import NamedTemporaryFile
 from .shared import extract_extrametadata
 
 
@@ -74,7 +78,7 @@ def lint_cell_coverage(cell_coverage, metadata):
     return ret, passed
 
 
-def run(notebook):
+def run(notebook, executable=None):
     nb = nbformat.read(notebook, 4)
     extra_metadata = extract_extrametadata(nb)
     ret = ''
@@ -109,6 +113,17 @@ def run(notebook):
         lintret, lintfail = lint_cell_coverage(cell_coverage, extra_metadata)
         ret += lintret + '\n'
         passed = passed and lintfail
+
+    if executable:
+        exp = ScriptExporter()
+        (body, resources) = exp.from_notebook_node(nb)
+        tf = NamedTemporaryFile(mode='w', suffix='.py', delete=False)
+        tf.write(body)
+        executable.append(tf.name)
+        ret2 = subprocess.run(executable, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        ret += '\n' + ret2.stdout.decode('ascii') + '\n' + ret2.stderr.decode('asii')
+        os.remove(tf.name)
+
     return ret, passed
 
 
@@ -119,7 +134,7 @@ def runWithReturn(notebook, executable=None):
 
 def runWithHTMLReturn(notebook, executable=None):
     ret = ''
-    ret_tmp, fail = run(notebook)
+    ret_tmp, fail = run(notebook, executable)
     for split in ret_tmp.split('\n'):
         ret += '<p>' + split.replace('FAILED', '<span style="color: red;">FAILED</span>') \
                             .replace('PASSED', '<span style="color: green;">PASSED</span>') \
@@ -131,7 +146,7 @@ if __name__ == '__main__':
     if len(sys.argv) != 2:
         raise Exception('Usage:python jupyterlab_celltests.lint <ipynb file>')
     notebook = sys.argv[1]
-    ret, passed = run(notebook)
+    ret, passed = run(notebook, ['flake8', '--ignore=W391'])
     if passed:
         print(ret)
         sys.exit(0)
