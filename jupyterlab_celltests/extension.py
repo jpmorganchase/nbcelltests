@@ -20,11 +20,12 @@ from .lint import runWithHTMLReturn as runLint
 class RunCelltestsHandler(IPythonHandler):
     executor = ThreadPoolExecutor(4)
 
-    def initialize(self, executable=None):
+    def initialize(self, rules=None, executable=None):
+        self.rules = rules
         self.executable = executable
 
     def get(self):
-        self.finish({'status': 0, 'test': ''})
+        self.finish({'status': 0, 'test': self.rules})
 
     @run_on_executor
     def _run(self, body, path, name):
@@ -32,7 +33,7 @@ class RunCelltestsHandler(IPythonHandler):
             path = os.path.abspath(os.path.join(tempdir, name))
             node = nbformat.from_dict(body.get('model'))
             nbformat.write(node, path)
-            ret = runTest(path, executable=self.executable)
+            ret = runTest(path, executable=self.executable, rules=self.rules)
             return ret
 
     @tornado.gen.coroutine
@@ -60,7 +61,7 @@ class RunLintsHandler(IPythonHandler):
             path = os.path.abspath(os.path.join(tempdir, name))
             node = nbformat.from_dict(body.get('model'))
             nbformat.write(node, path)
-            ret, status = runLint(path, executable=self.executable)
+            ret, status = runLint(path, executable=self.executable, rules=self.rules)
             return ret, status
             self.finish({'status': status, 'lint': ret})
 
@@ -90,5 +91,5 @@ def load_jupyter_server_extension(nb_server_app):
     rules = nb_server_app.config.get('JupyterLabCelltests', {}).get('rules', {})
     executable = nb_server_app.config.get('JupyterLabCelltests', {}).get('executable', [sys.executable, '-m', 'pytest', '-v'])
 
-    web_app.add_handlers(host_pattern, [(url_path_join(base_url, 'celltests/test/run'), RunCelltestsHandler, {'executable': executable})])
+    web_app.add_handlers(host_pattern, [(url_path_join(base_url, 'celltests/test/run'), RunCelltestsHandler, {'rules': rules, 'executable': executable})])
     web_app.add_handlers(host_pattern, [(url_path_join(base_url, 'celltests/lint/run'), RunLintsHandler, {'rules': rules, 'executable': executable})])
