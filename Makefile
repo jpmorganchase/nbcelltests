@@ -62,10 +62,6 @@ minor:  ## steps before dist, defaults to previous tag + one micro
 major:  ## steps before dist, defaults to previous tag + one micro
 	. scripts/deploy.sh MAJOR
 
-dist:  ## dist to pypi
-	python3 setup.py sdist upload -r pypi
-
-
 # docs:  ## make documentation
 # 	make -C ./docs html
 

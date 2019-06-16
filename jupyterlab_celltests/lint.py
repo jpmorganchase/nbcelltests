@@ -78,11 +78,14 @@ def lint_cell_coverage(cell_coverage, metadata):
     return ret, passed
 
 
-def run(notebook, executable=None):
+def run(notebook, executable=None, rules=None):
     nb = nbformat.read(notebook, 4)
     extra_metadata = extract_extrametadata(nb)
     ret = ''
     passed = True
+
+    rules = rules or {}
+    extra_metadata.update(rules)
 
     if 'lines_per_cell' in extra_metadata:
         lines_per_cell = extra_metadata.get('lines_per_cell', -1)
@@ -127,12 +130,12 @@ def run(notebook, executable=None):
     return ret, passed
 
 
-def runWithReturn(notebook, executable=None):
+def runWithReturn(notebook, executable=None, rules=None):
     ret, fail = run(notebook)
     return ret
 
 
-def runWithHTMLReturn(notebook, executable=None):
+def runWithHTMLReturn(notebook, executable=None, rules=None):
     ret = ''
     ret_tmp, fail = run(notebook, executable)
     for split in ret_tmp.split('\n'):

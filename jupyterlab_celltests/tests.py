@@ -189,7 +189,7 @@ def writeout_cell_coverage(fp, cell_coverage, metadata):
         fp.write(2*INDENT + 'assert {cells_covered} >= {limit}\n\n'.format(limit=cell_coverage, cells_covered=(metadata.get('test_count', 0)/metadata.get('cell_count', -1))*100))
 
 
-def run(notebook):
+def run(notebook, rules=None):
     nb = nbformat.read(notebook, 4)
     name = notebook[:-6] + '_test.py'  # remove .ipynb, replace with _test.py
 
@@ -199,6 +199,9 @@ def run(notebook):
     tests = extract_celltests(nb)
     extra_metadata = extract_extrametadata(nb)
     cells = assemble_code(sources, tests)
+
+    rules = rules or {}
+    extra_metadata.update(rules)
 
     # output tests to test file
     with open(name, 'w') as fp:
@@ -227,14 +230,14 @@ def run(notebook):
     return name
 
 
-def runWithReturn(notebook, executable=None):
+def runWithReturn(notebook, executable=None, rules=None):
     name = run(notebook)
     executable = executable or [sys.executable, '-m', 'pytest', '-v']
     argv = executable + [name]
     return subprocess.check_output(argv)
 
 
-def runWithHTMLReturn(notebook, executable=None):
+def runWithHTMLReturn(notebook, executable=None, rules=None):
     name = run(notebook)
     html = name.replace('.py', '.html')
     executable = executable or [sys.executable, '-m', 'pytest', '-v']
