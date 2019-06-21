@@ -6,7 +6,7 @@ CLASS_REGEX = r'class (.*?):'
 
 
 def extract_cellsources(notebook):
-    return [c['source'].split('\n') for c in notebook.cells]
+    return [c['source'].split('\n') for c in notebook.cells if c.get('cell_type') == 'code']
 
 
 def extract_celltests(notebook):
@@ -28,6 +28,9 @@ def extract_extrametadata(notebook, override=None):
     class_regex = re.compile(CLASS_REGEX)
 
     for c in notebook.cells:
+        if c.get('cell_type') in ('markdown', 'raw',):
+            continue
+
         base['cell_lines'].append(0)
         base['cell_tested'].append(False)
         base['cell_count'] += 1
