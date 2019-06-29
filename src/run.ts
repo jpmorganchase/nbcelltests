@@ -1,4 +1,4 @@
-import {JupyterLab} from "@jupyterlab/application";
+import {JupyterFrontEnd} from "@jupyterlab/application";
 import {Dialog, showDialog} from "@jupyterlab/apputils";
 import {PageConfig} from "@jupyterlab/coreutils";
 import {IDocumentManager} from "@jupyterlab/docmanager";
@@ -7,7 +7,7 @@ import {Widget} from "@phosphor/widgets";
 import {IRequestResult, request} from "./request";
 
 export
-function runCellTests(app: JupyterLab, docManager: IDocumentManager): void {
+function runCellTests(app: JupyterFrontEnd, docManager: IDocumentManager): void {
     showDialog({
         buttons: [Dialog.cancelButton(), Dialog.okButton({ label: "Ok" })],
         title: "Run tests?",
@@ -40,8 +40,8 @@ function runCellTests(app: JupyterLab, docManager: IDocumentManager): void {
                             title: "Tests run!",
                         });
                         (dialog.node.lastChild as HTMLDivElement).style.maxHeight = "750px";
-                        (dialog.node.lastChild as HTMLDivElement).style.maxWidth = "1000px";
-                        (dialog.node.lastChild as HTMLDivElement).style.width = "1000px";
+                        (dialog.node.lastChild as HTMLDivElement).style.maxWidth = "800px";
+                        (dialog.node.lastChild as HTMLDivElement).style.width = "800px";
 
                         dialog.launch().then(() => {
                             resolve();
@@ -60,7 +60,7 @@ function runCellTests(app: JupyterLab, docManager: IDocumentManager): void {
 }
 
 export
-function runCellLints(app: JupyterLab, docManager: IDocumentManager): void {
+function runCellLints(app: JupyterFrontEnd, docManager: IDocumentManager): void {
     showDialog({
         buttons: [Dialog.cancelButton(), Dialog.okButton({ label: "Ok" })],
         title: "Run Lint?",

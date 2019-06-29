@@ -1,7 +1,7 @@
-import {JupyterLab} from "@jupyterlab/application";
+import {JupyterFrontEnd} from "@jupyterlab/application";
 import {ICommandPalette} from "@jupyterlab/apputils";
 import {IDocumentManager} from "@jupyterlab/docmanager";
-import {ICellTools, INotebookTracker} from "@jupyterlab/notebook";
+import {INotebookTools, INotebookTracker} from "@jupyterlab/notebook";
 
 import {runCellLints, runCellTests} from "./run";
 import {CelltestsTool} from "./tool";
@@ -9,11 +9,11 @@ import {CelltestsTool} from "./tool";
 import {CELLTESTS_CATEGORY, CELLTESTS_LINT_CAPTION, CELLTESTS_LINT_ID, CELLTESTS_TEST_CAPTION, CELLTESTS_TEST_ID, isEnabled} from "./utils";
 
 export
-function activate(app: JupyterLab,
+function activate(app: JupyterFrontEnd,
                   docManager: IDocumentManager,
                   palette: ICommandPalette,
                   tracker: INotebookTracker,
-                  cellTools: ICellTools): void {
+                  cellTools: INotebookTools): void {
 
     /* Add to cell tools sidebar */
     const testsTool = new CelltestsTool(app, tracker, cellTools);

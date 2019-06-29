@@ -1,6 +1,6 @@
 {
   "name": "jupyterlab_celltests",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "description": "A JupyterLab extension.",
   "author": "Tim Paine",
   "main": "lib/index.js",
@@ -24,18 +24,18 @@
     "extension": true
   },
   "dependencies": {
-    "@jupyterlab/application": "^0.19.0",
-    "@jupyterlab/apputils": "^0.19.0",
-    "@jupyterlab/codeeditor": "^0.19.1",
-    "@jupyterlab/codemirror": "^0.19.1",
-    "@jupyterlab/coreutils": "^2.2.0",
-    "@jupyterlab/docmanager": "^0.19.0",
-    "@jupyterlab/filebrowser": "^0.19.0",
-    "@jupyterlab/launcher": "^0.19.0",
-    "@jupyterlab/mainmenu": "^0.8.0",
-    "@jupyterlab/notebook": "^0.19.2",
+    "@jupyterlab/application": "^1.0.0",
+    "@jupyterlab/apputils": "^1.0.0",
+    "@jupyterlab/codeeditor": "^1.0.0",
+    "@jupyterlab/codemirror": "^1.0.0",
+    "@jupyterlab/coreutils": "^3.0.0",
+    "@jupyterlab/docmanager": "^1.0.0",
+    "@jupyterlab/filebrowser": "^1.0.0",
+    "@jupyterlab/launcher": "^1.0.0",
+    "@jupyterlab/mainmenu": "^1.0.0",
+    "@jupyterlab/notebook": "^1.0.0",
     "@phosphor/disposable": "^1.1.2",
-    "@types/codemirror": "^0.0.72"
+    "@types/codemirror": "^0.0.74"
   },
   "devDependencies": {
     "@types/jest": "^24.0.4",

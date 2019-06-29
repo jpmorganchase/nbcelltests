@@ -1,4 +1,4 @@
-import {JupyterLab} from "@jupyterlab/application";
+import {JupyterFrontEnd} from "@jupyterlab/application";
 import {IDocumentManager} from "@jupyterlab/docmanager";
 
 export
@@ -29,7 +29,7 @@ export
 const CELLTEST_TOOL_EDITOR_CLASS = "CelltestsEditor";
 
 export
-function isEnabled(app: JupyterLab, docManager: IDocumentManager): () => boolean {
+function isEnabled(app: JupyterFrontEnd, docManager: IDocumentManager): () => boolean {
     return () => { return (app.shell.currentWidget &&
                 docManager.contextForWidget(app.shell.currentWidget) &&
                 docManager.contextForWidget(app.shell.currentWidget).model) ? true : false; };

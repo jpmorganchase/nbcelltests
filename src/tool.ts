@@ -1,21 +1,23 @@
 import { Message } from "@phosphor/messaging";
 import { PanelLayout } from "@phosphor/widgets";
 
-import { JupyterLab } from "@jupyterlab/application";
-import { CellTools, ICellTools, INotebookTracker } from "@jupyterlab/notebook";
+import { JupyterFrontEnd } from "@jupyterlab/application";
+import { NotebookTools, INotebookTools, INotebookTracker } from "@jupyterlab/notebook";
 import { ObservableJSON } from "@jupyterlab/observables";
 
 import { CELLTEST_TOOL_CLASS } from "./utils";
 import { CelltestsWidget } from "./widget";
 
-export class CelltestsTool extends CellTools.Tool {
+export class CelltestsTool extends NotebookTools.Tool {
   public notebookTracker: INotebookTracker = null;
+  public cellTools: INotebookTools = null;
 
   private widget: CelltestsWidget = null;
   // tslint:disable-next-line:variable-name
-  constructor(app: JupyterLab, notebook_Tracker: INotebookTracker, cellTools: ICellTools) {
+  constructor(app: JupyterFrontEnd, notebook_Tracker: INotebookTracker, cellTools: INotebookTools) {
     super();
     this.notebookTracker = notebook_Tracker;
+    this.cellTools = cellTools;
     const layout = (this.layout = new PanelLayout());
 
     this.addClass(CELLTEST_TOOL_CLASS);
@@ -29,7 +31,7 @@ export class CelltestsTool extends CellTools.Tool {
    * Handle a change to the active cell.
    */
   protected onActiveCellChanged(msg: Message): void {
-    this.widget.currentActiveCell = this.parent.activeCell;
+    this.widget.currentActiveCell = this.cellTools.activeCell;
     this.widget.loadTestsForActiveCell();
   }
 
