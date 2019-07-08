@@ -9,13 +9,13 @@ Cell-by-cell testing for production Jupyter notebooks in JupyterLab
 
 
 # Overview
-`Celltests` is designed for writing tests for linearly executed notebooks. Its primary use is for report unit tests. 
+`Celltests` is designed for writing tests for linearly executed notebooks. Its primary use is for unit testing reports. 
 
 ### "Linearly executed notebooks?"
-When converting notebooks into html/pdf/email reports, they are executed from top-to-bottom one time, and are expected contain as little code as reasonably possible, focusing primarily on the plotting and markdown bits. Libraries for this type of thing include [Papermill](https://github.com/nteract/papermill), [JupyterLab Emails](https://github.com/timkpaine/jupyterlab_email), etc. 
+When converting notebooks into html/pdf/email reports, they are executed top-to-bottom one time, and are expected to contain as little code as reasonably possible, focusing primarily on the plotting and markdown bits. Libraries for this type of thing include [Papermill](https://github.com/nteract/papermill), [JupyterLab Emails](https://github.com/timkpaine/jupyterlab_email), etc. 
 
 ### Doesn't this already exist?
-[Nbval](https://github.com/computationalmodelling/nbval) is a great product and I recommend using it for notebook regression tests. But it compares the executed notebook's outputs to its existing outputs, which doesn't align well with dynamic reports which might be run everyday with different input/output data. 
+[Nbval](https://github.com/computationalmodelling/nbval) is a great product and I recommend using it for notebook regression tests. But it only allows for testing for unexpected failures or simple output equality tests.
 
 ### So why do I want this again?
 This doesn't necessarily help you if your data sources go down, but its likely you'll notice this anyway. Where this comes in handy is:
