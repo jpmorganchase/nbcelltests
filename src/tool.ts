@@ -2,7 +2,7 @@ import { Message } from "@phosphor/messaging";
 import { PanelLayout } from "@phosphor/widgets";
 
 import { JupyterFrontEnd } from "@jupyterlab/application";
-import { NotebookTools, INotebookTools, INotebookTracker } from "@jupyterlab/notebook";
+import { INotebookTools, INotebookTracker, NotebookTools } from "@jupyterlab/notebook";
 import { ObservableJSON } from "@jupyterlab/observables";
 
 import { CELLTEST_TOOL_CLASS } from "./utils";
