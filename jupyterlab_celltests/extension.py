@@ -89,7 +89,8 @@ def load_jupyter_server_extension(nb_server_app):
     print('Installing jupyterlab_celltests handler on path %s' % url_path_join(base_url, 'celltests'))
 
     rules = nb_server_app.config.get('JupyterLabCelltests', {}).get('rules', {})
-    executable = nb_server_app.config.get('JupyterLabCelltests', {}).get('executable', [sys.executable, '-m', 'pytest', '-v'])
+    test_executable = nb_server_app.config.get('JupyterLabCelltests', {}).get('test_executable', [sys.executable, '-m', 'pytest', '-v'])
+    lint_executable = nb_server_app.config.get('JupyterLabCelltests', {}).get('lint_executable', [sys.executable, '-m', 'flake8', '--ignore=W391'])
 
-    web_app.add_handlers(host_pattern, [(url_path_join(base_url, 'celltests/test/run'), RunCelltestsHandler, {'rules': rules, 'executable': executable})])
-    web_app.add_handlers(host_pattern, [(url_path_join(base_url, 'celltests/lint/run'), RunLintsHandler, {'rules': rules, 'executable': executable})])
+    web_app.add_handlers(host_pattern, [(url_path_join(base_url, 'celltests/test/run'), RunCelltestsHandler, {'rules': rules, 'executable': test_executable})])
+    web_app.add_handlers(host_pattern, [(url_path_join(base_url, 'celltests/lint/run'), RunLintsHandler, {'rules': rules, 'executable': lint_executable})])
