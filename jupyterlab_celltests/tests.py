@@ -3,6 +3,44 @@ import sys
 import subprocess
 from .shared import extract_cellsources, extract_celltests, extract_extrametadata
 
+# This files includes code copied from nbval under the following license:
+# Copyright (C) 2014  Oliver W. Laslett  <O.Laslett@soton.ac.uk>
+# 	      	    David Cortes-Ortuno
+# 		    Maximilian Albert
+# 		    Ondrej Hovorka
+# 		    Hans Fangohr
+# 		    (University of Southampton, UK)
+#
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+# Redistributions of source code must retain the above copyright notice,
+# this list of conditions and the following disclaimer.
+#
+# Redistributions in binary form must reproduce the above copyright
+# notice, this list of conditions and the following disclaimer in the
+# documentation and/or other materials provided with the distribution.
+#
+# Neither the names of the contributors nor the associated institutions
+# may be used to endorse or promote products derived from this software
+# without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
 BASE = '''
 import unittest
 from nbval.kernel import RunningKernel
@@ -99,14 +137,14 @@ def assemble_code(sources, tests):
         for line in test:
             # if testing the cell,
             # write code from cell
-            if line.strip().startswith('%cell'):
+            if line.strip().startswith(r'%cell'):
 
                 # add comment in test for readability
-                cells[-1][1].append(INDENT + line.replace('%cell', '# Cell {' + str(i) + '} content\n'))
+                cells[-1][1].append(INDENT + line.replace(r'%cell', '# Cell {' + str(i) + '} content\n'))
 
                 # add all code for cell
                 for c in code:
-                    cells[-1][1].append(INDENT + line.replace('\n', '').replace('%cell', '') + c + '\n')
+                    cells[-1][1].append(INDENT + line.replace('\n', '').replace(r'%cell', '') + c + '\n')
 
                 cells[-1][1].append('\n')
 

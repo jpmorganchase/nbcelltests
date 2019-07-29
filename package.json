@@ -11,9 +11,11 @@
   ],
   "scripts": {
     "build": "tsc",
+    "build:lab": "rimraf lab-dist && mkdirp lab-dist && cd lab-dist && npm pack ..",
+    "build:all": "npm run build && npm run build:lab",
     "clean": "rimraf lib",
     "lint": "./node_modules/.bin/tslint './src/*.ts'",
-    "prepublish": "npm run build",
+    "prepublishOnly": "npm run build",
     "test": "jest --coverage --collectCoverageFrom=src/*.{ts}"
   },
   "files": [
@@ -21,7 +23,17 @@
     "style/**/*.css"
   ],
   "jupyterlab": {
-    "extension": true
+    "extension": true,
+    "discovery": {
+      "server": {
+        "base": {
+          "name": "jupyterlab_celltests"
+        },
+        "managers": [
+          "pip"
+        ]
+      }
+    }
   },
   "dependencies": {
     "@jupyterlab/application": "^1.0.0",
@@ -41,6 +53,7 @@
     "@types/jest": "^24.0.4",
     "jest": "^24.1.0",
     "jest-transform-css": "^2.0.0",
+    "mkdirp": "^0.5.1",
     "rimraf": "^2.6.1",
     "ts-jest": "^23.10.4",
     "tslint": "^5.14.0",
