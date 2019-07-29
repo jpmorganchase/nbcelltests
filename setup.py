@@ -2,7 +2,12 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
-from jupyter_packaging import ensure_python, get_version
+from jupyter_packaging import (
+    create_cmdclass, install_npm, ensure_targets,
+    combine_commands, ensure_python, get_version
+)
+
+pjoin = path.join
 
 ensure_python(['>=3.3'])
 
@@ -15,6 +20,29 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 with open(path.join(here, 'requirements.txt'), encoding='utf-8') as f:
     requires = f.read().split()
+
+
+data_spec = [
+    # Lab extension installed by default:
+    ('share/jupyter/lab/extensions',
+     'lab-dist',
+     'jupyterlab_celltests-*.tgz'),
+    # Config to enable server extension by default:
+    ('etc/jupyter',
+     'jupyter-config',
+     '**/*.json'),
+]
+
+
+cmdclass = create_cmdclass('js', data_files_spec=data_spec)
+cmdclass['js'] = combine_commands(
+    install_npm(here, build_cmd='build:all'),
+    ensure_targets([
+        pjoin(here, 'lib', 'index.js'),
+        pjoin(here, 'style', 'index.css')
+    ]),
+)
+
 
 setup(
     name=name,
@@ -35,6 +63,8 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ],
+
+    cmdclass=cmdclass,
 
     keywords='jupyter jupyterlab',
     packages=find_packages(exclude=['tests', ]),
