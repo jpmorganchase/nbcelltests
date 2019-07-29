@@ -3,6 +3,10 @@ from codecs import open
 from os import path
 
 from jupyter_packaging import get_version
+from jupyter_packaging import ensure_python, get_version
+
+ensure_python(['>=3.3'])
+
 name = 'jupyterlab_celltests'
 here = path.abspath(path.dirname(__file__))
 version = get_version(pjoin(here, name, '_version.py'))
