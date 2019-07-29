@@ -1,9 +1,11 @@
-# # # # GENERATED FILE -- DO NOT MODIFY # # # #
 from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
+from jupyter_packaging import get_version
+name = 'jupyterlab_celltests'
 here = path.abspath(path.dirname(__file__))
+version = get_version(pjoin(here, name, '_version.py'))
 
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
@@ -12,12 +14,11 @@ with open(path.join(here, 'requirements.txt'), encoding='utf-8') as f:
     requires = f.read().split()
 
 setup(
-    name='jupyterlab_celltests',
-    version='0.1.0',
+    name=name,
+    version=version,
     description='Cell-by-cell tests for JupyterLab',
     long_description=long_description,
     url='https://github.com/timkpaine/jupyterlab_celltests',
-    download_url='https://github.com/timkpaine/jupyterlab_celltests/archive/v0.1.0.tar.gz',
     author='Tim Paine',
     author_email='timothy.k.paine@gmail.com',
     license='Apache 2.0',
