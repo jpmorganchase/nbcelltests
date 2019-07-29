@@ -38,7 +38,7 @@ docs:  ## make documentation
 	open ./docs/_build/html/index.html
 
 install:  ## install to site-packages
-	python3 setup.py install
+	pip3 install .
 
 serverextension: install ## enable serverextension
 	jupyter serverextension enable --py jupyterlab_celltests
@@ -50,8 +50,8 @@ js:  ## build javascript
 labextension: js ## enable labextension
 	jupyter labextension install .
 
-dist:  ## dist to pypi
-	python3 setup.py sdist upload -r pypi
+dist: clean  ## dist to pypi
+	python3 setup.py sdist bdist_wheel && twine upload -r pypi dist/*
 
 micro:  ## steps before dist, defaults to previous tag + one micro
 	. scripts/deploy.sh MICRO
