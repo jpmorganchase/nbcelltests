@@ -2,7 +2,6 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
-from jupyter_packaging import get_version
 from jupyter_packaging import ensure_python, get_version
 
 ensure_python(['>=3.3'])
