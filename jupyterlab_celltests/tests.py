@@ -1,6 +1,11 @@
+import json
 import nbformat
+import os
+import shutil
+import pytest
 import sys
 import subprocess
+import tempfile
 from .shared import extract_cellsources, extract_celltests, extract_extrametadata
 
 # This files includes code copied from nbval under the following license:
@@ -124,6 +129,63 @@ class TestExtension(unittest.TestCase):
 
 INDENT = '    '
 
+JSON_CONFD = '''
+import pytest
+import json
+import io
+
+class JsonReporter:
+    def __init__(self, config):
+        self.config = config
+        self.verbosity = self.config.option.verbose
+        self.serializable_collection_reports = []
+        self.serializable_test_reports = []
+
+    # ---- These functions store captured test items and reports ----
+
+    def pytest_runtest_logreport(self, report):
+        """Store all test reports for evaluation on finish"""
+        data = self.config.hook.pytest_report_to_serializable(
+            config=self.config, report=report
+        )
+        self.serializable_test_reports.append(data)
+
+    def pytest_collectreport(self, report):
+        """Store all collected reports for evaluation on finish
+        """
+        data = self.config.hook.pytest_report_to_serializable(
+            config=self.config, report=report
+        )
+        self.serializable_collection_reports.append(data)
+
+
+    # ---- Code below writes up report ----
+
+    @pytest.hookimpl(hookwrapper=True)
+    def pytest_sessionfinish(self, exitstatus):
+        """Called when test session has finished.
+        """
+        yield
+        with io.open(self.config.getoption("jsonpath"), "w", encoding="utf-8") as fp:
+            json.dump(
+                self.serializable_collection_reports +
+                self.serializable_test_reports,
+                fp
+            )
+
+def pytest_configure(config):
+    reporter = JsonReporter(config)
+    config.pluginmanager.register(reporter, 'jsonreporter')
+
+def pytest_addoption(parser):
+    term_group = parser.getgroup("terminal reporting")
+    term_group._addoption(
+        '--internal-json-report', action='store', dest='jsonpath',
+        metavar='path', default=None,
+        help='create JSON report file at given path.')
+
+'''
+
 
 def assemble_code(sources, tests):
     cells = []
@@ -227,9 +289,9 @@ def writeout_cell_coverage(fp, cell_coverage, metadata):
         fp.write(2*INDENT + 'assert {cells_covered} >= {limit}\n\n'.format(limit=cell_coverage, cells_covered=(metadata.get('test_count', 0)/metadata.get('cell_count', -1))*100))
 
 
-def run(notebook, rules=None):
+def run(notebook, rules=None, filename=None):
     nb = nbformat.read(notebook, 4)
-    name = notebook[:-6] + '_test.py'  # remove .ipynb, replace with _test.py
+    name = filename or notebook[:-6] + '_test.py'  # remove .ipynb, replace with _test.py
 
     kernel_name = nb.metadata.get('kernelspec', {}).get('name', 'python')
 
@@ -273,6 +335,27 @@ def runWithReturn(notebook, executable=None, rules=None):
     executable = executable or [sys.executable, '-m', 'pytest', '-v']
     argv = executable + [name]
     return subprocess.check_output(argv)
+
+
+def runWithReport(notebook, executable=None, rules=None):
+    tmpd = tempfile.mkdtemp()
+    py_file = os.path.join(tmpd, os.path.basename(notebook).replace('.ipynb', '.py'))
+    json_file = os.path.join(tmpd, os.path.basename(notebook).replace('.ipynb', '.json'))
+    name = run(notebook, filename=py_file)
+    try:
+        with open(os.path.join(tmpd, 'conftest.py'), 'w', encoding='utf8') as f:
+            f.write(JSON_CONFD)
+        executable = executable or [sys.executable, '-m', 'pytest', '-v']
+        argv = executable + ['--internal-json-report=' + json_file, py_file]
+        subprocess.call(argv)
+        with open(json_file, 'r') as f:
+            s = f.read()
+            data = json.loads(s)
+            from pprint import pprint
+            pprint(data)
+            raise NotImplementedError('TODO: Parse reports before returning')
+    finally:
+        shutil.rmtree(tmpd)
 
 
 def runWithHTMLReturn(notebook, executable=None, rules=None):
