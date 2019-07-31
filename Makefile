@@ -2,13 +2,15 @@ run:
 	python3 -m jupyterlab_celltests.tests Untitled.ipynb
 
 testjs: ## Clean and Make js tests
-	npm run test
+	yarn test
 
 testpy: ## Clean and Make unit tests
 	python3 -m pytest -v tests --cov=jupyterlab_celltests
+	yarn test
 
 test: lint ## run the tests for travis CI
 	@ python3 -m pytest -v tests --cov=jupyterlab_celltests
+	yarn test
 
 lint: ## run linter
 	flake8 jupyterlab_celltests 
