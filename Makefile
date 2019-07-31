@@ -53,18 +53,6 @@ labextension: js ## enable labextension
 dist: clean  ## dist to pypi
 	python3 setup.py sdist bdist_wheel && twine upload -r pypi dist/*
 
-micro:  ## steps before dist, defaults to previous tag + one micro
-	. scripts/deploy.sh MICRO
-
-minor:  ## steps before dist, defaults to previous tag + one micro
-	. scripts/deploy.sh MINOR
-
-major:  ## steps before dist, defaults to previous tag + one micro
-	. scripts/deploy.sh MAJOR
-
-# docs:  ## make documentation
-# 	make -C ./docs html
-
 # Thanks to Francoise at marmelab.com for this
 .DEFAULT_GOAL := help
 help:
