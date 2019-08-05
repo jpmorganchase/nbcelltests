@@ -140,6 +140,7 @@ class JsonReporter:
         self.verbosity = self.config.option.verbose
         self.serializable_collection_reports = []
         self.serializable_test_reports = []
+        self.serializable_collect_items = []
 
     # ---- These functions store captured test items and reports ----
 
@@ -158,6 +159,13 @@ class JsonReporter:
         )
         self.serializable_collection_reports.append(data)
 
+    def pytest_collection_finish(self, session):
+        if self.config.getoption("collectonly"):
+            self.serializable_collect_items = [
+                dict(nodeid=i.nodeid)
+                for i in session.items
+            ]
+
 
     # ---- Code below writes up report ----
 
@@ -168,10 +176,12 @@ class JsonReporter:
         yield
         with io.open(self.config.getoption("jsonpath"), "w", encoding="utf-8") as fp:
             json.dump(
-                self.serializable_collection_reports +
-                self.serializable_test_reports,
-                fp
-            )
+                dict(
+                    reports=self.serializable_collection_reports +
+                        self.serializable_test_reports,
+                    collected_items=self.serializable_collect_items,
+                ),
+                fp)
 
 def pytest_configure(config):
     reporter = JsonReporter(config)
@@ -337,7 +347,11 @@ def runWithReturn(notebook, executable=None, rules=None):
     return subprocess.check_output(argv)
 
 
-def runWithReport(notebook, executable=None, rules=None):
+def _pytest_nodeid_prefix(path):
+    return os.path.splitdrive(path)[1][1:].replace(os.path.sep, '/') + '/'
+
+
+def runWithReport(notebook, executable=None, rules=None, collect_only=False):
     tmpd = tempfile.mkdtemp()
     py_file = os.path.join(tmpd, os.path.basename(notebook).replace('.ipynb', '.py'))
     json_file = os.path.join(tmpd, os.path.basename(notebook).replace('.ipynb', '.json'))
@@ -347,13 +361,17 @@ def runWithReport(notebook, executable=None, rules=None):
             f.write(JSON_CONFD)
         executable = executable or [sys.executable, '-m', 'pytest', '-v']
         argv = executable + ['--internal-json-report=' + json_file, py_file]
+        if collect_only:
+            argv.append('--collect-only')
         subprocess.call(argv)
         with open(json_file, 'r') as f:
             s = f.read()
             data = json.loads(s)
-            from pprint import pprint
-            pprint(data)
-            raise NotImplementedError('TODO: Parse reports before returning')
+            prefix = _pytest_nodeid_prefix(tmpd)
+            for nodes in [data['reports'], data['collected_items']]:
+                for r in nodes:
+                    r['nodeid'] = r['nodeid'].replace(prefix, '')
+            return data
     finally:
         shutil.rmtree(tmpd)
 
