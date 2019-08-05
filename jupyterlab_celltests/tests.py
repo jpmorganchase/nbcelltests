@@ -350,10 +350,7 @@ def runWithReport(notebook, executable=None, rules=None):
         subprocess.call(argv)
         with open(json_file, 'r') as f:
             s = f.read()
-            data = json.loads(s)
-            from pprint import pprint
-            pprint(data)
-            raise NotImplementedError('TODO: Parse reports before returning')
+            return json.loads(s)
     finally:
         shutil.rmtree(tmpd)
 
