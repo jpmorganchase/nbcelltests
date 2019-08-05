@@ -337,7 +337,7 @@ def runWithReturn(notebook, executable=None, rules=None):
     return subprocess.check_output(argv)
 
 
-def runWithReport(notebook, executable=None, rules=None):
+def runWithReport(notebook, executable=None, rules=None, collect_only=False):
     tmpd = tempfile.mkdtemp()
     py_file = os.path.join(tmpd, os.path.basename(notebook).replace('.ipynb', '.py'))
     json_file = os.path.join(tmpd, os.path.basename(notebook).replace('.ipynb', '.json'))
@@ -347,6 +347,8 @@ def runWithReport(notebook, executable=None, rules=None):
             f.write(JSON_CONFD)
         executable = executable or [sys.executable, '-m', 'pytest', '-v']
         argv = executable + ['--internal-json-report=' + json_file, py_file]
+        if collect_only:
+            argv.append('--collect-only')
         subprocess.call(argv)
         with open(json_file, 'r') as f:
             s = f.read()
