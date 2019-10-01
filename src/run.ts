@@ -4,7 +4,7 @@ import {PageConfig} from "@jupyterlab/coreutils";
 import {IDocumentManager} from "@jupyterlab/docmanager";
 import {Widget} from "@phosphor/widgets";
 
-import {IRequestResult, request} from "./request";
+import {IRequestResult, request} from "requests-helper";
 
 export
 function runCellTests(app: JupyterFrontEnd, docManager: IDocumentManager): void {

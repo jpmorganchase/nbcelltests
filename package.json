@@ -47,7 +47,8 @@
     "@jupyterlab/mainmenu": "^1.0.0",
     "@jupyterlab/notebook": "^1.0.0",
     "@phosphor/disposable": "^1.1.2",
-    "@types/codemirror": "^0.0.74"
+    "@types/codemirror": "^0.0.74",
+    "requests-helper": "^0.1.1"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.5.5",
