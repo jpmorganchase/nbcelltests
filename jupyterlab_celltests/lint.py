@@ -2,39 +2,10 @@ import nbformat
 import os
 import sys
 import subprocess
-from enum import Enum
 from nbconvert import ScriptExporter
 from tempfile import NamedTemporaryFile
 from .shared import extract_extrametadata
-
-
-class LintType(Enum):
-    LINES_PER_CELL = 'lines_per_cell'
-    CELLS_PER_NOTEBOOK = 'cells_per_notebook'
-    FUNCTION_DEFINITIONS = 'function_definitions'
-    CLASS_DEFINITIONS = 'class_definitions'
-    CELL_COVERAGE = 'cell_coverage'
-    LINTER = 'linter'
-
-
-class LintMessage(object):
-    def __init__(self, cell, message, type, passed=False):
-        self.cell = cell
-        self.message = message
-        self.type = type
-        self.passed = passed
-
-    def __repr__(self):
-        ret = 'PASSED: ' if self.passed else 'FAILED: '
-        ret += self.message
-        ret += " (Cell %d)" % self.cell if self.cell > 0 else " (Notebook)"
-        return ret
-
-    def to_html(self):
-        ret = '<span style="color: green;">PASSED&nbsp;</span>' if self.passed else '<span style="color: red;">FAILED&nbsp;</span>'
-        ret += self.message
-        ret += "(Cell %d)" % self.cell if self.cell > 0 else " (Notebook)"
-        return ret
+from .define import LintMessage, LintType
 
 
 def lint_lines_per_cell(lines_per_cell, metadata):

@@ -6,195 +6,11 @@ import pytest
 import sys
 import subprocess
 import tempfile
+from .define import TestMessage, TestType
 from .shared import extract_cellsources, extract_celltests, extract_extrametadata
-
-# This files includes code copied from nbval under the following license:
-# Copyright (C) 2014  Oliver W. Laslett  <O.Laslett@soton.ac.uk>
-# 	      	    David Cortes-Ortuno
-# 		    Maximilian Albert
-# 		    Ondrej Hovorka
-# 		    Hans Fangohr
-# 		    (University of Southampton, UK)
-#
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are
-# met:
-#
-# Redistributions of source code must retain the above copyright notice,
-# this list of conditions and the following disclaimer.
-#
-# Redistributions in binary form must reproduce the above copyright
-# notice, this list of conditions and the following disclaimer in the
-# documentation and/or other materials provided with the distribution.
-#
-# Neither the names of the contributors nor the associated institutions
-# may be used to endorse or promote products derived from this software
-# without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-
-BASE = '''
-import unittest
-from nbval.kernel import RunningKernel
-try:
-    from Queue import Empty
-except ImportError:
-    from queue import Empty
-
-
-class TestExtension(unittest.TestCase):
-    def setup_class(self):
-        self.kernel = RunningKernel("{kernel_name}")
-
-    def teardown_class(self):
-        self.kernel.stop()
-
-    def run_test(self, cell_content):
-        # This code is from nbval
-        # https://github.com/computationalmodelling/nbval
-        msg_id = self.kernel.execute_cell_input(cell_content, allow_stdin=False)
-
-        # Poll the shell channel to get a message
-        try:
-            self.kernel.await_reply(msg_id)
-        except Empty:
-            raise Exception('Kernel timed out waiting for message!')
-
-        while True:
-            # The iopub channel broadcasts a range of messages. We keep reading
-            # them until we find the message containing the side-effects of our
-            # code execution.
-            try:
-                # Get a message from the kernel iopub channel
-                msg = self.kernel.get_message(stream='iopub')
-
-            except Empty:
-                raise Exception('Kernel timed out waiting for message!')
-
-            # now we must handle the message by checking the type and reply
-            # info and we store the output of the cell in a notebook node object
-            msg_type = msg['msg_type']
-            reply = msg['content']
-
-            # Is the iopub message related to this cell execution?
-            if msg['parent_header'].get('msg_id') != msg_id:
-                continue
-
-            # When the kernel starts to execute code, it will enter the 'busy'
-            # state and when it finishes, it will enter the 'idle' state.
-            # The kernel will publish state 'starting' exactly
-            # once at process startup.
-            if msg_type == 'status':
-                if reply['execution_state'] == 'idle':
-                    break
-                else:
-                    continue
-            elif msg_type == 'execute_input':
-                continue
-            elif msg_type.startswith('comm'):
-                continue
-            elif msg_type == 'execute_reply':
-                continue
-            elif msg_type in ('display_data', 'execute_result'):
-                continue
-            elif msg_type == 'stream':
-                continue
-
-            # if the message type is an error then an error has occurred during
-            # cell execution. Therefore raise a cell error and pass the
-            # traceback information.
-            elif msg_type == 'error':
-                traceback = '\\n' + '\\n'.join(reply['traceback'])
-                msg = "Cell execution caused an exception"
-                Exception(msg + '\\n' + traceback)
-
-            # any other message type is not expected
-            # should this raise an error?
-            else:
-                print("unhandled iopub msg:", msg_type)
-'''
+from .tests_vendored import BASE, JSON_CONFD
 
 INDENT = '    '
-
-JSON_CONFD = '''
-import pytest
-import json
-import io
-
-class JsonReporter:
-    def __init__(self, config):
-        self.config = config
-        self.verbosity = self.config.option.verbose
-        self.serializable_collection_reports = []
-        self.serializable_test_reports = []
-        self.serializable_collect_items = []
-
-    # ---- These functions store captured test items and reports ----
-
-    def pytest_runtest_logreport(self, report):
-        """Store all test reports for evaluation on finish"""
-        data = self.config.hook.pytest_report_to_serializable(
-            config=self.config, report=report
-        )
-        self.serializable_test_reports.append(data)
-
-    def pytest_collectreport(self, report):
-        """Store all collected reports for evaluation on finish
-        """
-        data = self.config.hook.pytest_report_to_serializable(
-            config=self.config, report=report
-        )
-        self.serializable_collection_reports.append(data)
-
-    def pytest_collection_finish(self, session):
-        if self.config.getoption("collectonly"):
-            self.serializable_collect_items = [
-                dict(nodeid=i.nodeid)
-                for i in session.items
-            ]
-
-
-    # ---- Code below writes up report ----
-
-    @pytest.hookimpl(hookwrapper=True)
-    def pytest_sessionfinish(self, exitstatus):
-        """Called when test session has finished.
-        """
-        yield
-        with io.open(self.config.getoption("jsonpath"), "w", encoding="utf-8") as fp:
-            json.dump(
-                dict(
-                    reports=self.serializable_collection_reports +
-                        self.serializable_test_reports,
-                    collected_items=self.serializable_collect_items,
-                ),
-                fp)
-
-def pytest_configure(config):
-    reporter = JsonReporter(config)
-    config.pluginmanager.register(reporter, 'jsonreporter')
-
-def pytest_addoption(parser):
-    term_group = parser.getgroup("terminal reporting")
-    term_group._addoption(
-        '--internal-json-report', action='store', dest='jsonpath',
-        metavar='path', default=None,
-        help='create JSON report file at given path.')
-
-'''
 
 
 def assemble_code(sources, tests):
@@ -204,7 +20,7 @@ def assemble_code(sources, tests):
     # assemble code to write
     for i, [code, test] in enumerate(zip(sources, tests)):
         # add celltest
-        cells.append([i, [], 'def test_cell%d(self):\n' % i])
+        cells.append([i, [], 'def test_cell_%d(self):\n' % i])
 
         for line in test:
             # if testing the cell,
@@ -356,7 +172,9 @@ def runWithReport(notebook, executable=None, rules=None, collect_only=False):
     py_file = os.path.join(tmpd, os.path.basename(notebook).replace('.ipynb', '.py'))
     json_file = os.path.join(tmpd, os.path.basename(notebook).replace('.ipynb', '.json'))
     name = run(notebook, filename=py_file)
+    ret = []
     try:
+        # enable collecting info via json
         with open(os.path.join(tmpd, 'conftest.py'), 'w', encoding='utf8') as f:
             f.write(JSON_CONFD)
         executable = executable or [sys.executable, '-m', 'pytest', '-v']
@@ -365,18 +183,45 @@ def runWithReport(notebook, executable=None, rules=None, collect_only=False):
             argv.append('--collect-only')
         subprocess.call(argv)
         with open(json_file, 'r') as f:
-            s = f.read()
-            data = json.loads(s)
-            prefix = _pytest_nodeid_prefix(tmpd)
-            for nodes in [data['reports'], data['collected_items']]:
-                for r in nodes:
-                    r['nodeid'] = r['nodeid'].replace(prefix, '')
-            return data
+            # load json from file
+            data = json.load(f)
+
+        data = [d for d in data['reports'] + data['collected_items'] if d.get('nodeid', '') and (collect_only or d.get('when') == 'call')]
+        prefix = _pytest_nodeid_prefix(tmpd)
+        for node in data:
+            # replace relative path, strip leading ::
+            node['nodeid'] = node['nodeid'].replace(prefix, '').strip(':')
+
+            if node.get('outcome') == 'passed':
+                outcome = 1
+            elif 'outcome' not in node:
+                outcome = 0
+            else:
+                outcome = -1
+
+            if 'test_cell_coverage' in node['nodeid']:
+                ret.append(TestMessage(-1, 'Testing cell coverage', TestType.CELL_COVERAGE, outcome))
+            elif 'test_cells_per_notebook' in node['nodeid']:
+                ret.append(TestMessage(-1, 'Testing cells per notebook', TestType.CELLS_PER_NOTEBOOK, outcome))
+            elif 'test_class_definition_count' in node['nodeid']:
+                ret.append(TestMessage(-1, 'Testing class definitions per notebook', TestType.CLASS_DEFINITIONS, outcome))
+            elif 'test_function_definition_count' in node['nodeid']:
+                ret.append(TestMessage(-1, 'Testing function definitions per notebook', TestType.FUNCTION_DEFINITIONS, outcome))
+            elif 'test_lines_per_cell_' in node['nodeid']:
+                cell_no = node['nodeid'].rsplit('_', 1)[-1]
+                ret.append(TestMessage(int(cell_no)+1, 'Testing lines per cell', TestType.LINES_PER_CELL, outcome))
+            elif 'test_cell' in node['nodeid']:
+                cell_no = node['nodeid'].rsplit('_', 1)[-1]
+                ret.append(TestMessage(int(cell_no)+1, 'Testing cell', TestType.CELL_TEST, outcome))
+            else:
+                continue
     finally:
         shutil.rmtree(tmpd)
+    return ret
 
 
 def runWithHTMLReturn(notebook, executable=None, rules=None):
+    '''use pytest self contained html'''
     name = run(notebook)
     html = name.replace('.py', '.html')
     executable = executable or [sys.executable, '-m', 'pytest', '-v']
@@ -386,9 +231,20 @@ def runWithHTMLReturn(notebook, executable=None, rules=None):
         return fp.read()
 
 
+def runWithHTMLReturn2(notebook, executable=None, rules=None):
+    '''use custom return objects'''
+    ret = ''
+    executable = executable or [sys.executable, '-m', 'pytest', '-v']
+    ret_tmp = run(notebook)
+    for test in ret_tmp:
+        test = test.to_html()
+        ret += '<p>' + test + '</p>'
+    return '<div style="display: flex; flex-direction: column;">' + test + '</div>'
+
+
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        raise Exception('Usage:python jupyterlab_celltests.tests <ipynb file>')
+        raise Exception('Usage:python -m jupyterlab_celltests.tests <ipynb file>')
     notebook = sys.argv[1]
     name = run(notebook)
     argv = [sys.executable, '-m', 'pytest', name, '-v', '--html=' + name.replace('.py', '.html'), '--self-contained-html']
