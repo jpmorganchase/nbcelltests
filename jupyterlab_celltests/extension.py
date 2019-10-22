@@ -40,7 +40,7 @@ class RunCelltestsHandler(IPythonHandler):
     def post(self):
         body = json.loads(self.request.body)
         path = os.path.join(os.getcwd(), body.get('path'))
-        name = path.rsplit('/', 1)[1]
+        name = os.path.basename(path)
         ret = yield self._run(body, path, name)
         self.finish({'status': 0, 'test': ret})
 
