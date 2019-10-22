@@ -116,15 +116,24 @@ def run(notebook, executable=None, rules=None):
     if executable:
         exp = ScriptExporter()
         (body, resources) = exp.from_notebook_node(nb)
-        tf = NamedTemporaryFile(mode='w', suffix='.py', delete=False)
-        tf.write(body)
-        executable.append(tf.name)
-        ret2 = subprocess.run(executable, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        msg = ret2.stdout.decode('ascii') + '\t' + ret2.stderr.decode('asii')
-        ret.append(LintMessage(-1, 'Checking lint:' + msg.strip(), LintType.LINTER, False if msg.strip() else True))
-        os.remove(tf.name)
+        try:
+            tf = NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf8')
+            tf.write(body)
+            tf.close()
+            executable.append(tf.name)
+            ret2 = _run_and_capture_utf8(executable)
+            msg = ret2.stdout + '\t' + ret2.stderr
+            ret.append(LintMessage(-1, 'Checking lint:\n' + msg.strip(), LintType.LINTER, False if msg.strip() else True))
+        finally:
+            os.remove(tf.name)
 
     return ret, passed
+
+
+def _run_and_capture_utf8(args):
+    # PYTHONIOENCODING for pyflakes on Windows
+    run_kw = {'env': dict(os.environ, PYTHONIOENCODING='utf8')} if sys.platform == 'win32' else {}
+    return subprocess.run(args, capture_output=True, encoding='utf-8', **run_kw)
 
 
 def runWithReturn(notebook, executable=None, rules=None):
@@ -143,7 +152,7 @@ def runWithHTMLReturn(notebook, executable=None, rules=None):
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        raise Exception('Usage:python jupyterlab_celltests.lint <ipynb file>')
+        raise Exception('Usage:python -m jupyterlab_celltests.lint <ipynb file>')
     notebook = sys.argv[1]
     ret, passed = run(notebook, ['flake8', '--ignore=W391'])
     if passed:
