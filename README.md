@@ -74,3 +74,7 @@ Checking classes per notebook <= 10:    PASSED
 Checking cell test coverage >= 50:  PASSED
 ```
 
+NB: In jupyterlab, notebooks will be lint checked using the version of
+python that is running jupyter lab itself. A notebook intended to be
+run with a Python 2 kernel could therefore generate syntax errors
+during lint checking.
