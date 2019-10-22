@@ -9,10 +9,7 @@ from jupyter_packaging import (
 
 pjoin = path.join
 
-# TODO: Isn't jupyterlab_celltests effectively py3 only?
-# E.g. subprocess.run() didn't appear til 3.5, open() didn't get
-# encoding until 3, etc. I haven't tested the change below.
-ensure_python('>=3.5')
+ensure_python('>=3.6')
 
 name = 'jupyterlab_celltests'
 here = path.abspath(path.dirname(__file__))
@@ -60,7 +57,6 @@ setup(
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',        
