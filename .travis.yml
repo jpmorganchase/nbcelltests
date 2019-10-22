@@ -7,8 +7,9 @@ python:
   - "3.6"
 
 install:
-    - pip install -r requirements.txt
-    - pip install -U pytest pytest-cov flake8 pylint codecov pandas cufflinks
+    - pip install -e .[dev]
+    # pandas and cufflinks could be added as test dependencies in setup.py
+    - pip install -U codecov pandas cufflinks
     - yarn
 
 script: 

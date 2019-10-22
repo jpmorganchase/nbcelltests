@@ -9,7 +9,7 @@ from jupyter_packaging import (
 
 pjoin = path.join
 
-ensure_python(('2.7', '>=3.3'))
+ensure_python('>=3.6')
 
 name = 'jupyterlab_celltests'
 here = path.abspath(path.dirname(__file__))
@@ -56,14 +56,10 @@ setup(
 
     classifiers=[
         'Development Status :: 3 - Alpha',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',        
         'Framework :: Jupyter',
     ],
 
@@ -73,7 +69,9 @@ setup(
     packages=find_packages(exclude=['tests', ]),
     install_requires=requires,
     extras_require={
-        'dev': ['pytest', 'pytest-cov', 'pylint', 'flake8', 'bumpversion']
+        'dev': ['bumpversion',
+                'pytest-cov >=2.6.1',
+                'mock']
     },
     include_package_data=True,
     zip_safe=False,

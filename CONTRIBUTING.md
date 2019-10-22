@@ -31,8 +31,9 @@ If you want to help resolve an issue by making some changes that are larger than
 - Run the following commands inside the cloned repository:
   - `pip install -e .[dev]` - This will install the Python package in development
     mode.
-  - `jupyter labextension install .` - This will add the lab extension development
+  - `jupyter labextension install .` - This will add the lab extension in development
     mode.
+  - `jupyter serverextension enable --py jupyterlab_celltests` - This will enable the server extension.
 - Validate the install by running the tests:
   - `py.test` - This command will run the Python tests.
   - `npm test` - This command will run the JS tests.

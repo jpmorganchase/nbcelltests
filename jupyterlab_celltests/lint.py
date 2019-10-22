@@ -133,7 +133,7 @@ def run(notebook, executable=None, rules=None):
 def _run_and_capture_utf8(args):
     # PYTHONIOENCODING for pyflakes on Windows
     run_kw = {'env': dict(os.environ, PYTHONIOENCODING='utf8')} if sys.platform == 'win32' else {}
-    return subprocess.run(args, capture_output=True, encoding='utf-8', **run_kw)
+    return subprocess.run(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8', **run_kw)
 
 
 def runWithReturn(notebook, executable=None, rules=None):
