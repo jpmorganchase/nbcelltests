@@ -119,7 +119,7 @@ def run(notebook, executable=None, rules=None):
         try:
             tf = NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf8')
             tf.write(body)
-            tf.close() # for Windows
+            tf.close()
             executable.append(tf.name)
             ret2 = _run_and_capture_utf8(executable)
             msg = ret2.stdout + '\t' + ret2.stderr
