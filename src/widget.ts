@@ -110,7 +110,7 @@ class RulesWidget extends BoxPanel {
 
             chkbx.onchange = () => {
                 number.disabled = !chkbx.checked;
-                number.value = number.disabled ? '' : val.value
+                number.value = number.disabled ? "" : val.value;
                 this.save();
             };
 
@@ -177,7 +177,7 @@ class RulesWidget extends BoxPanel {
         const chkbx = elem.querySelector('input[type="checkbox"]') as HTMLInputElement;
         const input = elem.querySelector('input[type="number"]') as HTMLInputElement;
         if (input) {
-            input.value = (value===null ? '' : String(value));
+            input.value = (value === null ? "" : String(value));
             input.disabled = !checked;
         }
         if (chkbx) {chkbx.checked = checked; }
