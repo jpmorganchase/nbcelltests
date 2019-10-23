@@ -89,11 +89,11 @@ class RulesWidget extends BoxPanel {
         /* Add button */
         const div = document.createElement("div");
 
-        const rules = [{label: "Lines per Cell", key: "lines_per_cell", min: 1, step: 1, value: 0},
-                     {label: "Cells per Notebook", key: "cells_per_notebook", min: 1, step: 1, value: 0},
-                     {label: "Function definitions", key: "function_definitions", min: 1, step: 1, value: 0},
-                     {label: "Class definitions", key: "class_definitions", min: 1, step: 1, value: 0},
-                     {label: "Cell test coverage (%)", key: "cell_coverage", min: 1, max: 100, step: 1, value: 0}];
+        const rules = [{label: "Lines per Cell", key: "lines_per_cell", min: 1, step: 1, value: 10},
+                     {label: "Cells per Notebook", key: "cells_per_notebook", min: 1, step: 1, value: 20},
+                     {label: "Function definitions", key: "function_definitions", min: 1, step: 1, value: 10},
+                     {label: "Class definitions", key: "class_definitions", min: 1, step: 1, value: 5},
+                     {label: "Cell test coverage (%)", key: "cell_coverage", min: 1, max: 100, step: 1, value: 50}];
         for (const val of [].slice.call(rules)) {
             const row = document.createElement("div");
             const span = document.createElement("span");
@@ -109,13 +109,13 @@ class RulesWidget extends BoxPanel {
             number.name = val.key;
 
             chkbx.onchange = () => {
-                if (chkbx.checked) {
-                    number.disabled = false;
-                    this.save();
-                } else {
-                    number.disabled = true;
-                    this.save();
-                }
+                number.disabled = !chkbx.checked;
+                // TODO: should set default if re-enabling
+                this.save();
+            }
+
+            number.onchange = () => {
+                this.save();
             };
 
             if (val.min) {number.min = val.min; }
@@ -151,6 +151,9 @@ class RulesWidget extends BoxPanel {
         }
     }
 
+    // TODO: Get rid of repeated definitions of "lines_per_cell" etc.
+    // TODO: Get rid of duplication between get/setValuesByKey and get/setByKey.
+
     public getValuesByKey(key: string) {
         let elem;
         switch (key) {
@@ -162,7 +165,7 @@ class RulesWidget extends BoxPanel {
         }
         const chkbx = elem.querySelector('input[type="checkbox"]') as HTMLInputElement;
         const input = elem.querySelector('input[type="number"]') as HTMLInputElement;
-        return {key, enabled: chkbx.checked, value: input.value};
+        return {key, enabled: chkbx.checked, value: Number(input.value)};
     }
 
     public setValuesByKey(key: string, checked= true, value: string|number = 0) {
@@ -176,7 +179,10 @@ class RulesWidget extends BoxPanel {
         }
         const chkbx = elem.querySelector('input[type="checkbox"]') as HTMLInputElement;
         const input = elem.querySelector('input[type="number"]') as HTMLInputElement;
-        if (input) {input.value = value.toString(); }
+        if (input) {
+	    input.value = String(value);
+	    input.disabled = !checked;
+	}
         if (chkbx) {chkbx.checked = checked; }
     }
 
@@ -291,8 +297,13 @@ export class CelltestsWidget extends Widget {
             let metadata: {[key: string]: string|number};
             metadata = this.notebookTracker.currentWidget
                 .model.metadata.get("celltests") as {[key: string]: string|number} || {};
-            for (const key of [].slice.call(Object.keys(metadata))) {
-                this.rules.setValuesByKey(key, true, metadata[key]);
+            const rules = ["lines_per_cell",
+                           "cells_per_notebook",
+                           "function_definitions",
+                           "class_definitions",
+                           "cell_coverage"];
+            for (const rule of [].slice.call(rules)) {
+		this.rules.setValuesByKey(rule, rule in metadata, metadata[rule]);
             }
         } else {
             // tslint:disable-next-line:no-console
@@ -311,7 +322,7 @@ export class CelltestsWidget extends Widget {
             for (const rule of [].slice.call(rules)) {
                 const settings = this.rules.getValuesByKey(rule);
                 if (settings.enabled) {
-                    metadata[rule.key] = rule.value;
+                    metadata[settings.key] = settings.value;
                 }
             }
             this.notebookTracker.currentWidget.model.metadata.set("celltests", metadata);
