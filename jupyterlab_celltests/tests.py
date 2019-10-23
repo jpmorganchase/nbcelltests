@@ -130,7 +130,7 @@ def run(notebook, rules=None, filename=None):
     extra_metadata.update(rules)
 
     # output tests to test file
-    with open(name, 'w') as fp:
+    with open(name, 'w', encoding='utf-8') as fp:
         writeout_test(fp, cells, kernel_name)
 
         if 'lines_per_cell' in extra_metadata:
@@ -182,7 +182,7 @@ def runWithReport(notebook, executable=None, rules=None, collect_only=False):
         if collect_only:
             argv.append('--collect-only')
         subprocess.call(argv)
-        with open(json_file, 'r') as f:
+        with open(json_file, 'r', encoding='utf-8') as f:
             # load json from file
             data = json.load(f)
 
@@ -227,7 +227,7 @@ def runWithHTMLReturn(notebook, executable=None, rules=None):
     executable = executable or [sys.executable, '-m', 'pytest', '-v']
     argv = executable + ['--html=' + html, '--self-contained-html', name]
     subprocess.call(argv)
-    with open(html, 'r') as fp:
+    with open(html, 'r', encoding='utf-8') as fp:
         return fp.read()
 
 
