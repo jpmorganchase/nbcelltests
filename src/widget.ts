@@ -91,8 +91,8 @@ class RulesWidget extends BoxPanel {
 
         const rules = [{label: "Lines per Cell", key: "lines_per_cell", min: 1, step: 1, value: 10},
                      {label: "Cells per Notebook", key: "cells_per_notebook", min: 1, step: 1, value: 20},
-                     {label: "Function definitions", key: "function_definitions", min: 1, step: 1, value: 10},
-                     {label: "Class definitions", key: "class_definitions", min: 1, step: 1, value: 5},
+                     {label: "Function definitions", key: "function_definitions", min: 0, step: 1, value: 10},
+                     {label: "Class definitions", key: "class_definitions", min: 0, step: 1, value: 5},
                      {label: "Cell test coverage (%)", key: "cell_coverage", min: 1, max: 100, step: 1, value: 50}];
         for (const val of [].slice.call(rules)) {
             const row = document.createElement("div");
@@ -110,7 +110,7 @@ class RulesWidget extends BoxPanel {
 
             chkbx.onchange = () => {
                 number.disabled = !chkbx.checked;
-                // TODO: should set default if re-enabling
+                number.value = number.disabled ? '' : val.value
                 this.save();
             };
 
@@ -118,9 +118,9 @@ class RulesWidget extends BoxPanel {
                 this.save();
             };
 
-            if (val.min) {number.min = val.min; }
-            if (val.max) {number.max = val.max; }
-            if (val.step) {number.step = val.step; }
+            if (val.min !== undefined) {number.min = val.min; }
+            if (val.max !== undefined) {number.max = val.max; }
+            if (val.step !== undefined) {number.step = val.step; }
 
             row.appendChild(span);
             row.appendChild(chkbx);
@@ -151,9 +151,6 @@ class RulesWidget extends BoxPanel {
         }
     }
 
-    // TODO: Get rid of repeated definitions of "lines_per_cell" etc.
-    // TODO: Get rid of duplication between get/setValuesByKey and get/setByKey.
-
     public getValuesByKey(key: string) {
         let elem;
         switch (key) {
@@ -168,7 +165,7 @@ class RulesWidget extends BoxPanel {
         return {key, enabled: chkbx.checked, value: Number(input.value)};
     }
 
-    public setValuesByKey(key: string, checked= true, value: string|number = 0) {
+    public setValuesByKey(key: string, checked= true, value: number = null) {
         let elem;
         switch (key) {
             case "lines_per_cell": {elem = this.lines_per_cell; break; }
@@ -180,7 +177,7 @@ class RulesWidget extends BoxPanel {
         const chkbx = elem.querySelector('input[type="checkbox"]') as HTMLInputElement;
         const input = elem.querySelector('input[type="number"]') as HTMLInputElement;
         if (input) {
-            input.value = String(value);
+            input.value = (value===null ? '' : String(value));
             input.disabled = !checked;
         }
         if (chkbx) {chkbx.checked = checked; }
@@ -294,9 +291,9 @@ export class CelltestsWidget extends Widget {
 
     public loadRulesForCurrentNotebook(): void {
         if (this.notebookTracker !== null) {
-            let metadata: {[key: string]: string|number};
+            let metadata: {[key: string]: number};
             metadata = this.notebookTracker.currentWidget
-                .model.metadata.get("celltests") as {[key: string]: string|number} || {};
+                .model.metadata.get("celltests") as {[key: string]: number} || {};
             const rules = ["lines_per_cell",
                            "cells_per_notebook",
                            "function_definitions",
@@ -313,7 +310,7 @@ export class CelltestsWidget extends Widget {
 
     public saveRulesForCurrentNotebook(): void {
         if (this.notebookTracker !== null) {
-            const metadata = {} as {[key: string]: string | number};
+            const metadata = {} as {[key: string]: number};
             const rules = ["lines_per_cell",
                            "cells_per_notebook",
                            "function_definitions",
