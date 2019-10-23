@@ -12,7 +12,7 @@ function runCellTests(app: JupyterFrontEnd, docManager: IDocumentManager): void 
         buttons: [Dialog.cancelButton(), Dialog.okButton({ label: "Ok" })],
         title: "Run tests?",
     }).then((result) => {
-        if (result.button.label === "CANCEL") {
+        if (result.button.label === "Cancel") {
             return;
         }
         const context = docManager.contextForWidget(app.shell.currentWidget);
@@ -65,7 +65,7 @@ function runCellLints(app: JupyterFrontEnd, docManager: IDocumentManager): void 
         buttons: [Dialog.cancelButton(), Dialog.okButton({ label: "Ok" })],
         title: "Run Lint?",
     }).then((result) => {
-        if (result.button.label === "CANCEL") {
+        if (result.button.label === "Cancel") {
             return;
         }
         const context = docManager.contextForWidget(app.shell.currentWidget);
