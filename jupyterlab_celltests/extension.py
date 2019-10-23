@@ -69,7 +69,7 @@ class RunLintsHandler(IPythonHandler):
     def post(self):
         body = json.loads(self.request.body)
         path = os.path.join(os.getcwd(), body.get('path'))
-        name = path.rsplit('/', 1)[1]
+        name = os.path.basename(path)
         ret, status = yield self._run(body, path, name)
         self.finish({'status': status, 'lint': ret})
 
