@@ -112,7 +112,7 @@ class RulesWidget extends BoxPanel {
                 number.disabled = !chkbx.checked;
                 // TODO: should set default if re-enabling
                 this.save();
-            }
+            };
 
             number.onchange = () => {
                 this.save();
@@ -180,9 +180,9 @@ class RulesWidget extends BoxPanel {
         const chkbx = elem.querySelector('input[type="checkbox"]') as HTMLInputElement;
         const input = elem.querySelector('input[type="number"]') as HTMLInputElement;
         if (input) {
-	    input.value = String(value);
-	    input.disabled = !checked;
-	}
+            input.value = String(value);
+            input.disabled = !checked;
+        }
         if (chkbx) {chkbx.checked = checked; }
     }
 
@@ -303,7 +303,7 @@ export class CelltestsWidget extends Widget {
                            "class_definitions",
                            "cell_coverage"];
             for (const rule of [].slice.call(rules)) {
-		this.rules.setValuesByKey(rule, rule in metadata, metadata[rule]);
+                this.rules.setValuesByKey(rule, rule in metadata, metadata[rule]);
             }
         } else {
             // tslint:disable-next-line:no-console
