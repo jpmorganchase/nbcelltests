@@ -61,6 +61,7 @@ def extract_extrametadata(notebook, override=None):
         base['classes'] += class_counter.count
 
         for line in c['source'].split('\n'):
+            base['lines'] += 1
             base['cell_lines'][-1] += 1
         for t in c['metadata'].get('tests', []):
             if t.strip().startswith('%cell'):
