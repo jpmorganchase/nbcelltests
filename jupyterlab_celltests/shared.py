@@ -1,5 +1,6 @@
 import ast
 
+
 class FnDefCounter(ast.NodeVisitor):
     """Counts function definitions (ignoring class methods)."""
 
@@ -20,8 +21,7 @@ class ClassDefCounter(ast.NodeVisitor):
     count = 0
 
     def visit_ClassDef(self, node):
-        self.count+=1
-
+        self.count += 1
 
 
 def extract_cellsources(notebook):
@@ -39,7 +39,7 @@ def extract_extrametadata(notebook, override=None):
     base['cell_tested'] = []
     base['test_count'] = 0
     base['cell_lines'] = []
-    base['lines'] = 0 # TODO: is this used?
+    base['lines'] = 0  # TODO: is this used?
     base['functions'] = 0
     base['classes'] = 0
 
