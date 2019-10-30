@@ -1,8 +1,27 @@
-# import pytest
-import re
+import ast
 
-FUNCTION_REGEX = r'def (.*?):'
-CLASS_REGEX = r'class (.*?):'
+
+class FnDefCounter(ast.NodeVisitor):
+    """Counts function definitions (ignoring class methods)."""
+
+    count = 0
+
+    def visit_FunctionDef(self, node):
+        self.count += 1
+
+    def visit_ClassDef(self, node):
+        return
+
+    # to count lambdas, add visit_Lambda
+
+
+class ClassDefCounter(ast.NodeVisitor):
+    """Counts class declarations."""
+
+    count = 0
+
+    def visit_ClassDef(self, node):
+        self.count += 1
 
 
 def extract_cellsources(notebook):
@@ -20,12 +39,9 @@ def extract_extrametadata(notebook, override=None):
     base['cell_tested'] = []
     base['test_count'] = 0
     base['cell_lines'] = []
-    base['lines'] = 0
+    base['lines'] = 0  # TODO: is this used?
     base['functions'] = 0
     base['classes'] = 0
-
-    foo_regex = re.compile(FUNCTION_REGEX)
-    class_regex = re.compile(CLASS_REGEX)
 
     for c in notebook.cells:
         if c.get('cell_type') in ('markdown', 'raw',):
@@ -34,13 +50,19 @@ def extract_extrametadata(notebook, override=None):
         base['cell_lines'].append(0)
         base['cell_tested'].append(False)
         base['cell_count'] += 1
+
+        parsed_source = ast.parse(c['source'])
+        fn_def_counter = FnDefCounter()
+        fn_def_counter.visit(parsed_source)
+        base['functions'] += fn_def_counter.count
+
+        class_counter = ClassDefCounter()
+        class_counter.visit(parsed_source)
+        base['classes'] += class_counter.count
+
         for line in c['source'].split('\n'):
             base['lines'] += 1
             base['cell_lines'][-1] += 1
-            if re.search(foo_regex, line):
-                base['functions'] += 1
-            if re.search(class_regex, line):
-                base['classes'] += 1
         for t in c['metadata'].get('tests', []):
             if t.strip().startswith('%cell'):
                 base['test_count'] += 1
