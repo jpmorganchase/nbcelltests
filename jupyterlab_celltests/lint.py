@@ -7,71 +7,50 @@ from tempfile import NamedTemporaryFile
 from .shared import extract_extrametadata
 from .define import LintMessage, LintType
 
+# TODO why do these fns take a parameter that's also present in
+# metadata?  (e.g. lint function take lines_per_cell, but that's
+# already in metadata)
+
+# TODO: there's duplication with tests here. Should both use same
+# underlying code. Also, some of these things are not lint (e.g.
+# test coverage, while some of the tests are really just lint).
+
 
 def lint_lines_per_cell(lines_per_cell, metadata):
     ret = []
-    passed = True
-
     if lines_per_cell:
         for i, lines_in_cell in enumerate(metadata.get('cell_lines', [])):
-            if lines_in_cell <= lines_per_cell:
-                ret.append(LintMessage(i+1, 'Checking lines in cell', LintType.LINES_PER_CELL, True))
-            else:
-                ret.append(LintMessage(i+1, 'Checking lines in cell', LintType.LINES_PER_CELL, False))
-                passed = False
-    return ret, passed
+            ret.append(LintMessage(i+1, 'Checking lines in cell', LintType.LINES_PER_CELL, lines_in_cell <= lines_per_cell))
+    return ret, all([x.passed for x in ret])
 
 
 def lint_cells_per_notebook(cells_per_notebook, metadata):
-    ret = []
-    passed = True
-
-    if cells_per_notebook:
-        if metadata.get('cell_count', -1) <= cells_per_notebook:
-            ret.append(LintMessage(-1, 'Checking cells per notebook', LintType.CELLS_PER_NOTEBOOK, True))
-        else:
-            ret.append(LintMessage(-1, 'Checking cells per notebook', LintType.CELLS_PER_NOTEBOOK, False))
-            passed = False
-    return ret, passed
+    if cells_per_notebook < 0:
+        return [], True
+    passed = metadata.get('cell_count', -1) <= cells_per_notebook
+    return [LintMessage(-1, 'Checking cells per notebook', LintType.CELLS_PER_NOTEBOOK, passed)], passed
 
 
 def lint_function_definitions(function_definitions, metadata):
-    ret = []
-    passed = True
-
-    if function_definitions:
-        if metadata.get('functions', -1) <= function_definitions:
-            ret.append(LintMessage(-1, 'Checking functions per notebook', LintType.FUNCTION_DEFINITIONS, True))
-        else:
-            ret.append(LintMessage(-1, 'Checking functions per notebook', LintType.FUNCTION_DEFINITIONS, False))
-            passed = False
-    return ret, passed
+    if function_definitions < 0:
+        return [], True
+    passed = metadata.get('functions', -1) <= function_definitions
+    return [LintMessage(-1, 'Checking functions per notebook', LintType.FUNCTION_DEFINITIONS, passed)], passed
 
 
 def lint_class_definitions(class_definitions, metadata):
-    ret = []
-    passed = True
-
-    if class_definitions:
-        if metadata.get('classes', -1) <= class_definitions:
-            ret.append(LintMessage(-1, 'Checking classes per notebook', LintType.CLASS_DEFINITIONS, True))
-        else:
-            ret.append(LintMessage(-1, 'Checking classes per notebook', LintType.CLASS_DEFINITIONS, False))
-            passed = False
-    return ret, passed
+    if class_definitions < 0:
+        return [], True
+    passed = metadata.get('classes', -1) <= class_definitions
+    return [LintMessage(-1, 'Checking classes per notebook', LintType.FUNCTION_DEFINITIONS, passed)], passed
 
 
+# TODO: I think this isn't lint and should be removed.
 def lint_cell_coverage(cell_coverage, metadata):
-    ret = []
-    passed = True
-
-    if cell_coverage:
-        if (metadata.get('test_count', 0)/metadata.get('cell_count', -1))*100 >= cell_coverage:
-            ret.append(LintMessage(-1, 'Checking cell test coverage', LintType.CELL_COVERAGE, True))
-        else:
-            ret.append(LintMessage(-1, 'Checking cell test coverage', LintType.CELL_COVERAGE, False))
-            passed = False
-    return ret, passed
+    if cell_coverage < 0:
+        return [], True
+    passed = 100*metadata.get('test_count', 0)/metadata.get('cell_count', -1) >= cell_coverage
+    return [LintMessage(-1, 'Checking cell test coverage', LintType.CELL_COVERAGE, passed)], passed
 
 
 def run(notebook, executable=None, rules=None):
