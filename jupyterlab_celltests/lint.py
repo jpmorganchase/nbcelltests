@@ -22,37 +22,41 @@ def lint_lines_per_cell(lines_per_cell, metadata):
         return [], True
     for i, lines_in_cell in enumerate(metadata.get('cell_lines', [])):
         # TODO: ambiguous - e.g. cell 0 or first cell?
-        ret.append(LintMessage(i+1, 'Checking lines in cell', LintType.LINES_PER_CELL, lines_in_cell <= lines_per_cell))
+        ret.append(LintMessage(i+1, 'Checking lines in cell (max={max_}; actual={actual})'.format(max_=lines_per_cell, actual=lines_in_cell), LintType.LINES_PER_CELL, lines_in_cell <= lines_per_cell))
     return ret, all([x.passed for x in ret])
 
 
 def lint_cells_per_notebook(cells_per_notebook, metadata):
     if cells_per_notebook < 0:
         return [], True
-    passed = metadata.get('cell_count', -1) <= cells_per_notebook
-    return [LintMessage(-1, 'Checking cells per notebook', LintType.CELLS_PER_NOTEBOOK, passed)], passed
+    cell_count = metadata.get('cell_count', -1)
+    passed = cell_count <= cells_per_notebook
+    return [LintMessage(-1, 'Checking cells per notebook (max={max_}; actual={actual})'.format(max_=cells_per_notebook, actual=cell_count), LintType.CELLS_PER_NOTEBOOK, passed)], passed
 
 
 def lint_function_definitions(function_definitions, metadata):
     if function_definitions < 0:
         return [], True
-    passed = metadata.get('functions', -1) <= function_definitions
-    return [LintMessage(-1, 'Checking functions per notebook', LintType.FUNCTION_DEFINITIONS, passed)], passed
+    functions = metadata.get('functions', -1)
+    passed = functions <= function_definitions
+    return [LintMessage(-1, 'Checking functions per notebook (max={max_}; actual={actual})'.format(max_=function_definitions, actual=functions), LintType.FUNCTION_DEFINITIONS, passed)], passed
 
 
 def lint_class_definitions(class_definitions, metadata):
     if class_definitions < 0:
         return [], True
-    passed = metadata.get('classes', -1) <= class_definitions
-    return [LintMessage(-1, 'Checking classes per notebook', LintType.FUNCTION_DEFINITIONS, passed)], passed
+    classes = metadata.get('classes', -1)
+    passed = classes <= class_definitions
+    return [LintMessage(-1, 'Checking classes per notebook (max={max_}; actual={actual})'.format(max_=class_definitions, actual=classes), LintType.FUNCTION_DEFINITIONS, passed)], passed
 
 
 # TODO: I think this isn't lint and should be removed.
 def lint_cell_coverage(cell_coverage, metadata):
     if cell_coverage < 0:
         return [], True
-    passed = 100*metadata.get('test_count', 0)/metadata.get('cell_count', -1) >= cell_coverage
-    return [LintMessage(-1, 'Checking cell test coverage', LintType.CELL_COVERAGE, passed)], passed
+    measured_cell_coverage = 100*metadata.get('test_count', 0)/metadata.get('cell_count', -1)
+    passed = measured_cell_coverage >= cell_coverage
+    return [LintMessage(-1, 'Checking cell test coverage (min={min_}; actual={actual})'.format(min_=cell_coverage, actual=measured_cell_coverage), LintType.CELL_COVERAGE, passed)], passed
 
 
 def run(notebook, executable=None, rules=None):
