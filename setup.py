@@ -59,7 +59,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',        
+        'Programming Language :: Python :: 3.8',
         'Framework :: Jupyter',
     ],
 
@@ -70,6 +70,7 @@ setup(
     install_requires=requires,
     extras_require={
         'dev': ['bumpversion',
+                'autopep8',
                 'pytest-cov >=2.6.1',
                 'mock']
     },

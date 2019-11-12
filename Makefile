@@ -16,6 +16,10 @@ lint: ## run linter
 	flake8 jupyterlab_celltests 
 	yarn lint
 
+fix:  ## run autopep8/tslint fix
+	autopep8 --in-place -r -a -a jupyterlab_celltests/
+	./node_modules/.bin/tslint --fix src/*
+
 extest:  ## run example test
 	@ python3 -m jupyterlab_celltests.tests Untitled.ipynb
 
@@ -32,7 +36,7 @@ clean: ## clean the repository
 	find . -name "__pycache__" | xargs  rm -rf 
 	find . -name "*.pyc" | xargs rm -rf 
 	find . -name ".ipynb_checkpoints" | xargs  rm -rf 
-	rm -rf .coverage cover htmlcov logs build dist *.egg-info lib node_modules
+	rm -rf .coverage coverage cover htmlcov logs build dist *.egg-info lib node_modules
 	# make -C ./docs clean
 
 docs:  ## make documentation

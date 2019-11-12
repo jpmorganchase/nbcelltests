@@ -22,7 +22,14 @@ def lint_lines_per_cell(lines_per_cell, metadata):
         return [], True
     for i, lines_in_cell in enumerate(metadata.get('cell_lines', [])):
         # TODO: ambiguous - e.g. cell 0 or first cell?
-        ret.append(LintMessage(i+1, 'Checking lines in cell (max={max_}; actual={actual})'.format(max_=lines_per_cell, actual=lines_in_cell), LintType.LINES_PER_CELL, lines_in_cell <= lines_per_cell))
+        ret.append(
+            LintMessage(
+                i + 1,
+                'Checking lines in cell (max={max_}; actual={actual})'.format(
+                    max_=lines_per_cell,
+                    actual=lines_in_cell),
+                LintType.LINES_PER_CELL,
+                lines_in_cell <= lines_per_cell))
     return ret, all([x.passed for x in ret])
 
 
@@ -54,7 +61,7 @@ def lint_class_definitions(class_definitions, metadata):
 def lint_cell_coverage(cell_coverage, metadata):
     if cell_coverage < 0:
         return [], True
-    measured_cell_coverage = 100*metadata.get('test_count', 0)/metadata.get('cell_count', -1)
+    measured_cell_coverage = 100 * metadata.get('test_count', 0) / metadata.get('cell_count', -1)
     passed = measured_cell_coverage >= cell_coverage
     return [LintMessage(-1, 'Checking cell test coverage (min={min_}; actual={actual})'.format(min_=cell_coverage, actual=measured_cell_coverage), LintType.CELL_COVERAGE, passed)], passed
 
