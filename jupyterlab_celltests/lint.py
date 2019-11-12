@@ -22,7 +22,7 @@ def lint_lines_per_cell(lines_per_cell, metadata):
         return [], True
     for i, lines_in_cell in enumerate(metadata.get('cell_lines', [])):
         # TODO: ambiguous - e.g. cell 0 or first cell?
-        ret.append(LintMessage(i+1, 'Checking lines in cell (max={max_}; actual={actual})'.format(max_=lines_per_cell,actual=lines_in_cell), LintType.LINES_PER_CELL, lines_in_cell <= lines_per_cell))
+        ret.append(LintMessage(i+1, 'Checking lines in cell (max={max_}; actual={actual})'.format(max_=lines_per_cell, actual=lines_in_cell), LintType.LINES_PER_CELL, lines_in_cell <= lines_per_cell))
     return ret, all([x.passed for x in ret])
 
 
@@ -31,7 +31,7 @@ def lint_cells_per_notebook(cells_per_notebook, metadata):
         return [], True
     cell_count = metadata.get('cell_count', -1)
     passed = cell_count <= cells_per_notebook
-    return [LintMessage(-1,'Checking cells per notebook (max={max_}; actual={actual})'.format(max_=cells_per_notebook,actual=cell_count),LintType.CELLS_PER_NOTEBOOK, passed)], passed
+    return [LintMessage(-1, 'Checking cells per notebook (max={max_}; actual={actual})'.format(max_=cells_per_notebook, actual=cell_count), LintType.CELLS_PER_NOTEBOOK, passed)], passed
 
 
 def lint_function_definitions(function_definitions, metadata):
@@ -39,7 +39,7 @@ def lint_function_definitions(function_definitions, metadata):
         return [], True
     functions = metadata.get('functions', -1)
     passed = functions <= function_definitions
-    return [LintMessage(-1, 'Checking functions per notebook (max={max_}; actual={actual})'.format(max_=function_definitions,actual=functions), LintType.FUNCTION_DEFINITIONS, passed)], passed
+    return [LintMessage(-1, 'Checking functions per notebook (max={max_}; actual={actual})'.format(max_=function_definitions, actual=functions), LintType.FUNCTION_DEFINITIONS, passed)], passed
 
 
 def lint_class_definitions(class_definitions, metadata):
@@ -47,7 +47,7 @@ def lint_class_definitions(class_definitions, metadata):
         return [], True
     classes = metadata.get('classes', -1)
     passed = classes <= class_definitions
-    return [LintMessage(-1, 'Checking classes per notebook (max={max_}; actual={actual})'.format(max_=class_definitions,actual=classes), LintType.FUNCTION_DEFINITIONS, passed)], passed
+    return [LintMessage(-1, 'Checking classes per notebook (max={max_}; actual={actual})'.format(max_=class_definitions, actual=classes), LintType.FUNCTION_DEFINITIONS, passed)], passed
 
 
 # TODO: I think this isn't lint and should be removed.
