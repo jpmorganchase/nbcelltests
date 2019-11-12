@@ -13,7 +13,8 @@ class TestLint:
 @pytest.mark.parametrize(
     "lines_per_cell, cell_lines, expected_ret, expected_pass", [
         ( 3, [0,1,2,3,4], [True, True, True, True,False], False),
-        ( 3,   [0,1,2,3],       [True, True, True, True],  True)
+        ( 3,   [0,1,2,3],       [True, True, True, True],  True),
+        (-1,       [0,1],                             [],  True), 
     ]
 )
 def test_lines_per_cell(lines_per_cell, cell_lines, expected_ret, expected_pass):

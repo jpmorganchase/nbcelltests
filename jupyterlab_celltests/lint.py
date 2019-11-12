@@ -18,9 +18,11 @@ from .define import LintMessage, LintType
 
 def lint_lines_per_cell(lines_per_cell, metadata):
     ret = []
-    if lines_per_cell:
-        for i, lines_in_cell in enumerate(metadata.get('cell_lines', [])):
-            ret.append(LintMessage(i+1, 'Checking lines in cell', LintType.LINES_PER_CELL, lines_in_cell <= lines_per_cell))
+    if lines_per_cell < 0:
+        return [], True
+    for i, lines_in_cell in enumerate(metadata.get('cell_lines', [])):
+        # TODO: ambiguous - e.g. cell 0 or first cell?
+        ret.append(LintMessage(i+1, 'Checking lines in cell', LintType.LINES_PER_CELL, lines_in_cell <= lines_per_cell))
     return ret, all([x.passed for x in ret])
 
 
