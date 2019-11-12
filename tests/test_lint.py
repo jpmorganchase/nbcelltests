@@ -69,7 +69,8 @@ def test_lint_class_definitions(max_class_definitions, classes, expected_ret, ex
         ( 0, 10, 50, [False], False),
         ( 5, 10, 50,  [True],  True),
         ( 0, 10,  0,  [True],  True),
-        ( 0, 10, -1,      [],  True)
+        ( 0, 10, -1,      [],  True),
+        ( 0,  0,  0,      [],  True)
     ]
 )
 def test_cell_coverage(test_count, cell_count, min_cell_coverage, expected_ret, expected_pass):

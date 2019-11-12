@@ -54,7 +54,7 @@ def lint_cell_coverage(test_count, cell_count, min_cell_coverage=-1):
     """
     Note: cell coverage is expressed as a percentage.
     """
-    if min_cell_coverage < 0:
+    if (min_cell_coverage < 0) or (cell_count == 0):
         return [], True
     measured_cell_coverage = 100 * test_count / cell_count
     passed = measured_cell_coverage >= min_cell_coverage
