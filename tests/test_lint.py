@@ -1,14 +1,12 @@
+import os
 import pytest
 # for Coverage
 from mock import patch, MagicMock
 
-from jupyterlab_celltests.lint import lint_lines_per_cell, lint_cells_per_notebook, lint_function_definitions, lint_class_definitions, lint_cell_coverage
+from jupyterlab_celltests.lint import lint_lines_per_cell, lint_cells_per_notebook, lint_function_definitions, lint_class_definitions, lint_cell_coverage, run
 
 # note that list comparison with = in this file assumes pytest
 
-class TestLint:
-    def test_run(self):
-        pass
 
 @pytest.mark.parametrize(
     "max_lines_per_cell, cell_lines, expected_ret, expected_pass", [
@@ -75,6 +73,32 @@ def test_lint_class_definitions(max_class_definitions, classes, expected_ret, ex
 )
 def test_cell_coverage(test_count, cell_count, min_cell_coverage, expected_ret, expected_pass):
     ret, passed = lint_cell_coverage(test_count, cell_count, min_cell_coverage)
+    _verify(ret, passed, expected_ret, expected_pass)
+
+
+@pytest.mark.parametrize("rules, expected_ret, expected_pass", [
+    # no rules
+    ({}, [], True),
+    # one rule, pass
+    ({'lines_per_cell': -1}, [], True),
+    # one rule, fail
+    ({'lines_per_cell':  1}, [True, True, True, True, False, False], False),
+    # multiple rules, combo fail
+    ({'lines_per_cell':  5,
+      'cells_per_notebook': 1}, [True, True, True, True, True, True, False], False),
+    # multiple rules, combo pass
+    ({'lines_per_cell':  5,
+      'cells_per_notebook': 10}, [True, True, True, True, True, True, True], True),
+    # all the expected rules
+    ({'lines_per_cell': 5,
+      'cells_per_notebook': 2,
+      'function_definitions': 0,
+      'class_definitions': 0,
+      'cell_coverage': 90}, [True, True, True, True, True, True, False, False, False, False], False)
+    ])
+def test_run(rules, expected_ret, expected_pass):
+    nb = os.path.join(os.path.dirname(__file__), 'more.ipynb')
+    ret, passed = run(nb, rules=rules)
     _verify(ret, passed, expected_ret, expected_pass)
 
 
