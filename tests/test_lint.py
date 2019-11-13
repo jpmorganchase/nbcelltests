@@ -3,7 +3,7 @@ import pytest
 # for Coverage
 from mock import patch, MagicMock
 
-from jupyterlab_celltests.lint import lint_lines_per_cell, lint_cells_per_notebook, lint_function_definitions, lint_class_definitions, lint_cell_coverage, run
+from jupyterlab_celltests.lint import lint_lines_per_cell, lint_cells_per_notebook, lint_function_definitions, lint_class_definitions, lint_cell_coverage, lint_kernelspec, run
 
 # note that list comparison with = in this file assumes pytest
 
@@ -76,6 +76,22 @@ def test_cell_coverage(test_count, cell_count, min_cell_coverage, expected_ret, 
     _verify(ret, passed, expected_ret, expected_pass)
 
 
+@pytest.mark.parametrize(
+    "kernelspec_requirements, kernelspec, expected_ret, expected_pass", [
+        ( {'name': 'python3'}, {'name': 'python3',
+                                'display_name': 'Python 3'},  [True],  True),
+        ( {'name': 'python3'}, {'name': 'python2'},          [False], False),
+        (                  {}, {'name': 'python3',
+                                'display_name': 'Python 3'},  [True],  True),
+        (               False,                           {},      [],  True),
+        (               False, {'something':'else'},              [],  True),
+    ]
+)
+def test_kernelspec(kernelspec_requirements, kernelspec, expected_ret, expected_pass):
+    ret, passed = lint_kernelspec(kernelspec, kernelspec_requirements)
+    _verify(ret, passed, expected_ret, expected_pass)
+
+
 @pytest.mark.parametrize("rules, expected_ret, expected_pass", [
     # no rules
     ({}, [], True),
@@ -94,7 +110,9 @@ def test_cell_coverage(test_count, cell_count, min_cell_coverage, expected_ret, 
       'cells_per_notebook': 2,
       'function_definitions': 0,
       'class_definitions': 0,
-      'cell_coverage': 90}, [True, True, True, True, True, True, False, False, False, False], False)
+      'cell_coverage': 90,
+      'kernelspec_requirements':
+        {'name': 'python3'}}, [True, True, True, True, True, True, False, False, False, False, True], False)
     ])
 def test_run(rules, expected_ret, expected_pass):
     nb = os.path.join(os.path.dirname(__file__), 'more.ipynb')
