@@ -16,7 +16,7 @@ def lint_lines_per_cell(cell_lines, max_lines_per_cell=-1):
     ret = []
     if max_lines_per_cell < 0:
         return [], True
-    for i, lines_in_cell in enumerate(cell_lines):        
+    for i, lines_in_cell in enumerate(cell_lines):
         ret.append(
             LintMessage(
                 i + 1,  # TODO: ambiguous - e.g. cell 0 or first cell?
