@@ -32,6 +32,8 @@ def extract_celltests(notebook):
     return [c['metadata'].get('tests', []) for c in notebook.cells]
 
 
+# TODO: I think it's confusing to insert the actual counts into the metadata.
+# Why not keep them separate?
 def extract_extrametadata(notebook, override=None):
     base = notebook.metadata.get('celltests', {})
     override = override or {}
