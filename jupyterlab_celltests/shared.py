@@ -44,6 +44,7 @@ def extract_extrametadata(notebook, override=None):
     base['lines'] = 0  # TODO: is this used?
     base['functions'] = 0
     base['classes'] = 0
+    base['kernelspec'] = notebook.metadata.get('kernelspec', {})
 
     for c in notebook.cells:
         if c.get('cell_type') in ('markdown', 'raw',):

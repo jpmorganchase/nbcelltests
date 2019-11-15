@@ -8,6 +8,7 @@ class LintType(Enum):
     CLASS_DEFINITIONS = 'class_definitions'
     CELL_COVERAGE = 'cell_coverage'
     LINTER = 'linter'
+    KERNELSPEC = 'kernelspec'
 
 
 class TestType(Enum):

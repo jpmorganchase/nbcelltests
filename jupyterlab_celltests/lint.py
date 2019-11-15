@@ -61,6 +61,24 @@ def lint_cell_coverage(test_count, cell_count, min_cell_coverage=-1):
     return [LintMessage(-1, 'Checking cell test coverage (min={min_}; actual={actual})'.format(min_=min_cell_coverage, actual=measured_cell_coverage), LintType.CELL_COVERAGE, passed)], passed
 
 
+def lint_kernelspec(kernelspec, kernelspec_requirements=False):
+    """Check that kernelspec fulfills kernelspec_requirements.
+
+    If kernelspec_requirements is False, no check will happen.
+
+    If kernelspec_requirements is None, requires an empty kernelspec
+    (use to enforce saving without kernelspec details).
+
+    Otherwise, kernelspec must contain at least the same key: value
+    pairs as are in kernelspec_requirements.
+    """
+    if kernelspec_requirements is False:
+        return [], True
+    # assumes kernelspec dict values are hashable (they're strings)
+    passed = set(kernelspec.items()).issuperset(kernelspec_requirements.items())
+    return [LintMessage(-1, 'Checking kernelspec (min. required={required}; actual={actual})'.format(required=kernelspec_requirements, actual=kernelspec), LintType.KERNELSPEC, passed)], passed
+
+
 def run(notebook, executable=None, rules=None):
     nb = nbformat.read(notebook, 4)
     extra_metadata = extract_extrametadata(nb)
@@ -94,6 +112,11 @@ def run(notebook, executable=None, rules=None):
 
     if 'cell_coverage' in extra_metadata:
         lintret, lintfail = lint_cell_coverage(test_count=extra_metadata['test_count'], cell_count=extra_metadata['cell_count'], min_cell_coverage=extra_metadata['cell_coverage'])
+        ret.extend(lintret)
+        passed = passed and lintfail
+
+    if 'kernelspec_requirements' in extra_metadata:
+        lintret, lintfail = lint_kernelspec(kernelspec=extra_metadata['kernelspec'], kernelspec_requirements=extra_metadata['kernelspec_requirements'])
         ret.extend(lintret)
         passed = passed and lintfail
 
