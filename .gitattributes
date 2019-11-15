@@ -1,2 +1,3 @@
 examples/* linguist-documentation
 docs/* linguist-documentation
+tests/*.ipynb linguist-documentation
