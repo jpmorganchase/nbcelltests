@@ -24,9 +24,8 @@ addons:
       - python
 
 install:
-    - pip install -e .[dev]
-    # pandas and cufflinks could be added as test dependencies in setup.py
-    - pip install -U codecov pandas cufflinks
+    - python3 -m pip install -e .[dev]
+    - python3 -m pip install -U codecov pandas cufflinks
     - yarn
 
 script: 
