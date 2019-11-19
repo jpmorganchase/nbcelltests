@@ -71,7 +71,7 @@ setup(
     extras_require={
         'dev': ['bumpversion',
                 'autopep8',
-                'pytest-cov >=2.6.1',
+                'pytest-cov>=2.6.1',
                 'mock']
     },
     include_package_data=True,
