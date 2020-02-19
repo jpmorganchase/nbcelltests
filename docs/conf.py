@@ -57,8 +57,7 @@ author = 'Tim Paine'
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 
-import os
-_version_py = os.path.join('..', '..', 'jupyterlab_celltests', '_version.py')
+_version_py = os.path.join('..', 'jupyterlab_celltests', '_version.py')
 version_ns = {}
 
 with open(_version_py, mode='r') as version_file:
