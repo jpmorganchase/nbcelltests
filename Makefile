@@ -1,15 +1,15 @@
 run:
-	python3 -m jupyterlab_celltests.tests Untitled.ipynb
+	python3.7 -m jupyterlab_celltests.tests Untitled.ipynb
 
 testjs: ## Clean and Make js tests
 	yarn test
 
 testpy: ## Clean and Make unit tests
-	python3 -m pytest -v tests --cov=jupyterlab_celltests
+	python3.7 -m pytest -v tests --cov=jupyterlab_celltests
 	yarn test
 
-test: lint ## run the tests for travis CI
-	@ python3 -m pytest -v tests --cov=jupyterlab_celltests
+tests: lint ## run the tests
+	python3.7 -m pytest -v tests --cov=jupyterlab_celltests --junitxml=python_junit.xml --cov-report=xml --cov-branch
 	yarn test
 
 lint: ## run linter
@@ -21,10 +21,10 @@ fix:  ## run autopep8/tslint fix
 	./node_modules/.bin/tslint --fix src/*
 
 extest:  ## run example test
-	@ python3 -m jupyterlab_celltests.tests Untitled.ipynb
+	@ python3.7 -m jupyterlab_celltests.tests Untitled.ipynb
 
 exlint:  ## run example test
-	@ python3 -m jupyterlab_celltests.lint Untitled.ipynb
+	@ python3.7 -m jupyterlab_celltests.lint Untitled.ipynb
 
 annotate: ## MyPy type annotation check
 	mypy -s jupyterlab_celltests
@@ -58,8 +58,8 @@ labextension: js ## enable labextension
 
 dist: js  ## dist to pypi
 	rm -rf dist build
-	python3 setup.py sdist
-	python3 setup.py bdist_wheel
+	python3.7 setup.py sdist
+	python3.7 setup.py bdist_wheel
 	twine check dist/* && twine upload dist/*
 
 # Thanks to Francoise at marmelab.com for this
