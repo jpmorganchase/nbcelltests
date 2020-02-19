@@ -1,7 +1,8 @@
 # jupyterlab_celltests
 Cell-by-cell testing for production Jupyter notebooks in JupyterLab
 
-[![Build Status](https://travis-ci.org/timkpaine/jupyterlab_celltests.svg?branch=master)](https://travis-ci.org/timkpaine/jupyterlab_celltests)
+[![Build Status](https://dev.azure.com/tpaine154/jupyter/_apis/build/status/timkpaine.jupyterlab_celltests?branchName=master)](https://dev.azure.com/tpaine154/jupyter/_build/latest?definitionId=15&branchName=master)
+[![Coverage](https://img.shields.io/azure-devops/coverage/tpaine154/jupyter/15)](https://dev.azure.com/tpaine154/jupyter/_build?definitionId=15&_a=summary)
 [![Docs](https://img.shields.io/readthedocs/jupyterlab_celltests.svg)](https://jupyterlab_celltests.readthedocs.io)
 [![PyPI](https://img.shields.io/pypi/l/jupyterlab_celltests.svg)](https://pypi.python.org/pypi/jupyterlab_celltests)
 [![PyPI](https://img.shields.io/pypi/v/jupyterlab_celltests.svg)](https://pypi.python.org/pypi/jupyterlab_celltests)
