@@ -37,4 +37,4 @@ def test_extract_extrametadata_cell_count_more():
     assert _metadata(MORE_NB, 'cell_count') == 6
 
 def test_extract_extrametadata_cell_lines_more():
-    assert _metadata(MORE_NB, 'cell_lines') == [1]*4 + [2,3]
+    assert _metadata(MORE_NB, 'cell_lines') == [2] + [1]*3 + [2,3]
