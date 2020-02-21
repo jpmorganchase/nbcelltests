@@ -98,7 +98,7 @@ def test_kernelspec(kernelspec_requirements, kernelspec, expected_ret, expected_
     # one rule, pass
     ({'lines_per_cell': -1}, [], True),
     # one rule, fail
-    ({'lines_per_cell':  1}, [True, True, True, True, False, False], False),
+    ({'lines_per_cell':  1}, [False, True, True, True, False, False], False),
     # multiple rules, combo fail
     ({'lines_per_cell':  5,
       'cells_per_notebook': 1}, [True, True, True, True, True, True, False], False),

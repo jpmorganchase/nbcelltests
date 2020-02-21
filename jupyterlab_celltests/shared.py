@@ -1,4 +1,5 @@
 import ast
+import nbconvert
 
 
 class FnDefCounter(ast.NodeVisitor):
@@ -37,14 +38,27 @@ def extract_celltests(notebook):
 def extract_extrametadata(notebook, override=None):
     base = notebook.metadata.get('celltests', {})
     override = override or {}
+    base['lines'] = 0  # TODO: is this used?
+    base['kernelspec'] = notebook.metadata.get('kernelspec', {})
+
+    # "python code" things (e.g. number of function definitions)...
+    # note: no attempt to be clever here (so e.g. "%time def f: pass" would be missed, as would the contents of
+    # a cell using %%capture cell magics; possible to handle those scenarios but would take more effort)
+    parsed_source = ast.parse(nbconvert.PythonExporter(exclude_raw=True).from_notebook_node(notebook)[0])
+
+    fn_def_counter = FnDefCounter()
+    fn_def_counter.visit(parsed_source)
+    base['functions'] = fn_def_counter.count
+
+    class_counter = ClassDefCounter()
+    class_counter.visit(parsed_source)
+    base['classes'] = class_counter.count
+
+    # "notebook structure" things...
     base['cell_count'] = 0
     base['cell_tested'] = []
     base['test_count'] = 0
     base['cell_lines'] = []
-    base['lines'] = 0  # TODO: is this used?
-    base['functions'] = 0
-    base['classes'] = 0
-    base['kernelspec'] = notebook.metadata.get('kernelspec', {})
 
     for c in notebook.cells:
         if c.get('cell_type') in ('markdown', 'raw',):
@@ -53,15 +67,6 @@ def extract_extrametadata(notebook, override=None):
         base['cell_lines'].append(0)
         base['cell_tested'].append(False)
         base['cell_count'] += 1
-
-        parsed_source = ast.parse(c['source'])
-        fn_def_counter = FnDefCounter()
-        fn_def_counter.visit(parsed_source)
-        base['functions'] += fn_def_counter.count
-
-        class_counter = ClassDefCounter()
-        class_counter.visit(parsed_source)
-        base['classes'] += class_counter.count
 
         for line in c['source'].split('\n'):
             base['lines'] += 1
