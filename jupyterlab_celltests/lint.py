@@ -79,6 +79,29 @@ def lint_kernelspec(kernelspec, kernelspec_requirements=False):
     return [LintMessage(-1, 'Checking kernelspec (min. required={required}; actual={actual})'.format(required=kernelspec_requirements, actual=kernelspec), LintType.KERNELSPEC, passed)], passed
 
 
+def lint_magics(magics, whitelist=None, blacklist=None):
+    """Check that magics are acceptable.
+
+    Specify either a whitelist or a blacklist (or neither), but not
+    both.
+    """
+    if whitelist is None and blacklist is None:
+        return [], True
+
+    if whitelist is not None and blacklist is not None:
+        raise ValueError("Must specify either a whitelist or a blacklist, not both. Blacklist: {}; whitelist: {}".format(blacklist, whitelist))
+
+    if whitelist is not None:
+        bad = set(magics) - set(whitelist)
+        msg = "missing from whitelist:"
+    elif blacklist is not None:
+        bad = set(magics) & set(blacklist)
+        msg = "present in blacklist:"
+
+    passed = not(bad)
+    return [LintMessage(-1, 'Checking magics ({} {})'.format(msg, bad), LintType.MAGICS, passed)], passed
+
+
 def run(notebook, executable=None, rules=None):
     nb = nbformat.read(notebook, 4)
     extra_metadata = extract_extrametadata(nb)
@@ -117,6 +140,11 @@ def run(notebook, executable=None, rules=None):
 
     if 'kernelspec_requirements' in extra_metadata:
         lintret, lintfail = lint_kernelspec(kernelspec=extra_metadata['kernelspec'], kernelspec_requirements=extra_metadata['kernelspec_requirements'])
+        ret.extend(lintret)
+        passed = passed and lintfail
+
+    if 'magics_whitelist' in extra_metadata or 'magics_blacklist' in extra_metadata:
+        lintret, lintfail = lint_magics(magics=extra_metadata['magics'], whitelist=extra_metadata.get('magics_whitelist', None), blacklist=extra_metadata.get('magics_blacklist', None))
         ret.extend(lintret)
         passed = passed and lintfail
 

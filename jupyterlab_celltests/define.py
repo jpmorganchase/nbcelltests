@@ -9,6 +9,7 @@ class LintType(Enum):
     CELL_COVERAGE = 'cell_coverage'
     LINTER = 'linter'
     KERNELSPEC = 'kernelspec'
+    MAGICS = 'magics'
 
 
 class TestType(Enum):
