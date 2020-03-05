@@ -31,11 +31,11 @@ class MagicsRecorder(ast.NodeVisitor):
     """Record magics.
 
     Magics are like this:
-      * get_ipython().run_line_magic(name, ...)
-      * get_ipython().run_cell_magic(name, ...)
+      * get_ipython().run_line_magic(name, line)
+      * get_ipython().run_cell_magic(name, line, cell)
 
     Or this (py2):
-      * get_ipython().magic(name, ...)
+      * get_ipython().magic(magic_string)
 
     """
 
@@ -50,10 +50,11 @@ class MagicsRecorder(ast.NodeVisitor):
 
     def visit_Call(self, node):
         if hasattr(node.func, 'attr') and node.func.attr in self.magic_fn_names:
+            # should maybe find ipython's own parsing code and use that instead
             if node.func.value.func.id == 'get_ipython':
                 magic_name = node.args[0].s
                 if node.func.attr in self.magic_fn_names_py2:
-                    magic_name = magic_name.split()[0]
+                    magic_name = magic_name.split()[0]  # (again, find ipython's parsing?)
                 self.seen.add(magic_name)
 
 
