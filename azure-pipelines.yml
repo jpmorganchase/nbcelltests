@@ -52,7 +52,8 @@ jobs:
         summaryFileLocation: '$(System.DefaultWorkingDirectory)/*coverage.xml'
 
     - script: |
-        python -m pip install twine
+        # duplicates pyproject.toml; see https://github.com/pypa/pip/issues/6041 etc etc etc...
+        python -m pip install wheel setuptools jupyter-packaging twine
         make dist
       displayName: 'Create packages'
 
