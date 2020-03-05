@@ -9,8 +9,6 @@ from jupyter_packaging import (
 
 pjoin = path.join
 
-ensure_python('>=3.6')
-
 name = 'jupyterlab_celltests'
 here = path.abspath(path.dirname(__file__))
 version = get_version(pjoin(here, name, '_version.py'))
