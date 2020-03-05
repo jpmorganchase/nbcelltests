@@ -56,10 +56,11 @@ js:  ## build javascript
 labextension: js ## enable labextension
 	jupyter labextension install .
 
-dist: js  ## dist to pypi
+dist: js
 	rm -rf dist build
-	python3.7 setup.py sdist
-	python3.7 setup.py bdist_wheel
+	python3.7 setup.py sdist bdist_wheel
+
+publish: dist  ## dist to pypi
 	twine check dist/* && twine upload dist/*
 	npm publish
 
