@@ -66,9 +66,6 @@ jobs:
         twine check dist/* && twine upload -r TODOfeed --config-file $(PYPIRC_PATH) dist/*
       displayName: 'Upload packages'
 
-
-- script:
-
 - job: 'Mac'
   pool:
     vmImage: 'macos-10.14'
