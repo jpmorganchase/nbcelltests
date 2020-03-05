@@ -99,7 +99,7 @@ def lint_magics(magics, whitelist=None, blacklist=None):
         msg = "present in blacklist:"
 
     passed = not(bad)
-    return [LintMessage(-1, 'Checking magics ({} {})'.format(msg, bad), LintType.MAGICS, passed)], passed
+    return [LintMessage(-1, 'Checking magics{}'.format(" ({} {})".format(msg, bad) if bad else ""), LintType.MAGICS, passed)], passed
 
 
 def run(notebook, executable=None, rules=None):
