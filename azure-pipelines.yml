@@ -47,9 +47,27 @@ jobs:
         testRunTitle: 'Publish test results for Python $(python.version) $(manylinux_flag)'
 
     - task: PublishCodeCoverageResults@1
-      inputs: 
+      inputs:
         codeCoverageTool: Cobertura
         summaryFileLocation: '$(System.DefaultWorkingDirectory)/*coverage.xml'
+
+    - script: |
+        python -m pip install twine
+        make dist
+      displayName: 'Create packages'
+
+    - task: TwineAuthenticate@0
+      inputs:
+        artifactFeeds: TODOproj/TODOfeed
+        externalFeeds: pypi
+
+    # just python for now; should be able to use "make publish" eventually
+    - script: |
+        twine check dist/* && twine upload -r TODOfeed --config-file $(PYPIRC_PATH) dist/*
+      displayName: 'Upload packages'
+
+
+- script:
 
 - job: 'Mac'
   pool:
@@ -96,7 +114,7 @@ jobs:
         testRunTitle: 'Publish test results for Python $(python.version) $(manylinux_flag)'
 
     - task: PublishCodeCoverageResults@1
-      inputs: 
+      inputs:
         codeCoverageTool: Cobertura
         summaryFileLocation: '$(System.DefaultWorkingDirectory)/*coverage.xml'
 
@@ -153,6 +171,6 @@ jobs:
         testRunTitle: 'Publish test results for Python $(python.version) $(manylinux_flag)'
 
     - task: PublishCodeCoverageResults@1
-      inputs: 
+      inputs:
         codeCoverageTool: Cobertura
         summaryFileLocation: '$(System.DefaultWorkingDirectory)/*coverage.xml'
