@@ -45,3 +45,15 @@ Once you have such a development setup, you should:
 - If you add new code, preferably write one or more tests for checking that your code works as expected.
 - Commit your changes and publish the branch to your github repo.
 - Open a pull-request (PR) back to the main repo on Github.
+
+# Releasing
+
+To make a new release of jupyterlab_celltests:
+
+1. `bumpversion patch` (replacing `patch` with whatever is appropriate for the current release) - this will also create a tag.
+2. `git push --tags` - this will trigger a package build on azure, and upload to https://dev.azure.com/tpaine154/jupyter/_packaging?_a=feed&feed=python-packages
+3. Check the resulting package:
+  - Install and test it in a clean environment (you can install with `pip install --index-url=https://pkgs.dev.azure.com/tpaine154/jupyter/_packaging/python-packages/pypi/simple/ jupyterlab_celltests --extra-index-url=https://pypi.org/simple` (modifying as appropriate to use the wheel or the sdist).
+  - Inspect the sdist and wheel to make sure they contain the right files, version numbers, etc.
+4. Once satisfied, `bumpversion release` until "final" and then grab the resulting release from azure and upload to pypi.
+5. TODO: I haven't covered the npm side yet.
