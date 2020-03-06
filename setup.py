@@ -68,7 +68,7 @@ setup(
     packages=find_packages(exclude=['tests', ]),
     install_requires=requires,
     extras_require={
-        'dev': ['bumpversion',
+        'dev': ['bump2version', # bumpversion won't make the right git tag
                 'autopep8',
                 'pytest-cov>=2.6.1',
                 'mock']
