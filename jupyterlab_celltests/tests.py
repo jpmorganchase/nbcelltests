@@ -2,7 +2,6 @@ import json
 import nbformat
 import os
 import shutil
-import pytest
 import sys
 import subprocess
 import tempfile
@@ -54,7 +53,7 @@ def writeout_test(fp, cells, kernel_name):
     for i, code, meth in cells:
         fp.write('\n')
         fp.write(INDENT + meth)
-        fp.write(INDENT*2 + 'self.run_test("""\n')
+        fp.write(INDENT * 2 + 'self.run_test("""\n')
         to_write = []
 
         for j, code2, _ in cells:
@@ -88,31 +87,31 @@ def writeout_lines_per_cell(fp, lines_per_cell, metadata):
     if lines_per_cell:
         for i, lines_in_cell in enumerate(metadata.get('cell_lines', [])):
             fp.write(INDENT + 'def test_lines_per_cell_%d(self):\n' % i)
-            fp.write(2*INDENT + 'assert {lines_in_cell} <= {limit}\n\n'.format(limit=lines_per_cell, lines_in_cell=lines_in_cell))
+            fp.write(2 * INDENT + 'assert {lines_in_cell} <= {limit}\n\n'.format(limit=lines_per_cell, lines_in_cell=lines_in_cell))
 
 
 def writeout_cells_per_notebook(fp, cells_per_notebook, metadata):
     if cells_per_notebook:
         fp.write(INDENT + 'def test_cells_per_notebook(self):\n')
-        fp.write(2*INDENT + 'assert {cells_in_notebook} <= {limit}\n\n'.format(limit=cells_per_notebook, cells_in_notebook=metadata.get('cell_count', -1)))
+        fp.write(2 * INDENT + 'assert {cells_in_notebook} <= {limit}\n\n'.format(limit=cells_per_notebook, cells_in_notebook=metadata.get('cell_count', -1)))
 
 
 def writeout_function_definitions(fp, function_definitions, metadata):
     if function_definitions:
         fp.write(INDENT + 'def test_function_definition_count(self):\n')
-        fp.write(2*INDENT + 'assert {functions_in_notebook} <= {limit}\n\n'.format(limit=function_definitions, functions_in_notebook=metadata.get('functions', -1)))
+        fp.write(2 * INDENT + 'assert {functions_in_notebook} <= {limit}\n\n'.format(limit=function_definitions, functions_in_notebook=metadata.get('functions', -1)))
 
 
 def writeout_class_definitions(fp, class_definitions, metadata):
     if class_definitions:
         fp.write(INDENT + 'def test_class_definition_count(self):\n')
-        fp.write(2*INDENT + 'assert {classes_in_notebook} <= {limit}\n\n'.format(limit=class_definitions, classes_in_notebook=metadata.get('classes', -1)))
+        fp.write(2 * INDENT + 'assert {classes_in_notebook} <= {limit}\n\n'.format(limit=class_definitions, classes_in_notebook=metadata.get('classes', -1)))
 
 
 def writeout_cell_coverage(fp, cell_coverage, metadata):
     if cell_coverage:
         fp.write(INDENT + 'def test_cell_coverage(self):\n')
-        fp.write(2*INDENT + 'assert {cells_covered} >= {limit}\n\n'.format(limit=cell_coverage, cells_covered=(metadata.get('test_count', 0)/metadata.get('cell_count', -1))*100))
+        fp.write(2 * INDENT + 'assert {cells_covered} >= {limit}\n\n'.format(limit=cell_coverage, cells_covered=(metadata.get('test_count', 0) / metadata.get('cell_count', -1)) * 100))
 
 
 def run(notebook, rules=None, filename=None):
@@ -171,7 +170,7 @@ def runWithReport(notebook, executable=None, rules=None, collect_only=False):
     tmpd = tempfile.mkdtemp()
     py_file = os.path.join(tmpd, os.path.basename(notebook).replace('.ipynb', '.py'))
     json_file = os.path.join(tmpd, os.path.basename(notebook).replace('.ipynb', '.json'))
-    name = run(notebook, filename=py_file)
+    _ = run(notebook, filename=py_file)
     ret = []
     try:
         # enable collecting info via json
@@ -209,10 +208,10 @@ def runWithReport(notebook, executable=None, rules=None, collect_only=False):
                 ret.append(TestMessage(-1, 'Testing function definitions per notebook', TestType.FUNCTION_DEFINITIONS, outcome))
             elif 'test_lines_per_cell_' in node['nodeid']:
                 cell_no = node['nodeid'].rsplit('_', 1)[-1]
-                ret.append(TestMessage(int(cell_no)+1, 'Testing lines per cell', TestType.LINES_PER_CELL, outcome))
+                ret.append(TestMessage(int(cell_no) + 1, 'Testing lines per cell', TestType.LINES_PER_CELL, outcome))
             elif 'test_cell' in node['nodeid']:
                 cell_no = node['nodeid'].rsplit('_', 1)[-1]
-                ret.append(TestMessage(int(cell_no)+1, 'Testing cell', TestType.CELL_TEST, outcome))
+                ret.append(TestMessage(int(cell_no) + 1, 'Testing cell', TestType.CELL_TEST, outcome))
             else:
                 continue
     finally:
