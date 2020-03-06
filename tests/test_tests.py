@@ -1,5 +1,4 @@
 # for Coverage
-from mock import patch, MagicMock
 
 
 class TestTests:

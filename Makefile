@@ -13,7 +13,8 @@ tests: lint ## run the tests
 	yarn test
 
 lint: ## run linter
-	flake8 jupyterlab_celltests 
+	flake8 jupyterlab_celltests setup.py
+	flake8 --ignore=E201,E241 tests
 	yarn lint
 
 fix:  ## run autopep8/tslint fix
@@ -30,12 +31,12 @@ annotate: ## MyPy type annotation check
 	mypy -s jupyterlab_celltests
 
 annotate_l: ## MyPy type annotation check - count only
-	mypy -s jupyterlab_celltests | wc -l 
+	mypy -s jupyterlab_celltests | wc -l
 
 clean: ## clean the repository
-	find . -name "__pycache__" | xargs  rm -rf 
-	find . -name "*.pyc" | xargs rm -rf 
-	find . -name ".ipynb_checkpoints" | xargs  rm -rf 
+	find . -name "__pycache__" | xargs  rm -rf
+	find . -name "*.pyc" | xargs rm -rf
+	find . -name ".ipynb_checkpoints" | xargs  rm -rf
 	rm -rf .coverage coverage cover htmlcov logs build dist *.egg-info lib node_modules
 	# make -C ./docs clean
 
