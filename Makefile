@@ -5,16 +5,15 @@ testjs: ## Clean and Make js tests
 	yarn test
 
 testpy: ## Clean and Make unit tests
-	python3.7 -m pytest -v tests --cov=jupyterlab_celltests
+	python3.7 -m pytest -v jupyterlab_celltests/tests --cov=jupyterlab_celltests
 	yarn test
 
 tests: lint ## run the tests
-	python3.7 -m pytest -v tests --cov=jupyterlab_celltests --junitxml=python_junit.xml --cov-report=xml --cov-branch
+	python3.7 -m pytest -v jupyterlab_celltests/tests --cov=jupyterlab_celltests --junitxml=python_junit.xml --cov-report=xml --cov-branch
 	yarn test
 
 lint: ## run linter
 	flake8 jupyterlab_celltests setup.py
-	flake8 --ignore=E201,E241 tests
 	yarn lint
 
 fix:  ## run autopep8/tslint fix
