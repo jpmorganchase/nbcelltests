@@ -1,9 +1,11 @@
 trigger:
-- master
+  branches:
+    include:
+      - master
   tags:
     include:
-    # todo: should we just include all tags? (see conditional package upload step)
-    - v0.*
+      # todo: should we just include all tags? (see conditional package upload step)
+      - v0.*
 
 jobs:
 - job: 'Linux'
