@@ -72,15 +72,12 @@ jobs:
       displayName: 'Upload packages'
       condition: contains(variables['Build.SourceBranch'], 'tags')  # todo: match "release" style tags only (v...)
 
-#    - task: npmAuthenticate@0
-#      inputs:
-#        artifactFeeds: jupyter/python-packages
-
     - task: Npm@1
       inputs:
         command: publish
         publishRegistry: useFeed
         publishFeed: jupyter/python-packages
+      condition: contains(variables['Build.SourceBranch'], 'tags')  # todo: match "release" style tags only (v...)
 
 - job: 'Mac'
   pool:
