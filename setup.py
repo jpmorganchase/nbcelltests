@@ -9,8 +9,6 @@ from jupyter_packaging import (
 
 pjoin = path.join
 
-ensure_python('>=3.6')
-
 name = 'jupyterlab_celltests'
 here = path.abspath(path.dirname(__file__))
 version = get_version(pjoin(here, name, '_version.py'))
@@ -49,6 +47,7 @@ setup(
     version=version,
     description='Cell-by-cell tests for JupyterLab',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     url='https://github.com/timkpaine/jupyterlab_celltests',
     author='Tim Paine',
     author_email='t.paine154@gmail.com',

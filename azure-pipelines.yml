@@ -47,9 +47,24 @@ jobs:
         testRunTitle: 'Publish test results for Python $(python.version) $(manylinux_flag)'
 
     - task: PublishCodeCoverageResults@1
-      inputs: 
+      inputs:
         codeCoverageTool: Cobertura
         summaryFileLocation: '$(System.DefaultWorkingDirectory)/*coverage.xml'
+
+    - script: |
+        # duplicates pyproject.toml; see https://github.com/pypa/pip/issues/6041 etc etc etc...
+        python -m pip install wheel setuptools jupyter-packaging twine
+        make dist
+      displayName: 'Create packages'
+
+    - task: TwineAuthenticate@0
+      inputs:
+        artifactFeeds: jupyter/python-packages
+
+    # just python for now; should be able to use "make publish" eventually
+    - script: |
+        twine check dist/* && twine upload -r jupyter/python-packages --config-file $(PYPIRC_PATH) dist/*
+      displayName: 'Upload packages'
 
 - job: 'Mac'
   pool:
@@ -96,7 +111,7 @@ jobs:
         testRunTitle: 'Publish test results for Python $(python.version) $(manylinux_flag)'
 
     - task: PublishCodeCoverageResults@1
-      inputs: 
+      inputs:
         codeCoverageTool: Cobertura
         summaryFileLocation: '$(System.DefaultWorkingDirectory)/*coverage.xml'
 
@@ -153,6 +168,6 @@ jobs:
         testRunTitle: 'Publish test results for Python $(python.version) $(manylinux_flag)'
 
     - task: PublishCodeCoverageResults@1
-      inputs: 
+      inputs:
         codeCoverageTool: Cobertura
         summaryFileLocation: '$(System.DefaultWorkingDirectory)/*coverage.xml'
