@@ -4,7 +4,7 @@ from os import path
 
 from jupyter_packaging import (
     create_cmdclass, install_npm, ensure_targets,
-    combine_commands, ensure_python, get_version
+    combine_commands, get_version
 )
 
 pjoin = path.join
@@ -68,7 +68,7 @@ setup(
     packages=find_packages(exclude=['tests', ]),
     install_requires=requires,
     extras_require={
-        'dev': ['bump2version', # bumpversion won't make the right git tag
+        'dev': ['bump2version',  # bumpversion won't make the right git tag
                 'autopep8',
                 'pytest-cov>=2.6.1',
                 'mock']

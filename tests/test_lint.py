@@ -1,7 +1,5 @@
 import os
 import pytest
-# for Coverage
-from mock import patch, MagicMock
 
 from jupyterlab_celltests.lint import lint_lines_per_cell, lint_cells_per_notebook, lint_function_definitions, lint_class_definitions, lint_cell_coverage, lint_kernelspec, lint_magics, run
 
@@ -10,9 +8,9 @@ from jupyterlab_celltests.lint import lint_lines_per_cell, lint_cells_per_notebo
 
 @pytest.mark.parametrize(
     "max_lines_per_cell, cell_lines, expected_ret, expected_pass", [
-        ( 3, [0,1,2,3,4], [True, True, True, True,False], False),
-        ( 3,   [0,1,2,3],       [True, True, True, True],  True),
-        (-1,       [0,1],                             [],  True),
+        ( 3, [0, 1, 2, 3, 4], [True, True, True, True, False], False),
+        ( 3,    [0, 1, 2, 3],        [True, True, True, True],  True),
+        (-1,          [0, 1],                              [],  True),
     ]
 )
 def test_lines_per_cell(max_lines_per_cell, cell_lines, expected_ret, expected_pass):
@@ -44,7 +42,7 @@ def test_cells_per_notebook(max_cells_per_notebook, cell_count, expected_ret, ex
     ]
 )
 def test_lint_function_definitions(max_function_definitions, functions, expected_ret, expected_pass):
-    ret, passed  = lint_function_definitions(functions, max_function_definitions)
+    ret, passed = lint_function_definitions(functions, max_function_definitions)
     _verify(ret, passed, expected_ret, expected_pass)
 
 
@@ -84,7 +82,7 @@ def test_cell_coverage(test_count, cell_count, min_cell_coverage, expected_ret, 
         (                  {}, {'name': 'python3',
                                 'display_name': 'Python 3'},  [True],  True),
         (               False,                           {},      [],  True),
-        (               False, {'something':'else'},              [],  True),
+        (               False,        {'something': 'else'},      [],  True),
     ]
 )
 def test_kernelspec(kernelspec_requirements, kernelspec, expected_ret, expected_pass):
@@ -93,18 +91,18 @@ def test_kernelspec(kernelspec_requirements, kernelspec, expected_ret, expected_
 
 
 @pytest.mark.parametrize(
-              "magics_whitelist, magics_blacklist, magics, expected_ret, expected_pass", [
+    "magics_whitelist, magics_blacklist, magics, expected_ret, expected_pass", [
         # no check
-        (         None,      None,           [],      [],  True),
-        (         None,      None, ['anything'],      [],  True),
+        (          None,      None,           [],      [],  True),
+        (          None,      None, ['anything'],      [],  True),
         # empty whitelist: no magics allowed
-        (           [],      None, ['anything'], [False], False),
+        (            [],      None, ['anything'], [False], False),
         # only whitelisted
-        (['ok1','ok2'],      None,      ['ok1'],  [True],  True),
-        (['ok1','ok2'],      None,    ['notok'], [False], False),
+        (['ok1', 'ok2'],      None,      ['ok1'],  [True],  True),
+        (['ok1', 'ok2'],      None,    ['notok'], [False], False),
         # no blacklisted
-        (         None, ['notok'],       ['ok'],  [True],  True),
-        (         None, ['notok'],    ['notok'], [False], False),
+        (          None, ['notok'],       ['ok'],  [True],  True),
+        (          None, ['notok'],    ['notok'], [False], False),
     ]
 )
 def test_magics(magics_whitelist, magics_blacklist, magics, expected_ret, expected_pass):
@@ -114,43 +112,45 @@ def test_magics(magics_whitelist, magics_blacklist, magics, expected_ret, expect
 
 def test_magics_lists_sanity():
     msg = "Must specify either a whitelist or a blacklist, not both."
-    
+
     with pytest.raises(ValueError, match=msg):
         lint_magics(set(), whitelist=['one'], blacklist=['one'])
 
     with pytest.raises(ValueError, match=msg):
         lint_magics(set(), whitelist=[], blacklist=['one'])
-    
+
     with pytest.raises(ValueError, match=msg):
         lint_magics(set(), whitelist=[], blacklist=[])
 
     with pytest.raises(ValueError, match=msg):
         lint_magics(set(), whitelist=['one'], blacklist=[])
-    
 
-@pytest.mark.parametrize("rules, expected_ret, expected_pass", [
-    # no rules
-    ({}, [], True),
-    # one rule, pass
-    ({'lines_per_cell': -1}, [], True),
-    # one rule, fail
-    ({'lines_per_cell':  1}, [False, True, True, True, False, False], False),
-    # multiple rules, combo fail
-    ({'lines_per_cell':  5,
-      'cells_per_notebook': 1}, [True, True, True, True, True, True, False], False),
-    # multiple rules, combo pass
-    ({'lines_per_cell':  5,
-      'cells_per_notebook': 10}, [True, True, True, True, True, True, True], True),
-    # all the expected rules
-    ({'lines_per_cell': 5,
-      'cells_per_notebook': 2,
-      'function_definitions': 0,
-      'class_definitions': 0,
-      'cell_coverage': 90,
-      'kernelspec_requirements':
-        {'name': 'python3'},
-      'magics_whitelist': ['matplotlib']}, [True, True, True, True, True, True, False, False, False, False, True, True], False)
-    ])
+
+@pytest.mark.parametrize(
+    "rules, expected_ret, expected_pass", [
+        # no rules
+        ({}, [], True),
+        # one rule, pass
+        ({'lines_per_cell': -1}, [], True),
+        # one rule, fail
+        ({'lines_per_cell':  1}, [False, True, True, True, False, False], False),
+        # multiple rules, combo fail
+        ({'lines_per_cell':  5,
+          'cells_per_notebook': 1}, [True, True, True, True, True, True, False], False),
+        # multiple rules, combo pass
+        ({'lines_per_cell':  5,
+          'cells_per_notebook': 10}, [True, True, True, True, True, True, True], True),
+        # all the expected rules
+        ({'lines_per_cell': 5,
+          'cells_per_notebook': 2,
+          'function_definitions': 0,
+          'class_definitions': 0,
+          'cell_coverage': 90,
+          'kernelspec_requirements':
+            {'name': 'python3'},
+          'magics_whitelist': ['matplotlib']}, [True, True, True, True, True, True, False, False, False, False, True, True], False)
+    ]
+)
 def test_run(rules, expected_ret, expected_pass):
     nb = os.path.join(os.path.dirname(__file__), 'more.ipynb')
     ret, passed = run(nb, rules=rules)

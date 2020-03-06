@@ -1,5 +1,4 @@
 # for Coverage
-from mock import patch, MagicMock
 from jupyterlab_celltests import _jupyter_server_extension_paths
 
 
