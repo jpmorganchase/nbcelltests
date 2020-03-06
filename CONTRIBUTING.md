@@ -36,7 +36,7 @@ If you want to help resolve an issue by making some changes that are larger than
   - `jupyter serverextension enable --py jupyterlab_celltests` - This will enable the server extension.
 - Validate the install by running the tests:
   - `py.test` - This command will run the Python tests.
-  - `npm test` - This command will run the JS tests.
+  - `yarn test` - This command will run the JS tests.
 
 Once you have such a development setup, you should:
 
