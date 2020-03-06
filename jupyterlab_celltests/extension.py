@@ -13,7 +13,7 @@ try:
 except ImportError:
     from tempfile import TemporaryDirectory
 
-from .tests import runWithHTMLReturn as runTest
+from .test import runWithHTMLReturn as runTest
 from .lint import runWithHTMLReturn as runLint
 
 
