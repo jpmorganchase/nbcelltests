@@ -3,7 +3,7 @@ import pytest
 # for Coverage
 from mock import patch, MagicMock
 
-from jupyterlab_celltests.lint import lint_lines_per_cell, lint_cells_per_notebook, lint_function_definitions, lint_class_definitions, lint_cell_coverage, lint_kernelspec, run
+from jupyterlab_celltests.lint import lint_lines_per_cell, lint_cells_per_notebook, lint_function_definitions, lint_class_definitions, lint_cell_coverage, lint_kernelspec, lint_magics, run
 
 # note that list comparison with = in this file assumes pytest
 
@@ -92,6 +92,42 @@ def test_kernelspec(kernelspec_requirements, kernelspec, expected_ret, expected_
     _verify(ret, passed, expected_ret, expected_pass)
 
 
+@pytest.mark.parametrize(
+              "magics_whitelist, magics_blacklist, magics, expected_ret, expected_pass", [
+        # no check
+        (         None,      None,           [],      [],  True),
+        (         None,      None, ['anything'],      [],  True),
+        # empty whitelist: no magics allowed
+        (           [],      None, ['anything'], [False], False),
+        # only whitelisted
+        (['ok1','ok2'],      None,      ['ok1'],  [True],  True),
+        (['ok1','ok2'],      None,    ['notok'], [False], False),
+        # no blacklisted
+        (         None, ['notok'],       ['ok'],  [True],  True),
+        (         None, ['notok'],    ['notok'], [False], False),
+    ]
+)
+def test_magics(magics_whitelist, magics_blacklist, magics, expected_ret, expected_pass):
+    ret, passed = lint_magics(magics, whitelist=magics_whitelist, blacklist=magics_blacklist)
+    _verify(ret, passed, expected_ret, expected_pass)
+
+
+def test_magics_lists_sanity():
+    msg = "Must specify either a whitelist or a blacklist, not both."
+    
+    with pytest.raises(ValueError, match=msg):
+        lint_magics(set(), whitelist=['one'], blacklist=['one'])
+
+    with pytest.raises(ValueError, match=msg):
+        lint_magics(set(), whitelist=[], blacklist=['one'])
+    
+    with pytest.raises(ValueError, match=msg):
+        lint_magics(set(), whitelist=[], blacklist=[])
+
+    with pytest.raises(ValueError, match=msg):
+        lint_magics(set(), whitelist=['one'], blacklist=[])
+    
+
 @pytest.mark.parametrize("rules, expected_ret, expected_pass", [
     # no rules
     ({}, [], True),
@@ -112,7 +148,8 @@ def test_kernelspec(kernelspec_requirements, kernelspec, expected_ret, expected_
       'class_definitions': 0,
       'cell_coverage': 90,
       'kernelspec_requirements':
-        {'name': 'python3'}}, [True, True, True, True, True, True, False, False, False, False, True], False)
+        {'name': 'python3'},
+      'magics_whitelist': ['matplotlib']}, [True, True, True, True, True, True, False, False, False, False, True, True], False)
     ])
 def test_run(rules, expected_ret, expected_pass):
     nb = os.path.join(os.path.dirname(__file__), 'more.ipynb')
