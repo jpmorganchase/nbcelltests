@@ -67,11 +67,20 @@ jobs:
       inputs:
         artifactFeeds: jupyter/python-packages
 
-    # just python for now; should be able to use "make publish" eventually
     - script: |
         twine check dist/* && twine upload -r jupyter/python-packages --config-file $(PYPIRC_PATH) dist/*
       displayName: 'Upload packages'
       condition: contains(variables['Build.SourceBranch'], 'tags')  # todo: match "release" style tags only (v...)
+
+#    - task: npmAuthenticate@0
+#      inputs:
+#        artifactFeeds: jupyter/python-packages
+
+    - task: Npm@1
+      inputs:
+        command: publish
+        publishRegistry: useFeed
+        publishFeed: jupyter/python-packages
 
 - job: 'Mac'
   pool:
