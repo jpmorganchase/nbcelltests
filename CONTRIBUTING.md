@@ -51,7 +51,7 @@ Once you have such a development setup, you should:
 To make a new release of jupyterlab_celltests:
 
 1. `bumpversion patch` (replacing `patch` with whatever is appropriate for the current release, e.g. `minor`, `major`, etc) - This will also create a git commit and tag.
-2. `git push --follow-tags` - This will trigger python and npm package builds on azure, and upload to [our azure feed](https://dev.azure.com/tpaine154/jupyter/_packaging?_a=feed&feed=python-packages).
+2. `git push && git push --tags` - This will trigger python and npm package builds on azure, and upload to [our azure feed](https://dev.azure.com/tpaine154/jupyter/_packaging?_a=feed&feed=python-packages).
 3. Check the resulting packages:
   - Install and test in a clean environment:
     - You can install for python with `pip install --index-url=https://pkgs.dev.azure.com/tpaine154/jupyter/_packaging/python-packages/pypi/simple/ jupyterlab_celltests==0.1.3a0 --extra-index-url=https://pypi.org/simple`, modifying as appropriate to use the wheel or the sdist, and to install the version you want to test.
