@@ -1,31 +1,31 @@
 
 ```eval_rst
-.. automodule:: jupyterlab_celltests
+.. automodule:: nbcelltests
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: jupyterlab_celltests.extension
+.. automodule:: nbcelltests.extension
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: jupyterlab_celltests.define
+.. automodule:: nbcelltests.define
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: jupyterlab_celltests.lint
+.. automodule:: nbcelltests.lint
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: jupyterlab_celltests.tests
+.. automodule:: nbcelltests.tests
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: jupyterlab_celltests.shared
+.. automodule:: nbcelltests.shared
    :members:
    :undoc-members:
    :show-inheritance:

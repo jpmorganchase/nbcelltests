@@ -1,12 +1,12 @@
-# jupyterlab_celltests
+# nbcelltests
 Cell-by-cell testing for production Jupyter notebooks in JupyterLab
 
-[![Build Status](https://dev.azure.com/tpaine154/jupyter/_apis/build/status/timkpaine.jupyterlab_celltests?branchName=master)](https://dev.azure.com/tpaine154/jupyter/_build/latest?definitionId=15&branchName=master)
+[![Build Status](https://dev.azure.com/tpaine154/jupyter/_apis/build/status/timkpaine.nbcelltests?branchName=master)](https://dev.azure.com/tpaine154/jupyter/_build/latest?definitionId=15&branchName=master)
 [![Coverage](https://img.shields.io/azure-devops/coverage/tpaine154/jupyter/15)](https://dev.azure.com/tpaine154/jupyter/_build?definitionId=15&_a=summary)
-[![Docs](https://img.shields.io/readthedocs/jupyterlab_celltests.svg)](https://jupyterlab_celltests.readthedocs.io)
-[![PyPI](https://img.shields.io/pypi/l/jupyterlab_celltests.svg)](https://pypi.python.org/pypi/jupyterlab_celltests)
-[![PyPI](https://img.shields.io/pypi/v/jupyterlab_celltests.svg)](https://pypi.python.org/pypi/jupyterlab_celltests)
-[![npm](https://img.shields.io/npm/v/jupyterlab_celltests.svg)](https://www.npmjs.com/package/jupyterlab_celltests)
+[![Docs](https://img.shields.io/readthedocs/nbcelltests.svg)](https://nbcelltests.readthedocs.io)
+[![PyPI](https://img.shields.io/pypi/l/nbcelltests.svg)](https://pypi.python.org/pypi/nbcelltests)
+[![PyPI](https://img.shields.io/pypi/v/nbcelltests.svg)](https://pypi.python.org/pypi/nbcelltests)
+[![npm](https://img.shields.io/npm/v/nbcelltests.svg)](https://www.npmjs.com/package/nbcelltests)
 
 
 # Overview
@@ -30,12 +30,12 @@ Given a notebook, you can write mocks and assertions for individual cells. You c
 
 ## Writing tests
 When you write tests for a cell, we create a new method on a `unittest` class corresponding to the index of your cell, and including the cumulative tests for all previous cells (to mimic what has happened so far in the notebook's linear execution). You can write whatever mocking and asserts you like, and can call `%cell` to inject the contents of the cell into your test. 
-![](https://raw.githubusercontent.com/timkpaine/jupyterlab_celltests/master/docs/demo.gif)
+![](https://raw.githubusercontent.com/timkpaine/nbcelltests/master/docs/demo.gif)
 The tests themselves are stored in the cell metadata, similar to celltags, slide information, etc. 
 
 ## Running tests
 You can run the tests offline from an `.ipynb` file, or you can execute them from the browser and view the results of `pytest-html`'s html plugin.
-![](https://raw.githubusercontent.com/timkpaine/jupyterlab_celltests/master/docs/demo2.gif)
+![](https://raw.githubusercontent.com/timkpaine/nbcelltests/master/docs/demo2.gif)
 
 ## Extra Tests
 - Max number of lines per cell

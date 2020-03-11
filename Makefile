@@ -1,35 +1,35 @@
 run:
-	python3.7 -m jupyterlab_celltests.tests Untitled.ipynb
+	python3.7 -m nbcelltests.tests Untitled.ipynb
 
 testjs: ## Clean and Make js tests
 	yarn test
 
 testpy: ## Clean and Make unit tests
-	python3.7 -m pytest -v jupyterlab_celltests/tests --cov=jupyterlab_celltests
+	python3.7 -m pytest -v nbcelltests/tests --cov=nbcelltests
 
 tests: lint ## run the tests
-	python3.7 -m pytest -v jupyterlab_celltests/tests --cov=jupyterlab_celltests --junitxml=python_junit.xml --cov-report=xml --cov-branch
+	python3.7 -m pytest -v nbcelltests/tests --cov=nbcelltests --junitxml=python_junit.xml --cov-report=xml --cov-branch
 	yarn test
 
 lint: ## run linter
-	flake8 jupyterlab_celltests setup.py
+	flake8 nbcelltests setup.py
 	yarn lint
 
 fix:  ## run autopep8/tslint fix
-	autopep8 --in-place -r -a -a jupyterlab_celltests/
+	autopep8 --in-place -r -a -a nbcelltests/
 	./node_modules/.bin/tslint --fix src/*
 
 extest:  ## run example test
-	@ python3.7 -m jupyterlab_celltests.tests Untitled.ipynb
+	@ python3.7 -m nbcelltests.tests Untitled.ipynb
 
 exlint:  ## run example test
-	@ python3.7 -m jupyterlab_celltests.lint Untitled.ipynb
+	@ python3.7 -m nbcelltests.lint Untitled.ipynb
 
 annotate: ## MyPy type annotation check
-	mypy -s jupyterlab_celltests
+	mypy -s nbcelltests
 
 annotate_l: ## MyPy type annotation check - count only
-	mypy -s jupyterlab_celltests | wc -l
+	mypy -s nbcelltests | wc -l
 
 clean: ## clean the repository
 	find . -name "__pycache__" | xargs  rm -rf
@@ -46,7 +46,7 @@ install:  ## install to site-packages
 	pip3 install .
 
 serverextension: install ## enable serverextension
-	jupyter serverextension enable --py jupyterlab_celltests
+	jupyter serverextension enable --py nbcelltests
 
 js:  ## build javascript
 	yarn

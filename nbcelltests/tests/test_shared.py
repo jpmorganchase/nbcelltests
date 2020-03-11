@@ -1,8 +1,15 @@
+# *****************************************************************************
+#
+# Copyright (c) 2019, the nbcelltests authors.
+#
+# This file is part of the nbcelltests library, distributed under the terms of
+# the Apache License 2.0.  The full license can be found in the LICENSE file.
+#
 import os
 
 import nbformat
 
-from jupyterlab_celltests.shared import extract_extrametadata
+from nbcelltests.shared import extract_extrametadata
 
 
 BASIC_NB = os.path.join(os.path.dirname(__file__), 'basic.ipynb')

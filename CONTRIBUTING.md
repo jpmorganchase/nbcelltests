@@ -33,7 +33,7 @@ If you want to help resolve an issue by making some changes that are larger than
     mode.
   - `jupyter labextension install .` - This will add the lab extension in development
     mode.
-  - `jupyter serverextension enable --py jupyterlab_celltests` - This will enable the server extension.
+  - `jupyter serverextension enable --py nbcelltests` - This will enable the server extension.
 - Validate the install by running the tests:
   - `py.test` - This command will run the Python tests.
   - `yarn test` - This command will run the JS tests.
@@ -48,16 +48,16 @@ Once you have such a development setup, you should:
 
 # Releasing
 
-To make a new release of jupyterlab_celltests:
+To make a new release of nbcelltests:
 
 1. `bumpversion patch` (replacing `patch` with whatever is appropriate for the current release, e.g. `minor`, `major`, etc) - This will also create a git commit and tag.
 2. `git push && git push --tags` - This will trigger python and npm package builds on azure, and upload to [our azure feed](https://dev.azure.com/tpaine154/jupyter/_packaging?_a=feed&feed=python-packages).
 3. Check the resulting packages:
   - Install and test in a clean environment:
-    - You can install for python with `pip install --index-url=https://pkgs.dev.azure.com/tpaine154/jupyter/_packaging/python-packages/pypi/simple/ jupyterlab_celltests==0.1.3a0 --extra-index-url=https://pypi.org/simple`, modifying as appropriate to use the wheel or the sdist, and to install the version you want to test. Following that, you should at least run the installed package's tests (after installing the test dependencies - see setup.py's dev dependencies): `python -m py.test --pyargs jupyterlab_celltests`.
-    - Download the jupyterlab_celltests npm package from [our azure feed](https://dev.azure.com/tpaine154/jupyter/_packaging?_a=feed&feed=python-packages) and then install with `jupyter labextension install /path/to/jupyterlab_celltests-0.1.3-alpha.0.tgz` (replacing the filename with whatever you downloaded).
+    - You can install for python with `pip install --index-url=https://pkgs.dev.azure.com/tpaine154/jupyter/_packaging/python-packages/pypi/simple/ nbcelltests==0.1.3a0 --extra-index-url=https://pypi.org/simple`, modifying as appropriate to use the wheel or the sdist, and to install the version you want to test. Following that, you should at least run the installed package's tests (after installing the test dependencies - see setup.py's dev dependencies): `python -m py.test --pyargs nbcelltests`.
+    - Download the nbcelltests npm package from [our azure feed](https://dev.azure.com/tpaine154/jupyter/_packaging?_a=feed&feed=python-packages) and then install with `jupyter labextension install /path/to/nbcelltests-0.1.3-alpha.0.tgz` (replacing the filename with whatever you downloaded).
   - Inspect the sdist, wheel, and npm tgz to make sure they contain the right files, version numbers, etc.
 4. You can upload release candidates to pypi and npm if you want:
   - pypi: `twine check /path/to/dist/* && twine upload /path/to/dist/*` (updating the path to match what you downloaded from azure).
-  - npm: `npm publish --tag beta /path/to/jupyterlab_celltests-0.1.3-candidate.0.tgz` (updating the filename to match what you downloaded from azure).
+  - npm: `npm publish --tag beta /path/to/nbcelltests-0.1.3-candidate.0.tgz` (updating the filename to match what you downloaded from azure).
 4. Once satisfied, use `bumpversion` either to set or increment `release` to `final` (e.g.  `bumpversion release`), and then grab the resulting releases from azure and upload to pypi and npm.
