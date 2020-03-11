@@ -9,7 +9,7 @@ include .bumpversion.cfg
 include jest.config.js
 include Makefile
 
-graft jupyterlab_celltests/tests
+graft nbcelltests/tests
 
 # Documentation
 graft docs

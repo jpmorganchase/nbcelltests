@@ -1,7 +1,14 @@
+# *****************************************************************************
+#
+# Copyright (c) 2019, the nbcelltests authors.
+#
+# This file is part of the nbcelltests library, distributed under the terms of
+# the Apache License 2.0.  The full license can be found in the LICENSE file.
+#
 import os
 import pytest
 
-from jupyterlab_celltests.lint import lint_lines_per_cell, lint_cells_per_notebook, lint_function_definitions, lint_class_definitions, lint_cell_coverage, lint_kernelspec, lint_magics, run
+from nbcelltests.lint import lint_lines_per_cell, lint_cells_per_notebook, lint_function_definitions, lint_class_definitions, lint_cell_coverage, lint_kernelspec, lint_magics, run
 
 # note that list comparison with = in this file assumes pytest
 

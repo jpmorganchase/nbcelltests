@@ -1,3 +1,10 @@
+# *****************************************************************************
+#
+# Copyright (c) 2019, the nbcelltests authors.
+#
+# This file is part of the nbcelltests library, distributed under the terms of
+# the Apache License 2.0.  The full license can be found in the LICENSE file.
+#
 import nbformat
 import os
 import sys
@@ -187,7 +194,7 @@ def runWithHTMLReturn(notebook, executable=None, rules=None):
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        raise Exception('Usage:python -m jupyterlab_celltests.lint <ipynb file>')
+        raise Exception('Usage:python -m nbcelltests.lint <ipynb file>')
     notebook = sys.argv[1]
     ret, passed = run(notebook, ['flake8', '--ignore=W391'])
     if passed:

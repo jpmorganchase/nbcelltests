@@ -9,7 +9,7 @@ from jupyter_packaging import (
 
 pjoin = path.join
 
-name = 'jupyterlab_celltests'
+name = 'nbcelltests'
 here = path.abspath(path.dirname(__file__))
 version = get_version(pjoin(here, name, '_version.py'))
 
@@ -24,7 +24,7 @@ data_spec = [
     # Lab extension installed by default:
     ('share/jupyter/lab/extensions',
      'lab-dist',
-     'jupyterlab_celltests-*.tgz'),
+     'nbcelltests-*.tgz'),
     # Config to enable server extension by default:
     ('etc/jupyter',
      'jupyter-config',
@@ -48,7 +48,7 @@ setup(
     description='Cell-by-cell tests for JupyterLab',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/timkpaine/jupyterlab_celltests',
+    url='https://github.com/timkpaine/nbcelltests',
     author='Tim Paine',
     author_email='t.paine154@gmail.com',
     license='Apache 2.0',

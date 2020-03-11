@@ -1,3 +1,10 @@
+# *****************************************************************************
+#
+# Copyright (c) 2019, the nbcelltests authors.
+#
+# This file is part of the nbcelltests library, distributed under the terms of
+# the Apache License 2.0.  The full license can be found in the LICENSE file.
+#
 import json
 import nbformat
 import os
@@ -243,7 +250,7 @@ def runWithHTMLReturn2(notebook, executable=None, rules=None):
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        raise Exception('Usage:python -m jupyterlab_celltests.tests <ipynb file>')
+        raise Exception('Usage:python -m nbcelltests.tests <ipynb file>')
     notebook = sys.argv[1]
     name = run(notebook)
     argv = [sys.executable, '-m', 'pytest', name, '-v', '--html=' + name.replace('.py', '.html'), '--self-contained-html']

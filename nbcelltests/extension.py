@@ -1,3 +1,10 @@
+# *****************************************************************************
+#
+# Copyright (c) 2019, the nbcelltests authors.
+#
+# This file is part of the nbcelltests library, distributed under the terms of
+# the Apache License 2.0.  The full license can be found in the LICENSE file.
+#
 import json
 import os
 import os.path
@@ -86,7 +93,7 @@ def load_jupyter_server_extension(nb_server_app):
     host_pattern = '.*$'
     base_url = web_app.settings['base_url']
     # host_pattern = '.*$'
-    print('Installing jupyterlab_celltests handler on path %s' % url_path_join(base_url, 'celltests'))
+    print('Installing nbcelltests handler on path %s' % url_path_join(base_url, 'celltests'))
 
     rules = nb_server_app.config.get('JupyterLabCelltests', {}).get('rules', {})
     test_executable = nb_server_app.config.get('JupyterLabCelltests', {}).get('test_executable', [sys.executable, '-m', 'pytest', '-v'])

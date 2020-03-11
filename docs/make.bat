@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=jupyterlab_celltests
+set SPHINXPROJ=nbcelltests
 
 if "%1" == "" goto help
 
