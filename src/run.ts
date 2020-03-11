@@ -2,7 +2,7 @@ import {JupyterFrontEnd} from "@jupyterlab/application";
 import {Dialog, showDialog} from "@jupyterlab/apputils";
 import {PageConfig} from "@jupyterlab/coreutils";
 import {IDocumentManager} from "@jupyterlab/docmanager";
-import {Widget} from "@phosphor/widgets";
+import {Widget} from "@lumino/widgets";
 
 import {IRequestResult, request} from "requests-helper";
 

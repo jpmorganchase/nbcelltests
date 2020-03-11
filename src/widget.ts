@@ -1,4 +1,4 @@
-import { BoxPanel, PanelLayout, Widget } from "@phosphor/widgets";
+import { BoxPanel, PanelLayout, Widget } from "@lumino/widgets";
 
 import { Cell, CodeCellModel } from "@jupyterlab/cells";
 import { CodeEditorWrapper} from "@jupyterlab/codeeditor";

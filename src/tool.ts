@@ -1,5 +1,5 @@
-import { Message } from "@phosphor/messaging";
-import { PanelLayout } from "@phosphor/widgets";
+import { Message } from "@lumino/messaging";
+import { PanelLayout } from "@lumino/widgets";
 
 import { JupyterFrontEnd } from "@jupyterlab/application";
 import { INotebookTools, INotebookTracker, NotebookTools } from "@jupyterlab/notebook";
