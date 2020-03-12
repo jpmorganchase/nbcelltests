@@ -53,7 +53,7 @@ def lint_class_definitions(classes, max_class_definitions=-1):
     if max_class_definitions < 0:
         return [], True
     passed = classes <= max_class_definitions
-    return [LintMessage(-1, 'Checking classes per notebook (max={max_}; actual={actual})'.format(max_=max_class_definitions, actual=classes), LintType.FUNCTION_DEFINITIONS, passed)], passed
+    return [LintMessage(-1, 'Checking classes per notebook (max={max_}; actual={actual})'.format(max_=max_class_definitions, actual=classes), LintType.CLASS_DEFINITIONS, passed)], passed
 
 
 # TODO: I think this isn't lint and should be removed.
