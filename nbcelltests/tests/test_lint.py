@@ -159,7 +159,13 @@ def test_magics_lists_sanity():
           'cell_coverage': 90,
           'kernelspec_requirements':
             {'name': 'python3'},
-          'magics_whitelist': ['matplotlib']}, [LR(True, LintType.LINES_PER_CELL)] * 6 + [LR(False, LintType.CELLS_PER_NOTEBOOK)] + [LR(False, LintType.FUNCTION_DEFINITIONS)] + [LR(False, LintType.CLASS_DEFINITIONS)] + [LR(False, LintType.CELL_COVERAGE)] + [LR(True, LintType.KERNELSPEC)] + [LR(True, LintType.MAGICS)], False)
+          'magics_whitelist': ['matplotlib']}, [LR(True, LintType.LINES_PER_CELL)] * 6 +
+                                               [LR(False, LintType.CELLS_PER_NOTEBOOK)] +
+                                               [LR(False, LintType.FUNCTION_DEFINITIONS)] +
+                                               [LR(False, LintType.CLASS_DEFINITIONS)] +
+                                               [LR(False, LintType.CELL_COVERAGE)] +
+                                               [LR(True, LintType.KERNELSPEC)] +
+                                               [LR(True, LintType.MAGICS)], False)
     ]
 )
 def test_run(rules, expected_ret, expected_pass):
