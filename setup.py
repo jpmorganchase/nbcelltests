@@ -60,9 +60,8 @@ setup(
     description='Cell-by-cell tests for JupyterLab',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/timkpaine/nbcelltests',
-    author='Tim Paine',
-    author_email='t.paine154@gmail.com',
+    url='https://github.com/jpmorganchase/nbcelltests',
+    author='The nbcelltests authors',
     license='Apache 2.0',
 
     classifiers=[
