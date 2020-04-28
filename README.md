@@ -12,20 +12,36 @@ Cell-by-cell testing for production Jupyter notebooks in JupyterLab
 # Overview
 `Celltests` is designed for writing tests for linearly executed notebooks. Its primary use is for unit testing reports. 
 
-### "Linearly executed notebooks?"
+## Installation
+Python package installation:
+
+`pip install nbcelltests`
+
+or from source:
+
+`python setup.py install`
+
+To install the frontend extension for JupyterLab
+
+```bash
+jupyter labextension install jupyterlab_celltests
+jupyter serverextension enable --py nbcelltests
+```
+
+## "Linearly executed notebooks?"
 When converting notebooks into html/pdf/email reports, they are executed top-to-bottom one time, and are expected to contain as little code as reasonably possible, focusing primarily on the plotting and markdown bits. Libraries for this type of thing include [Papermill](https://github.com/nteract/papermill), [JupyterLab Emails](https://github.com/timkpaine/jupyterlab_email), etc. 
 
-### Doesn't this already exist?
+## Doesn't this already exist?
 [Nbval](https://github.com/computationalmodelling/nbval) is a great product and I recommend using it for notebook regression tests. But it only allows for testing for unexpected failures or simple output equality tests.
 
-### So why do I want this again?
+## So why do I want this again?
 This doesn't necessarily help you if your data sources go down, but its likely you'll notice this anyway. Where this comes in handy is:
 
 - when the environment (e.g. package versions) are changing in your system
 - when you play around in the notebook (e.g. nonlinear execution) but aren't sure if your reports will still generate
 - when your software lifecycle systems have a hard time dealing with notebooks (can't lint/audit them as code unless integrated nbdime/nbconvert to script, tough to test, tough to ensure what works today works tomorrow)
 
-### So what does this do?
+## So what does this do?
 Given a notebook, you can write mocks and assertions for individual cells. You can then generate a testing script for this notebook, allowing you to hook it into your testing system and thereby provide unittests of your report. 
 
 ## Writing tests
