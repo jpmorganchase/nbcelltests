@@ -1,5 +1,5 @@
 run:
-	python3.7 -m nbcelltests.tests Untitled.ipynb
+	python3.7 -m nbcelltests.test Untitled.ipynb
 
 testjs: ## Clean and Make js tests
 	yarn test
@@ -20,7 +20,7 @@ fix:  ## run autopep8/tslint fix
 	./node_modules/.bin/tslint --fix src/*
 
 extest:  ## run example test
-	@ python3.7 -m nbcelltests.tests Untitled.ipynb
+	@ python3.7 -m nbcelltests.test Untitled.ipynb
 
 exlint:  ## run example test
 	@ python3.7 -m nbcelltests.lint Untitled.ipynb
