@@ -1,5 +1,5 @@
-PYTHON := python3.7
-PIP := pip3
+PYTHON := python
+PIP := pip
 
 run:
 	${PYTHON} -m nbcelltests.test Untitled.ipynb
