@@ -63,6 +63,12 @@ publish: dist  ## dist to pypi and npm
 	twine check dist/* && twine upload dist/*
 	npm publish
 
+verify-install:  ## verify all components are installed and active
+	python3.7 -c "import nbcelltests"
+	jupyter labextension check jupyterlab_celltests
+        # apparently can't ask serverextension about individual extensions
+	python3.7 -c "import subprocess,re,sys;  ext=subprocess.check_output(['jupyter','serverextension','list'],stderr=subprocess.STDOUT).decode();  print(ext);  res0=re.search('nbcelltests\.extension.*OK',ext);  res1=re.search('nbcelltests\.extension.*enabled', ext);  sys.exit(not (res0 and res1))"
+
 # Thanks to Francoise at marmelab.com for this
 .DEFAULT_GOAL := help
 help:
