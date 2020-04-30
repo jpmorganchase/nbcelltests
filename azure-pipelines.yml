@@ -36,8 +36,8 @@ jobs:
     - script: |
         python -m pip install --upgrade pip
         pip install -e .[dev]
-	jupyter labextension install .
-	jupyter serverextension enable --py nbcelltests
+        jupyter labextension install .
+        jupyter serverextension enable --py nbcelltests
       displayName: 'Developer install'
 
     - script:
@@ -113,8 +113,8 @@ jobs:
     - script: |
         python -m pip install --upgrade pip
         pip install -e .[dev]
-	jupyter labextension install .
-	jupyter serverextension enable --py nbcelltests
+        jupyter labextension install .
+        jupyter serverextension enable --py nbcelltests
       displayName: 'Developer install'
 
     - script:
@@ -176,8 +176,8 @@ jobs:
     - script: |
         python -m pip install --upgrade pip
         pip install -e .[dev]
-	jupyter labextension install .
-	jupyter serverextension enable --py nbcelltests
+        jupyter labextension install .
+        jupyter serverextension enable --py nbcelltests
       displayName: 'Developer install'
 
     - script:
