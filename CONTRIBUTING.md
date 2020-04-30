@@ -37,7 +37,7 @@ If you want to help resolve an issue by making some changes that are larger than
     mode.
   - `jupyter labextension install .` - This will add the lab extension in development
     mode.
-  - `jupyter serverextension enable --py nbcelltests` - This will enable the server extension.
+  - `jupyter serverextension enable --py nbcelltests` - This will enable the server extension (note: you might want to supply `--sys-prefix` or a related option here).
 - Validate the install by running the tests:
   - `py.test` - This command will run the Python tests.
   - `yarn test` - This command will run the JS tests.
