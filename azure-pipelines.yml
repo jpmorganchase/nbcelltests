@@ -36,7 +36,13 @@ jobs:
     - script: |
         python -m pip install --upgrade pip
         pip install -e .[dev]
-      displayName: 'Install dependencies'
+	jupyter labextension install .
+	jupyter serverextension enable --py nbcelltests
+      displayName: 'Developer install'
+
+    - script:
+        make verify-install
+      displayName: 'Check everything was installed'
 
     - script: |
         make lint
@@ -107,7 +113,13 @@ jobs:
     - script: |
         python -m pip install --upgrade pip
         pip install -e .[dev]
-      displayName: 'Install dependencies'
+	jupyter labextension install .
+	jupyter serverextension enable --py nbcelltests
+      displayName: 'Developer install'
+
+    - script:
+        make verify-install
+      displayName: 'Check everything was installed'
 
     - script: |
         make lint
@@ -164,7 +176,13 @@ jobs:
     - script: |
         python -m pip install --upgrade pip
         pip install -e .[dev]
-      displayName: 'Install dependencies'
+	jupyter labextension install .
+	jupyter serverextension enable --py nbcelltests
+      displayName: 'Developer install'
+
+    - script:
+        make verify-install
+      displayName: 'Check everything was installed'
 
     - script: |
         make lint
