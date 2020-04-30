@@ -69,7 +69,7 @@ publish: dist  ## dist to pypi and npm
 verify-install:  ## verify all components are installed and active
 	${PYTHON} -c "import nbcelltests"
 	jupyter labextension check jupyterlab_celltests
-        # apparently can't ask serverextension about individual extensions
+# apparently can't ask serverextension about individual extensions (and it's OK on linux/mac but ok on windows :) )
 	${PYTHON} -c "import subprocess,re,sys;  ext=subprocess.check_output(['jupyter','serverextension','list'],stderr=subprocess.STDOUT).decode();  print(ext);  res0=re.search('nbcelltests\.extension.*OK',ext,re.IGNORECASE);  res1=re.search('nbcelltests\.extension.*enabled', ext);  sys.exit(not (res0 and res1))"
 
 # Thanks to Francoise at marmelab.com for this
