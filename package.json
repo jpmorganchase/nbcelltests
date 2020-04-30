@@ -1,7 +1,7 @@
 {
   "name": "jupyterlab_celltests",
   "version": "0.2.0",
-  "description": "A JupyterLab extension.",
+  "description": "A JupyterLab extension for cell-by-cell testing and linting of notebooks.",
   "author": "The nbcelltests authors",
   "main": "lib/index.js",
   "license": "Apache-2.0",
