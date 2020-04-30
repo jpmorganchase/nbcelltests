@@ -15,13 +15,11 @@ jobs:
       vmImage: 'ubuntu-latest'
     packages: true
 
-
 - template: .azure/default-job.yml
   parameters:
     name: 'Mac'
     pool:
       vmImage: 'macos-10.14'
-
 
 - template: .azure/default-job.yml
   parameters:
