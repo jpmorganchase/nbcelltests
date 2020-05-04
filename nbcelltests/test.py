@@ -250,7 +250,7 @@ def runWithHTMLReturn2(notebook, executable=None, rules=None):
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        raise Exception('Usage:python -m nbcelltests.tests <ipynb file>')
+        raise Exception('Usage:python -m nbcelltests.test <ipynb file>')
     notebook = sys.argv[1]
     name = run(notebook)
     argv = [sys.executable, '-m', 'pytest', name, '-v', '--html=' + name.replace('.py', '.html'), '--self-contained-html']

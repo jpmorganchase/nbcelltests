@@ -13,15 +13,9 @@ Cell-by-cell testing for production Jupyter notebooks in JupyterLab
 `Celltests` is designed for writing tests for linearly executed notebooks. Its primary use is for unit testing reports. 
 
 ## Installation
-Python package installation:
+Python package installation: `pip install nbcelltests`
 
-`pip install nbcelltests`
-
-or from source:
-
-`python setup.py install`
-
-To install the frontend extension for JupyterLab
+To use in JupyterLab, you will also need the lab and server extensions:
 
 ```bash
 jupyter labextension install jupyterlab_celltests
