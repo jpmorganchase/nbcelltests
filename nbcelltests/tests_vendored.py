@@ -109,7 +109,7 @@ class TestNotebook(unittest.TestCase):
             elif msg_type == 'error':
                 traceback = '\\n' + '\\n'.join(reply['traceback'])
                 msg = "Cell execution caused an exception"
-                Exception(msg + '\\n' + traceback)
+                raise Exception(msg + '\\n' + traceback)
 
             # any other message type is not expected
             # should this raise an error?
