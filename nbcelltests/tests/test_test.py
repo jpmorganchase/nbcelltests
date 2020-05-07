@@ -55,9 +55,13 @@ class _TestTest(unittest.TestCase):
     # abstract :)
 
     @classmethod
-    def setUpClass(cls):  # TODO dir override is temporary while I figure out azure pipelines...
-        with tempfile.NamedTemporaryFile(suffix='.py', dir=os.path.dirname(__file__)) as f:
-            cls.generated_tests = _import_from_path("nbcelltests.tests.%s.%s" % (__name__, cls.__name__), run(cls.NBNAME, filename=f.name))
+    def setUpClass(cls):
+        tf = tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf8')
+        tf_name = tf.name
+        try:
+            cls.generated_tests = _import_from_path("nbcelltests.tests.%s.%s" % (__name__, cls.__name__), run(cls.NBNAME, filename=tf_name))
+        finally:
+            os.remove(tf_name)
 
 
 class TestTestCumulativeRun(_TestTest):
