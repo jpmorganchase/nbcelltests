@@ -60,6 +60,7 @@ class _TestTest(unittest.TestCase):
         tf_name = tf.name
         try:
             cls.generated_tests = _import_from_path("nbcelltests.tests.%s.%s" % (__name__, cls.__name__), run(cls.NBNAME, filename=tf_name))
+            tf.close()
         finally:
             os.remove(tf_name)
 
