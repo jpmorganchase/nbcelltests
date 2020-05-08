@@ -1,4 +1,15 @@
-# This files includes code copied from nbval under the following license:
+# *****************************************************************************
+#
+# Copyright (c) 2019, the nbcelltests authors.
+#
+# This file is part of the nbcelltests library, distributed under the terms of
+# the Apache License 2.0.  The full license can be found in the LICENSE file.
+#
+
+# TODO go back and get version of nbval it was copied from, and record
+# what modifications have been made.
+
+# This file includes code copied from nbval under the following license:
 # Copyright (C) 2014  Oliver W. Laslett  <O.Laslett@soton.ac.uk>
 #               David Cortes-Ortuno
 #           Maximilian Albert
@@ -36,18 +47,18 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-BASE = '''
-import unittest
-from nbval.kernel import RunningKernel
 try:
     from Queue import Empty
 except ImportError:
     from queue import Empty
 
+import unittest
 
-class TestNotebook(unittest.TestCase):
+from nbval.kernel import RunningKernel
 
-    KERNEL_NAME = "{kernel_name}"
+
+class TestNotebookBase(unittest.TestCase):
+    # abstract - subclasses must define KERNEL_NAME
 
     @classmethod
     def setUpClass(cls):
@@ -66,8 +77,9 @@ class TestNotebook(unittest.TestCase):
         self.kernel.stop()
 
     def run_test(self, cell_content):
-        # This code is from nbval
+        # Start of code from nbval
         # https://github.com/computationalmodelling/nbval
+        # (but note, there are evidently some modifications)
         msg_id = self.kernel.execute_cell_input(cell_content, allow_stdin=False)
 
         # Poll the shell channel to get a message
@@ -128,6 +140,16 @@ class TestNotebook(unittest.TestCase):
             # should this raise an error?
             else:
                 print("unhandled iopub msg:", msg_type)
+
+        # End of code from nbval
+
+
+BASE = '''
+from nbcelltests.tests_vendored import TestNotebookBase
+
+class TestNotebook(TestNotebookBase):
+
+    KERNEL_NAME = "{kernel_name}"
 '''
 
 JSON_CONFD = '''
