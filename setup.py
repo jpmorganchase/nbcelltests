@@ -29,7 +29,8 @@ requires = [
 dev_requires = requires + [
     'bump2version',
     'mock',
-    'autopep8'
+    'autopep8',
+    'pytest-xdist ; sys_platform != "win32"'
 ]
 
 data_spec = [
