@@ -75,9 +75,6 @@ class TestTestCumulativeRun(_TestTest):
     NBNAME = CUMULATIVE_RUN
 
     def test_state(self):
-
-        # TODO: and split up, depending whether testing fresh kernel per test or not
-
         t = self.generated_tests.TestNotebook()
         t.setUpClass()
 
