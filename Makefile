@@ -10,6 +10,9 @@ testjs: ## Clean and Make js tests
 testpy: ## Clean and Make unit tests
 	${PYTHON} -m pytest -v nbcelltests/tests --cov=nbcelltests
 
+testpyforked: ## Python unit tests --forked (not windows!)
+	${PYTHON} -m pytest -v --forked nbcelltests/tests
+
 tests: lint ## run the tests
 	${PYTHON} -m pytest -v nbcelltests/tests --cov=nbcelltests --junitxml=python_junit.xml --cov-report=xml --cov-branch
 	yarn test
