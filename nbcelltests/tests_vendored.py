@@ -69,7 +69,7 @@ class TestNotebook(unittest.TestCase):
     def tearDown(self):
         if ENSURE_FRESH_KERNEL_PER_TEST:
             self.kernel.stop()
-        
+
     def run_test(self, cell_content):
         # This code is from nbval
         # https://github.com/computationalmodelling/nbval

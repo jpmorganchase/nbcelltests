@@ -30,6 +30,7 @@ EXPECT_FRESH_KERNEL_PER_TEST = True
 # which we are doing via pytest --forked.
 FORKED = '--forked' in sys.argv
 
+
 def _check_fresh(t, override_fresh=False):
     if EXPECT_FRESH_KERNEL_PER_TEST or override_fresh:
         t.run_test("""
@@ -88,7 +89,7 @@ class TestTestCumulativeRun(_TestTest):
         t.tearDown()
         if FORKED:
             t.tearDownClass()
-        
+
         # check cell ran
         if FORKED:
             t.setUpClass()
@@ -104,7 +105,7 @@ class TestTestCumulativeRun(_TestTest):
 
         # cumulative cells ran
         if FORKED:
-            t.setUpClass()        
+            t.setUpClass()
         t.setUp()
         _check_fresh(t)
         t.test_cell_2()
@@ -117,7 +118,7 @@ class TestTestCumulativeRun(_TestTest):
 
         # check test affects state
         if FORKED:
-            t.setUpClass()        
+            t.setUpClass()
         t.setUp()
         _check_fresh(t)
         t.test_cell_3()
@@ -140,7 +141,7 @@ class TestTestCellException(_TestTest):
         t.setUp()
 
         _check_fresh(t, override_fresh=True)
-        
+
         # cell should error out
         try:
             t.test_cell_0()
@@ -163,7 +164,7 @@ class TestTestTestException(_TestTest):
         t.setUpClass()
         t.setUp()
         _check_fresh(t)
-        
+
         # caught cell error
         t.test_cell_0()
 
@@ -175,8 +176,8 @@ class TestTestTestException(_TestTest):
             t.setUpClass()
         t.setUp()
 
-        _check_fresh(t)        
-        
+        _check_fresh(t)
+
         # test should error out
         try:
             t.test_cell_1()
@@ -199,7 +200,7 @@ class TestTestTestFail(_TestTest):
         t.setUpClass()
         t.setUp()
         _check_fresh(t)
-        
+
         # caught cell error
         try:
             t.test_cell_0()
@@ -211,4 +212,3 @@ class TestTestTestFail(_TestTest):
         finally:
             t.tearDown()
             t.tearDownClass()
-
