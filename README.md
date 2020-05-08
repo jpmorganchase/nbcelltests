@@ -2,7 +2,7 @@
 Cell-by-cell testing for production Jupyter notebooks in JupyterLab
 
 [![Build Status](https://dev.azure.com/tpaine154/jupyter/_apis/build/status/jpmorganchase.nbcelltests?branchName=master)](https://dev.azure.com/tpaine154/jupyter/_build/latest?definitionId=24&branchName=master)
-[![Coverage](https://img.shields.io/azure-devops/coverage/tpaine154/jupyter/24)](https://dev.azure.com/tpaine154/jupyter/_build?definitionId=24&_a=summary)
+[![Coverage](https://img.shields.io/azure-devops/coverage/tpaine154/jupyter/24/master)](https://dev.azure.com/tpaine154/jupyter/_build?definitionId=24&_a=summary)
 [![Docs](https://img.shields.io/readthedocs/nbcelltests.svg)](https://nbcelltests.readthedocs.io)
 [![PyPI](https://img.shields.io/pypi/l/nbcelltests.svg)](https://pypi.python.org/pypi/nbcelltests)
 [![PyPI](https://img.shields.io/pypi/v/nbcelltests.svg)](https://pypi.python.org/pypi/nbcelltests)
