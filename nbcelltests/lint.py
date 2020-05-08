@@ -158,16 +158,17 @@ def run(notebook, executable=None, rules=None):
     if executable:
         exp = ScriptExporter()
         (body, resources) = exp.from_notebook_node(nb)
+        tf = NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf8')
+        tf_name = tf.name
         try:
-            tf = NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf8')
             tf.write(body)
             tf.close()
-            executable.append(tf.name)
+            executable.append(tf_name)
             ret2 = _run_and_capture_utf8(executable)
             msg = ret2.stdout + '\t' + ret2.stderr
             ret.append(LintMessage(-1, 'Checking lint:\n' + msg.strip(), LintType.LINTER, False if msg.strip() else True))
         finally:
-            os.remove(tf.name)
+            os.remove(tf_name)
 
     return ret, passed
 
