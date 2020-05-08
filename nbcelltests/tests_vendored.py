@@ -44,14 +44,32 @@ try:
 except ImportError:
     from queue import Empty
 
+# if True, ALWAYS starts a new kernel for each test (note that if
+# tests are distributed to independent processes, there will already
+# be a fresh kernel per test so this setting will have no effect)
+ENSURE_FRESH_KERNEL_PER_TEST = False
+
+KERNEL_NAME = "{kernel_name}"
+
 
 class TestNotebook(unittest.TestCase):
-    def setup_class(self):
-        self.kernel = RunningKernel("{kernel_name}")
 
-    def teardown_class(self):
-        self.kernel.stop()
+    @classmethod
+    def setUpClass(cls):
+        cls.kernel = RunningKernel(KERNEL_NAME)
 
+    @classmethod
+    def tearDownClass(cls):
+        cls.kernel.stop()
+
+    def setUp(self):
+        if ENSURE_FRESH_KERNEL_PER_TEST:
+            self.kernel = RunningKernel(KERNEL_NAME)
+
+    def tearDown(self):
+        if ENSURE_FRESH_KERNEL_PER_TEST:
+            self.kernel.stop()
+        
     def run_test(self, cell_content):
         # This code is from nbval
         # https://github.com/computationalmodelling/nbval
