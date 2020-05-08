@@ -20,10 +20,10 @@ TEST_ERROR = os.path.join(os.path.dirname(__file__), '_test_error.ipynb')
 TEST_FAIL = os.path.join(os.path.dirname(__file__), '_test_fail.ipynb')
 
 # Each generated test includes all the previous cells+tests.
-# I.e. each test could be run in independent (fresh) kernel (allows
+# I.e. each test can be run in independent (fresh) kernel (allows
 # things like distributing tests etc - but at the cost of slow kernel
-# startup per test). Currently the generated tests just create the
-# kernel per notebook not per cell, so test like that.
+# startup per test). Currently the generated tests create a new kernel
+# per cell, so test like that.
 EXPECT_FRESH_KERNEL_PER_TEST = True
 
 # Hack. We want to test expected behavior in distributed situation,
@@ -42,13 +42,10 @@ def _check_fresh(t, override_fresh=False):
             raise Exception('x was already defined - kernel is not fresh')
         """)
 
-# TODO: This test file's manual use of unittest is brittle, but just
-# want to get started asserting what the current behavior is before
-# cleaning up/documenting.
+# TODO: This test file's manual use of unittest is brittle
 
 
 def _import_from_path(pypath, f):
-    # TODO consider py version compat
     import importlib.util
     spec = importlib.util.spec_from_file_location(pypath, f)
     mod = importlib.util.module_from_spec(spec)
@@ -100,7 +97,7 @@ class TestTestCumulativeRun(_TestTest):
         if FORKED:
             t.tearDownClass()
 
-        # cumulative cells ran
+        # check cumulative cells ran
         if FORKED:
             t.setUpClass()
         t.setUp()
