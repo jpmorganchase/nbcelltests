@@ -69,13 +69,27 @@ class TestCumulativeRun(_TestCellTests):
     NBNAME = CUMULATIVE_RUN
 
     def test_state(self):
+        """
+                    cell    test   state
+        0:           -       -       -
+        
+        1: either   x=0      -      x=0   (expected)
+               or    -       -      x>0   (bad; x was previously defined in kernel)
+        
+        2: either   x+=1     -      x=1   (expected)
+               or   x+=1     -      x>1   (bad)
+        
+        3: either   x+=1     -      x=2   (expected)
+               or   x+=1     -      x>2   (bad)
+        
+        4: either    -      x+=1    x=3   (expected)
+               or    -      x+=1    x>3   (bad)
+        """
         t = self.generated_tests.TestNotebook()
         t.setUpClass()
 
         # check cell did not run
         # (no %cell in test)
-        #    cell  test  state
-        # 0:  -     -      -
         t.setUp()
         _assert_x_undefined(t)
         t.test_cell_0()
@@ -86,9 +100,6 @@ class TestCumulativeRun(_TestCellTests):
 
         # check cell ran
         # (%cell in test)
-        #    cell  test  state
-        # 0:  -     -      -
-        # 1: x=0    -     x=0
         if FORKED:
             t.setUpClass()
         t.setUp()
@@ -101,10 +112,6 @@ class TestCumulativeRun(_TestCellTests):
             t.tearDownClass()
 
         # check cumulative cells ran
-        #    cell  test  state
-        # 0:  -     -      -
-        # 1: x=0    -     x=0
-        # 2: x+=1   -     x=1
         if FORKED:
             t.setUpClass()
         t.setUp()
@@ -117,11 +124,6 @@ class TestCumulativeRun(_TestCellTests):
             t.tearDownClass()
 
         # check cumulative cells ran (but not multiple times!)
-        #    cell  test  state
-        # 0:  -     -      -
-        # 1: x=0    -     x=0
-        # 2: x+=1   -     x=1
-        # 3: x+=1   -     x=2
         if FORKED:
             t.setUpClass()
         t.setUp()
@@ -134,12 +136,6 @@ class TestCumulativeRun(_TestCellTests):
             t.tearDownClass()
 
         # check test affects state
-        #    cell  test  state
-        # 0:  -     -      -
-        # 1: x=0    -     x=0
-        # 2: x+=1   -     x=1
-        # 3: x+=1   -     x=2
-        # 4:  -    x+=1   x=3
         if FORKED:
             t.setUpClass()
         t.setUp()
