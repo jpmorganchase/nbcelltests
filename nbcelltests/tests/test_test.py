@@ -71,16 +71,16 @@ class TestCumulativeRun(_TestCellTests):
         """
                     cell    test   state
         0:           -       -       -
-        
+
         1: either   x=0      -      x=0   (expected)
                or    -       -      x>0   (bad; x was previously defined in kernel)
-        
+
         2: either   x+=1     -      x=1   (expected)
                or   x+=1     -      x>1   (bad)
-        
+
         3: either   x+=1     -      x=2   (expected)
                or   x+=1     -      x>2   (bad)
-        
+
         4: either    -      x+=1    x=3   (expected)
                or    -      x+=1    x>3   (bad)
         """
