@@ -44,13 +44,14 @@ try:
 except ImportError:
     from queue import Empty
 
-KERNEL_NAME = "{kernel_name}"
 
 class TestNotebook(unittest.TestCase):
 
+    KERNEL_NAME = "{kernel_name}"
+
     @classmethod
     def setUpClass(cls):
-        cls.kernel = RunningKernel(KERNEL_NAME)
+        cls.kernel = RunningKernel(cls.KERNEL_NAME)
 
     @classmethod
     def tearDownClass(cls):
@@ -59,7 +60,7 @@ class TestNotebook(unittest.TestCase):
     # TODO: starting a new kernel per test is expensive, and
     # could be optimized.
     def setUp(self):
-        self.kernel = RunningKernel(KERNEL_NAME)
+        self.kernel = RunningKernel(self.KERNEL_NAME)
 
     def tearDown(self):
         self.kernel.stop()
