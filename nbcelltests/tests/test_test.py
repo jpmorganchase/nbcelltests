@@ -22,7 +22,6 @@ TEST_FAIL = os.path.join(os.path.dirname(__file__), '_test_fail.ipynb')
 # Hack. We want to test expected behavior in distributed situation,
 # which we are doing via pytest --forked.
 FORKED = '--forked' in sys.argv
-assert not FORKED
 
 
 def _assert_x_undefined(t):
