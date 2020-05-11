@@ -19,28 +19,21 @@ CELL_ERROR = os.path.join(os.path.dirname(__file__), '_cell_error.ipynb')
 TEST_ERROR = os.path.join(os.path.dirname(__file__), '_test_error.ipynb')
 TEST_FAIL = os.path.join(os.path.dirname(__file__), '_test_fail.ipynb')
 
-# Each generated test includes all the previous cells+tests.
-# I.e. each test can be run in independent (fresh) kernel (allows
-# things like distributing tests etc - but at the cost of slow kernel
-# startup per test). Currently the generated tests create a new kernel
-# per cell, so test like that.
-EXPECT_FRESH_KERNEL_PER_TEST = True
-
 # Hack. We want to test expected behavior in distributed situation,
 # which we are doing via pytest --forked.
 FORKED = '--forked' in sys.argv
+assert not FORKED
 
 
-def _check_fresh(t, override_fresh=False):
-    if EXPECT_FRESH_KERNEL_PER_TEST or override_fresh:
-        t.run_test("""
-        try:
-            x
-        except NameError:
-            pass
-        else:
-            raise Exception('x was already defined - kernel is not fresh')
-        """)
+def _assert_x_undefined(t):
+    t.run_test("""
+    try:
+        x
+    except NameError:
+        pass
+    else:
+        raise Exception('x was already defined')
+    """)
 
 # TODO: This test file's manual use of unittest is brittle
 
@@ -53,11 +46,15 @@ def _import_from_path(pypath, f):
     return mod
 
 
-class _TestTest(unittest.TestCase):
+class _TestCellTests(unittest.TestCase):
     # abstract :)
 
     @classmethod
     def setUpClass(cls):
+        """
+        Generate test file from notebook, then import it, and make the
+        resulting module available as "generated_tests" class attribute.
+        """
         tf = tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf8')
         tf_name = tf.name
         try:
@@ -67,7 +64,7 @@ class _TestTest(unittest.TestCase):
             os.remove(tf_name)
 
 
-class TestTestCumulativeRun(_TestTest):
+class TestCumulativeRun(_TestCellTests):
 
     NBNAME = CUMULATIVE_RUN
 
@@ -76,19 +73,25 @@ class TestTestCumulativeRun(_TestTest):
         t.setUpClass()
 
         # check cell did not run
+        # (no %cell in test)
+        #    cell  test  state
+        # 0:  -     -      -
         t.setUp()
-        _check_fresh(t, override_fresh=True)
+        _assert_x_undefined(t)
         t.test_cell_0()
-        _check_fresh(t, override_fresh=True)
+        _assert_x_undefined(t)
         t.tearDown()
         if FORKED:
             t.tearDownClass()
 
         # check cell ran
+        # (%cell in test)
+        #    cell  test  state
+        # 0:  -     -      -
+        # 1: x=0    -     x=0
         if FORKED:
             t.setUpClass()
         t.setUp()
-        _check_fresh(t)
         t.test_cell_1()
         t.run_test("""
         assert x == 0, x
@@ -98,10 +101,13 @@ class TestTestCumulativeRun(_TestTest):
             t.tearDownClass()
 
         # check cumulative cells ran
+        #    cell  test  state
+        # 0:  -     -      -
+        # 1: x=0    -     x=0
+        # 2: x+=1   -     x=1
         if FORKED:
             t.setUpClass()
         t.setUp()
-        _check_fresh(t)
         t.test_cell_2()
         t.run_test("""
         assert x == 1, x
@@ -110,31 +116,51 @@ class TestTestCumulativeRun(_TestTest):
         if FORKED:
             t.tearDownClass()
 
-        # check test affects state
+        # check cumulative cells ran (but not multiple times!)
+        #    cell  test  state
+        # 0:  -     -      -
+        # 1: x=0    -     x=0
+        # 2: x+=1   -     x=1
+        # 3: x+=1   -     x=2
         if FORKED:
             t.setUpClass()
         t.setUp()
-        _check_fresh(t)
         t.test_cell_3()
         t.run_test("""
         assert x == 2, x
+        """)
+        t.tearDown()
+        if FORKED:
+            t.tearDownClass()
+
+        # check test affects state
+        #    cell  test  state
+        # 0:  -     -      -
+        # 1: x=0    -     x=0
+        # 2: x+=1   -     x=1
+        # 3: x+=1   -     x=2
+        # 4:  -    x+=1   x=3
+        if FORKED:
+            t.setUpClass()
+        t.setUp()
+        t.test_cell_4()
+        t.run_test("""
+        assert x == 3, x
         """)
         t.tearDown()
 
         t.tearDownClass()
 
 
-class TestTestCellException(_TestTest):
+class TestExceptionInCell(_TestCellTests):
 
     NBNAME = CELL_ERROR
 
-    def test_cell_exception(self):
+    def test_exception_in_cell_is_detected(self):
         t = self.generated_tests.TestNotebook()
 
         t.setUpClass()
         t.setUp()
-
-        _check_fresh(t, override_fresh=True)
 
         # cell should error out
         try:
@@ -149,15 +175,14 @@ class TestTestCellException(_TestTest):
             t.tearDownClass()
 
 
-class TestTestTestException(_TestTest):
+class TestExceptionInTest(_TestCellTests):
 
     NBNAME = TEST_ERROR
 
-    def test_exception_in_test(self):
+    def test_exception_in_test_is_detected(self):
         t = self.generated_tests.TestNotebook()
         t.setUpClass()
         t.setUp()
-        _check_fresh(t)
 
         # caught cell error
         t.test_cell_0()
@@ -170,7 +195,7 @@ class TestTestTestException(_TestTest):
             t.setUpClass()
         t.setUp()
 
-        _check_fresh(t)
+        _assert_x_undefined(t)
 
         # test should error out
         try:
@@ -185,15 +210,14 @@ class TestTestTestException(_TestTest):
             t.tearDownClass()
 
 
-class TestTestTestFail(_TestTest):
+class TestFailureInTest(_TestCellTests):
 
     NBNAME = TEST_FAIL
 
-    def test_expected_fail(self):
+    def test_failure_is_detected(self):
         t = self.generated_tests.TestNotebook()
         t.setUpClass()
         t.setUp()
-        _check_fresh(t)
 
         # caught cell error
         try:
