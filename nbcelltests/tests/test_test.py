@@ -68,21 +68,29 @@ class TestCumulativeRun(_TestCellTests):
     NBNAME = CUMULATIVE_RUN
 
     def test_state(self):
-        """
-                    cell    test   state
-        0:           -       -       -
+        """In the expected case, the five cells of the notebook should work
+        out as follows:
 
-        1: either   x=0      -      x=0   (expected)
-               or    -       -      x>0   (bad; x was previously defined in kernel)
+             cell    test   state
+        1:    -       -       -
+        2:   x=0      -      x=0
+        3:   x+=1     -      x=1
+        4:   x+=1     -      x=2
+        5:    -      x+=1    x=3
 
-        2: either   x+=1     -      x=1   (expected)
-               or   x+=1     -      x>1   (bad)
+        However, these tests originally detected repeated execution of
+        cells in the same kernel. Cell 2 actually only sets x to 0 if
+        x is not already defined; if x is already defined, cell 2 does
+        not change x's value. If for some reason each test results in
+        multiple executions of the cells, the results will look like
+        this:
 
-        3: either   x+=1     -      x=2   (expected)
-               or   x+=1     -      x>2   (bad)
-
-        4: either    -      x+=1    x=3   (expected)
-               or    -      x+=1    x>3   (bad)
+             cell    test   state
+        1:    -       -       -
+        2:    -       -      x>0   (bad; x was previously defined in kernel)
+        3:   x+=1     -      x>1   (bad)
+        4:   x+=1     -      x>2   (bad)
+        5:    -      x+=1    x>3   (bad)
         """
         t = self.generated_tests.TestNotebook()
         t.setUpClass()
