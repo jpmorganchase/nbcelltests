@@ -25,6 +25,9 @@ FORKED = '--forked' in sys.argv
 
 
 def _assert_x_undefined(t):
+    """
+    Convenience method to assert that x is not already defined in the kernel.
+    """
     t.run_test("""
     try:
         x
@@ -36,10 +39,22 @@ def _assert_x_undefined(t):
 
 # TODO: This test file's manual use of unittest is brittle
 
+# TODO: generated test methods are 0 based, but jupyter is typically 1
+# based. To be fixed in
+# https://github.com/jpmorganchase/nbcelltests/issues/99.
 
-def _import_from_path(pypath, f):
+
+def _import_from_path(path, module_name):
+    """
+    Import and return a python module at the given path, with
+    module_name setting __name__.
+
+    See e.g. https://stackoverflow.com/a/67692.
+    """
+    # TODO: need to test over multiple python versions
+    # (https://github.com/jpmorganchase/nbcelltests/issues/106)
     import importlib.util
-    spec = importlib.util.spec_from_file_location(pypath, f)
+    spec = importlib.util.spec_from_file_location(module_name, path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
@@ -57,7 +72,10 @@ class _TestCellTests(unittest.TestCase):
         tf = tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf8')
         tf_name = tf.name
         try:
-            cls.generated_tests = _import_from_path("nbcelltests.tests.%s.%s" % (__name__, cls.__name__), run(cls.NBNAME, filename=tf_name))
+            # the module name (__name__) doesn't really matter, but
+            # will be nbcelltests.tests.test_tests.X, where X is
+            # whatever concrete subclass is this method belongs to.
+            cls.generated_tests = _import_from_path(path=run(cls.NBNAME, filename=tf_name), module_name="nbcelltests.tests.%s.%s" % (__name__, cls.__name__))
             tf.close()
         finally:
             os.remove(tf_name)
