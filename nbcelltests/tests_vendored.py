@@ -46,10 +46,23 @@ except ImportError:
 
 
 class TestNotebook(unittest.TestCase):
-    def setup_class(self):
-        self.kernel = RunningKernel("{kernel_name}")
 
-    def teardown_class(self):
+    KERNEL_NAME = "{kernel_name}"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.kernel = RunningKernel(cls.KERNEL_NAME)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.kernel.stop()
+
+    # TODO: starting a new kernel per test is expensive, and
+    # could be optimized.
+    def setUp(self):
+        self.kernel = RunningKernel(self.KERNEL_NAME)
+
+    def tearDown(self):
         self.kernel.stop()
 
     def run_test(self, cell_content):
@@ -109,7 +122,7 @@ class TestNotebook(unittest.TestCase):
             elif msg_type == 'error':
                 traceback = '\\n' + '\\n'.join(reply['traceback'])
                 msg = "Cell execution caused an exception"
-                Exception(msg + '\\n' + traceback)
+                raise Exception(msg + '\\n' + traceback)
 
             # any other message type is not expected
             # should this raise an error?
