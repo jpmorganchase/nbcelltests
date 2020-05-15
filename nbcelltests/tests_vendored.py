@@ -145,11 +145,11 @@ class TestNotebookBase(unittest.TestCase):
 
 
 BASE = '''
-from nbcelltests.tests_vendored import TestNotebookBase
+import nbcelltests.tests_vendored
 
-class TestNotebook(TestNotebookBase):
-
+class TestNotebook(nbcelltests.tests_vendored.TestNotebookBase):
     KERNEL_NAME = "{kernel_name}"
+
 '''
 
 JSON_CONFD = '''
