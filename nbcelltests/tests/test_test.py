@@ -12,12 +12,16 @@ import unittest
 
 from nbcelltests.test import run
 
-# TODO: we should generate the notebooks rather than having them as files
-# (same for lint ones)
+# TODO: we should generate the notebooks rather than having them as
+# files (same for lint ones). Would also allow for simplification of
+# test class hierarchy.
 CUMULATIVE_RUN = os.path.join(os.path.dirname(__file__), '_cumulative_run.ipynb')
 CELL_ERROR = os.path.join(os.path.dirname(__file__), '_cell_error.ipynb')
 TEST_ERROR = os.path.join(os.path.dirname(__file__), '_test_error.ipynb')
 TEST_FAIL = os.path.join(os.path.dirname(__file__), '_test_fail.ipynb')
+COUNTING = os.path.join(os.path.dirname(__file__), '_cell_counting.ipynb')
+NONCODE = os.path.join(os.path.dirname(__file__), '_non_code_cell.ipynb')
+SKIPS = os.path.join(os.path.dirname(__file__), '_skips.ipynb')
 
 # Hack. We want to test expected behavior in distributed situation,
 # which we are doing via pytest --forked.
@@ -39,10 +43,6 @@ def _assert_x_undefined(t):
 
 # TODO: This test file's manual use of unittest is brittle
 
-# TODO: generated test methods are 0 based, but jupyter is typically 1
-# based. To be fixed in
-# https://github.com/jpmorganchase/nbcelltests/issues/99.
-
 
 def _import_from_path(path, module_name):
     """
@@ -60,28 +60,107 @@ def _import_from_path(path, module_name):
     return mod
 
 
+def _generate_test_module(notebook, module_name):
+    """
+    Generate test file from notebook, then import it with __name__ set
+    to module_name, and return it.
+    """
+    tf = tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf8')
+    tf_name = tf.name
+    try:
+        # the module name (__name__) doesn't really matter, but
+        # will be nbcelltests.tests.test_tests.X, where X is
+        # whatever concrete subclass is this method belongs to.
+        generated_tests = _import_from_path(run(notebook, filename=tf_name), module_name)
+        tf.close()
+        return generated_tests
+    finally:
+        os.remove(tf_name)
+
+
 class _TestCellTests(unittest.TestCase):
     # abstract :)
 
     @classmethod
     def setUpClass(cls):
-        """
-        Generate test file from notebook, then import it, and make the
-        resulting module available as "generated_tests" class attribute.
-        """
-        tf = tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf8')
-        tf_name = tf.name
+        assert hasattr(cls, "NBNAME"), "Subclasses must have NBNAME attribute."  # TODO: make actually abstract
+        cls.generated_tests = _generate_test_module(notebook=cls.NBNAME, module_name="nbcelltests.tests.%s.%s" % (__name__, cls.__name__))
+
+    def _assert_skipped(self, mthd, reason):
+        # TODO: actually calling the skipped method here ends
+        # everything! It's some pytest issue, I think. So for now we
+        # are checking that it would be skipped, rather than that it is
+        # definitely skipped.
+        msg = "Should have generated a skipped test method"
+        self.assertTrue(hasattr(mthd, '__unittest_skip__'), msg=msg)
+        self.assertEqual(mthd.__unittest_skip__, True, msg=msg)
+        self.assertEqual(mthd.__unittest_skip_why__, reason, msg="Skip reason should have been %s" % reason)
+
+
+class TestMethodGenerationError(_TestCellTests):
+    """Tests of things that should fail during test script generation"""
+
+    NBNAME = NONCODE
+
+    @classmethod
+    def setUpClass(cls):
+        # we're testing what happens in setUpClass
+        pass
+
+    def test_non_code_cell_with_test_causes_error(self):
         try:
-            # the module name (__name__) doesn't really matter, but
-            # will be nbcelltests.tests.test_tests.X, where X is
-            # whatever concrete subclass is this method belongs to.
-            cls.generated_tests = _import_from_path(path=run(cls.NBNAME, filename=tf_name), module_name="nbcelltests.tests.%s.%s" % (__name__, cls.__name__))
-            tf.close()
-        finally:
-            os.remove(tf_name)
+            _generate_test_module(self.NBNAME, "module.name.irrelevant")
+        except ValueError as e:
+            assert e.args[0] == 'Cell 1 is not a code cell, but metadata contains test code!'
+        else:
+            raise Exception("Test script should fail to generate")
+
+
+class TestSkips(_TestCellTests):
+    """Tests that various conditions result in skipped tests"""
+
+    NBNAME = SKIPS
+
+    # the tests are independent, so it's fine to call setUpClass and
+    # setUp before every test (and same for tearDown after). When we
+    # are generating notebooks, we won't need the single, shared
+    # notebook.
+    def setUp(self):
+        self.t = self.generated_tests.TestNotebook()
+        self.t.setUpClass()
+        self.t.setUp()
+
+    def tearDown(self):
+        self.t.tearDown()
+        self.t.tearDownClass()
+
+    def test_skip_completely_empty_code_cell(self):
+        """Test+cell where cell has nothing at all in should be skipped"""
+        self._assert_skipped(self.t.test_cell_0, "empty code cell")
+
+    def test_skip_no_code_code_cell(self):
+        """Test+cell where cell had e.g. just a comment in should be skipped"""
+        self._assert_skipped(self.t.test_cell_1, "empty code cell")
+
+    def test_skip_no_test_field_in_metadata(self):
+        """Cell with no test metadata should be skipped"""
+        self._assert_skipped(self.t.test_cell_2, "no test supplied")
+
+    def test_skip_no_code_in_test(self):
+        """Test+cell where test is just e.g. a comment should be skipped"""
+        self._assert_skipped(self.t.test_cell_3, "no test supplied")
+
+    def test_skip_completely_empty_test(self):
+        """Cell where test is completely empty should be skipped"""
+        self._assert_skipped(self.t.test_cell_4, "no test supplied")
+
+    def test_skip_if_no_cell_injection(self):
+        """Test+cell where test does not inject cell should be skipped"""
+        self._assert_skipped(self.t.test_cell_5, "cell code not injected into test")
 
 
 class TestCumulativeRun(_TestCellTests):
+    """Tests that state in notebook is built up correctly."""
 
     NBNAME = CUMULATIVE_RUN
 
@@ -110,6 +189,9 @@ class TestCumulativeRun(_TestCellTests):
         4:   x+=1     -      x>2   (bad)
         5:    -      x+=1    x>3   (bad)
         """
+        # this is one long method rather individual ones because of
+        # building up state
+
         t = self.generated_tests.TestNotebook()
         t.setUpClass()
 
@@ -117,8 +199,9 @@ class TestCumulativeRun(_TestCellTests):
         # (no %cell in test)
         t.setUp()
         _assert_x_undefined(t)
-        t.test_cell_0()
-        _assert_x_undefined(t)
+        self._assert_skipped(t.test_cell_0, "cell code not injected into test")
+        # t.test_code_cell_1()
+        # _assert_x_undefined(t)
         t.tearDown()
         if FORKED:
             t.tearDownClass()
@@ -174,6 +257,7 @@ class TestCumulativeRun(_TestCellTests):
 
 
 class TestExceptionInCell(_TestCellTests):
+    """Tests related to exceptions in cells"""
 
     NBNAME = CELL_ERROR
 
@@ -197,6 +281,7 @@ class TestExceptionInCell(_TestCellTests):
 
 
 class TestExceptionInTest(_TestCellTests):
+    """Tests related to exeptions in tests"""
 
     NBNAME = TEST_ERROR
 
@@ -232,15 +317,16 @@ class TestExceptionInTest(_TestCellTests):
 
 
 class TestFailureInTest(_TestCellTests):
+    """Tests related to test failures"""
 
     NBNAME = TEST_FAIL
 
     def test_failure_is_detected(self):
+        """Test expected to fail - make sure we detect that."""
         t = self.generated_tests.TestNotebook()
         t.setUpClass()
         t.setUp()
 
-        # caught cell error
         try:
             t.test_cell_0()
         except Exception as e:
@@ -251,3 +337,42 @@ class TestFailureInTest(_TestCellTests):
         finally:
             t.tearDown()
             t.tearDownClass()
+
+
+class TestCellCounting(_TestCellTests):
+    """Check that various things don't throw off cell+test correspondence."""
+
+    NBNAME = COUNTING
+
+    # the tests are independent, so it's fine to call setUpClass and
+    # setUp before every test (and same for tearDown after). When we
+    # are generating notebooks, we won't need the single, shared
+    # notebook.
+    def setUp(self):
+        self.t = self.generated_tests.TestNotebook()
+        self.t.setUpClass()
+        self.t.setUp()
+
+    def tearDown(self):
+        self.t.tearDown()
+        self.t.tearDownClass()
+
+    def test_skips(self):
+        """
+        There's a skipped test at the start of the notebook to make sure skips don't
+        affect test/cell correspondence.
+        """
+        self._assert_skipped(self.t.test_cell_0, "cell code not injected into test")
+
+    def test_still_ok_after_markdown(self):
+        """Correspondence still ok after markdown cell?"""
+        self.t.test_cell_1()
+
+    def test_still_ok_after_raw(self):
+        """Correspondence still ok after raw cell?"""
+        self.t.test_cell_2()
+
+    def test_count(self):
+        """No unexpected extra test methods"""
+        test_methods = [mthd for mthd in dir(self.t) if mthd.startswith("test_cell")]
+        self.assertListEqual(sorted(test_methods), ['test_cell_0', 'test_cell_1', 'test_cell_2'])
