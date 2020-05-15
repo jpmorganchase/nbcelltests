@@ -65,7 +65,6 @@ class MagicsRecorder(ast.NodeVisitor):
                 self.seen.add(magic_name)
 
 
-
 # Note: I think it's confusing to insert the actual counts into the
 # metadata.  Why not keep them separate?
 #
