@@ -33,7 +33,7 @@ def _assert_x_undefined(t):
     """
     Convenience method to assert that x is not already defined in the kernel.
     """
-    t.run_test("""
+    t._run("""
     try:
         x
     except NameError:
@@ -223,7 +223,7 @@ class TestCumulativeRun(_TestCellTests):
             t.setUpClass()
         t.setUp()
         t.test_code_cell_2()
-        t.run_test("""
+        t._run("""
         assert x == 0, x
         """)
         t.tearDown()
@@ -235,7 +235,7 @@ class TestCumulativeRun(_TestCellTests):
             t.setUpClass()
         t.setUp()
         t.test_code_cell_3()
-        t.run_test("""
+        t._run("""
         assert x == 1, x
         """)
         t.tearDown()
@@ -247,7 +247,7 @@ class TestCumulativeRun(_TestCellTests):
             t.setUpClass()
         t.setUp()
         t.test_code_cell_4()
-        t.run_test("""
+        t._run("""
         assert x == 2, x
         """)
         t.tearDown()
@@ -259,7 +259,7 @@ class TestCumulativeRun(_TestCellTests):
             t.setUpClass()
         t.setUp()
         t.test_code_cell_5()
-        t.run_test("""
+        t._run("""
         assert x == 3, x
         """)
         t.tearDown()
@@ -282,7 +282,7 @@ class TestExceptionInCell(_TestCellTests):
         try:
             t.test_code_cell_1()
         except Exception as e:
-            assert e.args[0].startswith("Cell execution caused an exception")
+            assert e.args[0].startswith("Running cell+test for code cell 1; execution caused an exception")
             assert e.args[0].endswith("My code does not even run")
         else:
             raise Exception("Cell should have errored out")
@@ -318,7 +318,7 @@ class TestExceptionInTest(_TestCellTests):
         try:
             t.test_code_cell_2()
         except Exception as e:
-            assert e.args[0].startswith("Cell execution caused an exception")
+            assert e.args[0].startswith("Running cell+test for code cell 2; execution caused an exception")
             assert e.args[0].endswith("My test is bad too")
         else:
             raise Exception("Test should have failed")
@@ -341,13 +341,29 @@ class TestFailureInTest(_TestCellTests):
         try:
             t.test_code_cell_1()
         except Exception as e:
-            assert e.args[0].startswith("Cell execution caused an exception")
+            assert e.args[0].startswith("Running cell+test for code cell 1; execution caused an exception")
             assert e.args[0].endswith("x should have been -1 but was 1")
         else:
             raise Exception("Test should have failed")
-        finally:
-            t.tearDown()
+
+        t.tearDown()
+        if FORKED:
             t.tearDownClass()
+
+        if FORKED:
+            t.setUpClass()
+        t.setUp()
+        # subsequent cell should also fail
+        try:
+            t.test_code_cell_2()
+        except Exception as e:
+            assert e.args[0].startswith("Running cell+test for code cell 1; execution caused an exception")
+            assert e.args[0].endswith("x should have been -1 but was 1")
+        else:
+            raise Exception("Test should have failed at cell 1")
+
+        t.tearDown()
+        t.tearDownClass()
 
 
 class TestCellCounting(_TestCellTests):
