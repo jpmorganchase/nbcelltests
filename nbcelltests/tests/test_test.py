@@ -71,11 +71,15 @@ def _generate_test_module(notebook, module_name):
         # the module name (__name__) doesn't really matter, but
         # will be nbcelltests.tests.test_tests.X, where X is
         # whatever concrete subclass is this method belongs to.
-        generated_tests = _import_from_path(run(notebook, filename=tf_name), module_name)
-        tf.close()
-        return generated_tests
+        generated_module = _import_from_path(run(notebook, filename=tf_name), module_name)
     finally:
+        try:
+            tf.close()
+        except:
+            pass
         os.remove(tf_name)
+
+    return generated_module
 
 
 class _TestCellTests(unittest.TestCase):
