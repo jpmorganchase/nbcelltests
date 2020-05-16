@@ -75,7 +75,7 @@ def _generate_test_module(notebook, module_name):
     finally:
         try:
             tf.close()
-        except:
+        except Exception:
             pass
         os.remove(tf_name)
 
