@@ -23,29 +23,29 @@ function activate(app: JupyterFrontEnd,
                   tracker: INotebookTracker,
                   cellTools: INotebookTools): void {
 
-    /* Add to cell tools sidebar */
-    const testsTool = new CelltestsTool(app, tracker, cellTools);
-    cellTools.addItem({ tool: testsTool, rank: 1.9 });
+  /* Add to cell tools sidebar */
+  const testsTool = new CelltestsTool(app, tracker, cellTools);
+  cellTools.addItem({ tool: testsTool, rank: 1.9 });
 
-    /* Add to commands to sidebar */
-    palette.addItem({command: CELLTESTS_TEST_ID, category: CELLTESTS_CATEGORY});
-    palette.addItem({command: CELLTESTS_LINT_ID, category: CELLTESTS_CATEGORY});
+  /* Add to commands to sidebar */
+  palette.addItem({command: CELLTESTS_TEST_ID, category: CELLTESTS_CATEGORY});
+  palette.addItem({command: CELLTESTS_LINT_ID, category: CELLTESTS_CATEGORY});
 
-    app.commands.addCommand(CELLTESTS_TEST_ID, {
-        caption: CELLTESTS_TEST_CAPTION,
-        execute: (args) => {
-            runCellTests(app, docManager);
-        },
-        isEnabled: isEnabled(app, docManager),
-        label: CELLTESTS_TEST_CAPTION,
-    });
+  app.commands.addCommand(CELLTESTS_TEST_ID, {
+    caption: CELLTESTS_TEST_CAPTION,
+    execute: (args) => {
+      runCellTests(app, docManager);
+    },
+    isEnabled: isEnabled(app, docManager),
+    label: CELLTESTS_TEST_CAPTION,
+  });
 
-    app.commands.addCommand(CELLTESTS_LINT_ID, {
-        caption: CELLTESTS_LINT_CAPTION,
-        execute: (args) => {
-            runCellLints(app, docManager);
-        },
-        isEnabled: isEnabled(app, docManager),
-        label: CELLTESTS_LINT_CAPTION,
-    });
+  app.commands.addCommand(CELLTESTS_LINT_ID, {
+    caption: CELLTESTS_LINT_CAPTION,
+    execute: (args) => {
+      runCellLints(app, docManager);
+    },
+    isEnabled: isEnabled(app, docManager),
+    label: CELLTESTS_LINT_CAPTION,
+  });
 }

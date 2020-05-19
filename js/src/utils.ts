@@ -38,7 +38,7 @@ const CELLTEST_TOOL_EDITOR_CLASS = "CelltestsEditor";
 
 export
 function isEnabled(app: JupyterFrontEnd, docManager: IDocumentManager): () => boolean {
-    return () => { return (app.shell.currentWidget &&
+  return () => (app.shell.currentWidget &&
                 docManager.contextForWidget(app.shell.currentWidget) &&
-                docManager.contextForWidget(app.shell.currentWidget).model) ? true : false; };
+                docManager.contextForWidget(app.shell.currentWidget).model) ? true : false;
 }

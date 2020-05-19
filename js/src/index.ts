@@ -21,9 +21,9 @@ const extension: JupyterFrontEndPlugin<void> = {
   id: "jupyterlab_celltests",
   optional: [ILauncher],
   requires: [IDocumentManager,
-             ICommandPalette,
-             INotebookTracker,
-             INotebookTools],
+    ICommandPalette,
+    INotebookTracker,
+    INotebookTools],
 };
 
 export default extension;

@@ -5,7 +5,7 @@ run:
 	${PYTHON} -m nbcelltests.test Untitled.ipynb
 
 testjs: ## Clean and Make js tests
-	yarn test
+	cd js; yarn test
 
 testpy: ## Clean and Make unit tests
 	${PYTHON} -m pytest -v nbcelltests/tests --cov=nbcelltests
@@ -15,15 +15,15 @@ testpy-forked: ## Python unit tests --forked (not windows!)
 
 tests: lint ## run the tests
 	${PYTHON} -m pytest -v nbcelltests/tests --cov=nbcelltests --junitxml=python_junit.xml --cov-report=xml --cov-branch
-	yarn test
+	cd js; yarn test
 
 lint: ## run linter
 	flake8 nbcelltests setup.py
-	yarn lint
+	cd js; yarn lint
 
 fix:  ## run autopep8/tslint fix
 	autopep8 --in-place -r -a -a nbcelltests/
-	./node_modules/.bin/tslint --fix src/*
+	cd js; yarn fix
 
 extest:  ## run example test
 	@ ${PYTHON} -m nbcelltests.test Untitled.ipynb
@@ -55,11 +55,11 @@ serverextension: install ## enable serverextension
 	jupyter serverextension enable --py nbcelltests
 
 js:  ## build javascript
-	yarn
-	yarn build
+	cd js; yarn
+	cd js; yarn build
 
 labextension: js ## enable labextension
-	jupyter labextension install .
+	cd js; jupyter labextension install .
 
 dist: js  ## create dists
 	rm -rf dist build
@@ -67,7 +67,7 @@ dist: js  ## create dists
 
 publish: dist  ## dist to pypi and npm
 	twine check dist/* && twine upload dist/*
-	npm publish
+	cd js; npm publish
 
 verify-install:  ## verify all components are installed and active
 	${PYTHON} -c "import nbcelltests"

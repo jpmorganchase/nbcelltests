@@ -11,6 +11,7 @@ pjoin = path.join
 
 name = 'nbcelltests'
 here = path.abspath(path.dirname(__file__))
+jshere = path.join(here, 'js')
 version = get_version(pjoin(here, name, '_version.py'))
 
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
@@ -47,10 +48,10 @@ data_spec = [
 
 cmdclass = create_cmdclass('js', data_files_spec=data_spec)
 cmdclass['js'] = combine_commands(
-    install_npm(here, build_cmd='build:all'),
+    install_npm(jshere, build_cmd='build:all'),
     ensure_targets([
-        pjoin(here, 'lib', 'index.js'),
-        pjoin(here, 'style', 'index.css')
+        pjoin(jshere, 'lib', 'index.js'),
+        pjoin(jshere, 'style', 'index.css')
     ]),
 )
 
