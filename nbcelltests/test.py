@@ -12,7 +12,6 @@ import shutil
 import sys
 import subprocess
 import tempfile
-import ast
 from .define import TestMessage, TestType
 from .shared import extract_extrametadata, get_coverage, is_empty, cell_injected_into_test
 from .tests_vendored import BASE, JSON_CONFD
