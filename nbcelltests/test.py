@@ -14,7 +14,7 @@ import subprocess
 import tempfile
 import ast
 from .define import TestMessage, TestType
-from .shared import extract_extrametadata
+from .shared import extract_extrametadata, get_coverage, is_empty, cell_injected_into_test
 from .tests_vendored import BASE, JSON_CONFD
 
 # TODO: eventually want assemble() and the rest to be doing something
@@ -26,27 +26,6 @@ from .tests_vendored import BASE, JSON_CONFD
 # throughout the code.
 
 INDENT = '    '
-
-
-def _is_empty(source):
-    try:
-        parsed = ast.parse(source)
-    except SyntaxError:
-        # If there's a syntax error, it's not an empty code cell.
-        # Handling and communicating syntax errors is a general issue
-        # (https://github.com/jpmorganchase/nbcelltests/issues/101).
-        # Note: this will also handle magics.
-        return False
-
-    # TODO: py2 utf8
-    return len(parsed.body) == 0
-
-
-def _cell_source_is_injected(test_lines):
-    for test_line in test_lines:
-        if test_line.strip().startswith(r"%cell"):
-            return True
-    return False
 
 
 def assemble_code(notebook):
@@ -66,12 +45,11 @@ def assemble_code(notebook):
 
         code_cell += 1
 
-        if _is_empty(cell['source']):
-
+        if is_empty(cell['source']):
             skiptest = "@nbcelltests.tests_vendored.unittest.skip('empty code cell')\n" + INDENT
-        elif _is_empty("".join(test_lines).replace(r"%cell", "pass")):
+        elif is_empty("".join(test_lines).replace(r"%cell", "pass")):
             skiptest = "@nbcelltests.tests_vendored.unittest.skip('no test supplied')\n" + INDENT
-        elif not _cell_source_is_injected(test_lines):
+        elif not cell_injected_into_test(test_lines):
             skiptest = "@nbcelltests.tests_vendored.unittest.skip('cell code not injected into test')\n" + INDENT
         else:
             skiptest = ""
@@ -167,7 +145,12 @@ def writeout_class_definitions(fp, class_definitions, metadata):
 def writeout_cell_coverage(fp, cell_coverage, metadata):
     if cell_coverage:
         fp.write(INDENT + 'def test_cell_coverage(self):\n')
-        fp.write(2 * INDENT + 'assert {cells_covered} >= {limit}\n\n'.format(limit=cell_coverage, cells_covered=(metadata.get('test_count', 0) / metadata.get('cell_count', -1)) * 100))
+        fp.write(
+            2 *
+            INDENT +
+            'assert {cells_covered} >= {limit}, "Actual cell coverage {cells_covered} < minimum required of {limit}"\n\n'.format(
+                limit=cell_coverage,
+                cells_covered=get_coverage(metadata)))
 
 
 def run(notebook, rules=None, filename=None):

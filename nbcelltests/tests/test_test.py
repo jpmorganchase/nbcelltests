@@ -10,7 +10,7 @@ import os
 import sys
 import unittest
 
-from nbcelltests.test import run, _is_empty
+from nbcelltests.test import run
 
 # TODO: we should generate the notebooks rather than having them as
 # files (same for lint ones). Would also allow for simplification of
@@ -22,6 +22,7 @@ TEST_FAIL = os.path.join(os.path.dirname(__file__), '_test_fail.ipynb')
 COUNTING = os.path.join(os.path.dirname(__file__), '_cell_counting.ipynb')
 NONCODE = os.path.join(os.path.dirname(__file__), '_non_code_cell.ipynb')
 SKIPS = os.path.join(os.path.dirname(__file__), '_skips.ipynb')
+COVERAGE = os.path.join(os.path.dirname(__file__), 'coverage.ipynb')
 
 # Hack. We want to test expected behavior in distributed situation,
 # which we are doing via pytest --forked.
@@ -99,6 +100,12 @@ class _TestCellTests(unittest.TestCase):
         self.assertTrue(hasattr(mthd, '__unittest_skip__'), msg=msg)
         self.assertEqual(mthd.__unittest_skip__, True, msg=msg)
         self.assertEqual(mthd.__unittest_skip_why__, reason, msg="Skip reason should have been %s" % reason)
+
+    def test_coverage(self):
+        """
+        Subclasses should override this if they want to check coverage.
+        """
+        assert not hasattr(self, 'test_cell_coverage')
 
 
 class TestMethodGenerationError(_TestCellTests):
@@ -382,10 +389,35 @@ class TestCellCounting(_TestCellTests):
         self.assertListEqual(sorted(test_methods), ['test_code_cell_1', 'test_code_cell_2', 'test_code_cell_3'])
 
 
-def test_is_empty():
-    assert _is_empty("import blah\nblah.do_something()") is False
-    assert _is_empty("%matplotlib inline") is False
-    assert _is_empty("pass") is False
-    assert _is_empty("") is True
-    assert _is_empty("#pass") is True
-    assert _is_empty("\n\n\n") is True
+class TestCellCoverage(_TestCellTests):
+    """Test that test_coverage works."""
+
+    NBNAME = COVERAGE
+
+    # the tests are independent, so it's fine to call setUpClass and
+    # setUp before every test (and same for tearDown after). When we
+    # are generating notebooks, we won't need the single, shared
+    # notebook.
+    def setUp(self):
+        self.t = self.generated_tests.TestNotebook()
+        self.t.setUpClass()
+        self.t.setUp()
+
+    def tearDown(self):
+        self.t.tearDown()
+        self.t.tearDownClass()
+
+    def test_coverage(self):
+        """
+        There's a skipped test at the start of the notebook to make sure skips don't
+        affect test/cell correspondence.
+        """
+        try:
+            self.t.test_cell_coverage()
+        except AssertionError as e:
+            assert e.args[0] == 'Actual cell coverage 25.0 < minimum required of 50'
+        else:
+            raise ValueError("Cell coverage test should have failed.")
+
+
+del _TestCellTests  # TODO: either make genuinely abstract, or don't use classes/inheritance at all here (since classes/inheritance are not meaningful here anyway).
