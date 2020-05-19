@@ -65,14 +65,6 @@ class MagicsRecorder(ast.NodeVisitor):
                 self.seen.add(magic_name)
 
 
-def extract_cellsources(notebook):
-    return [c['source'].split('\n') for c in notebook.cells if c.get('cell_type') == 'code']
-
-
-def extract_celltests(notebook):
-    return [c['metadata'].get('tests', []) for c in notebook.cells]
-
-
 # Note: I think it's confusing to insert the actual counts into the
 # metadata.  Why not keep them separate?
 #
@@ -113,6 +105,7 @@ def extract_extrametadata(notebook, override=None):
     base['cell_lines'] = []
 
     for c in notebook.cells:
+        # TODO if not c['cell_type'] == 'source'
         if c.get('cell_type') in ('markdown', 'raw',):
             continue
 

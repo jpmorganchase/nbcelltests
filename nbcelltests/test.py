@@ -12,41 +12,90 @@ import shutil
 import sys
 import subprocess
 import tempfile
+import ast
 from .define import TestMessage, TestType
-from .shared import extract_cellsources, extract_celltests, extract_extrametadata
+from .shared import extract_extrametadata
 from .tests_vendored import BASE, JSON_CONFD
+
+# TODO: eventually want assemble() and the rest to be doing something
+# better than building up code in strings. It's tricky to work with,
+# tricky to read, can't lint, can't test easily, unlikely to be
+# generally correct, etc etc :)
+
+# TODO: there are multiple definitions of "is tested", "is code cell"
+# throughout the code.
 
 INDENT = '    '
 
 
-def assemble_code(sources, tests):
+def _is_empty(source):
+    try:
+        parsed = ast.parse(source)
+    except SyntaxError:
+        # If there's a syntax error, it's not an empty code cell.
+        # Handling and communicating syntax errors is a general issue
+        # (https://github.com/jpmorganchase/nbcelltests/issues/101).
+        # Note: this will also handle magics.
+        return False
+
+    # TODO: py2 utf8
+    return len(parsed.body) == 0
+
+
+def _cell_source_is_injected(test_lines):
+    for test_line in test_lines:
+        if test_line.strip().startswith(r"%cell"):
+            return True
+    return False
+
+
+def assemble_code(notebook):
     cells = []
+    code_cell = 0
+    # notes:
+    #   * code cell counting is 1 based
+    #   * the only import in the template is nbcelltests.tests_vendored
+    for i, cell in enumerate(notebook.cells, start=1):
+        # TODO: duplicate definition how to get tests
+        test_lines = cell.get('metadata', {}).get('tests', [])
 
-    # for cell of notebook,
-    # assemble code to write
-    for i, [code, test] in enumerate(zip(sources, tests)):
-        # add celltest
-        cells.append([i, [], 'def test_cell_%d(self):\n' % i])
+        if cell.get('cell_type') != 'code':
+            if len(test_lines) > 0:
+                raise ValueError("Cell %d is not a code cell, but metadata contains test code!" % i)
+            continue
 
-        for line in test:
-            # if testing the cell,
-            # write code from cell
-            if line.strip().startswith(r'%cell'):
+        code_cell += 1
 
+        if _is_empty(cell['source']):
+
+            skiptest = "@nbcelltests.tests_vendored.unittest.skip('empty code cell')\n" + INDENT
+        elif _is_empty("".join(test_lines).replace(r"%cell", "pass")):
+            skiptest = "@nbcelltests.tests_vendored.unittest.skip('no test supplied')\n" + INDENT
+        elif not _cell_source_is_injected(test_lines):
+            skiptest = "@nbcelltests.tests_vendored.unittest.skip('cell code not injected into test')\n" + INDENT
+        else:
+            skiptest = ""
+
+        cells.append([i, [], "%sdef test_code_cell_%d(self):\n" % (skiptest, code_cell)])
+
+        if skiptest:
+            cells[-1][1].append(INDENT + 'pass # code cell %d\n\n' % code_cell)
+            continue
+
+        for test_line in test_lines:
+            if test_line.strip().startswith(r"%cell"):
                 # add comment in test for readability
-                cells[-1][1].append(INDENT + line.replace(r'%cell', '# Cell {' + str(i) + '} content\n'))
+                cells[-1][1].append(INDENT + test_line.replace(r'%cell', '# Cell {' + str(code_cell) + '} content\n'))
 
                 # add all code for cell
-                for c in code:
-                    cells[-1][1].append(INDENT + line.replace('\n', '').replace(r'%cell', '') + c + '\n')
-
-                cells[-1][1].append('\n')
+                for cell_line in cell['source'].split('\n'):
+                    # TODO: is this going to replace %cell appearing in a comment?
+                    cells[-1][1].append(INDENT + test_line.replace('\n', '').replace(r'%cell', '') + cell_line + '\n')
 
             # else just write test
             else:
-                cells[-1][1].append(INDENT + line)
-                if not line[-1] == '\n':
-                    # add newline if missing
+                cells[-1][1].append(INDENT + test_line)
+                if not test_line[-1] == '\n':
                     cells[-1][1][-1] += '\n'
 
     return cells
@@ -126,12 +175,8 @@ def run(notebook, rules=None, filename=None):
     name = filename or notebook[:-6] + '_test.py'  # remove .ipynb, replace with _test.py
 
     kernel_name = nb.metadata.get('kernelspec', {}).get('name', 'python')
-
-    sources = extract_cellsources(nb)
-    tests = extract_celltests(nb)
+    cells = assemble_code(nb)
     extra_metadata = extract_extrametadata(nb)
-    cells = assemble_code(sources, tests)
-
     rules = rules or {}
     extra_metadata.update(rules)
 
