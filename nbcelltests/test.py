@@ -29,8 +29,17 @@ INDENT = '    '
 
 
 def _is_empty(source):
+    try:
+        parsed = ast.parse(source)
+    except SyntaxError:
+        # If there's a syntax error, it's not an empty code cell.
+        # Handling and communicating syntax errors is a general issue
+        # (https://github.com/jpmorganchase/nbcelltests/issues/101).
+        # Note: this will also handle magics.
+        return False
+
     # TODO: py2 utf8
-    return len(ast.parse(source).body) == 0
+    return len(parsed.body) == 0
 
 
 def _cell_source_is_injected(test_lines):

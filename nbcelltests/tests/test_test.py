@@ -10,7 +10,7 @@ import os
 import sys
 import unittest
 
-from nbcelltests.test import run
+from nbcelltests.test import run, _is_empty
 
 # TODO: we should generate the notebooks rather than having them as
 # files (same for lint ones). Would also allow for simplification of
@@ -380,3 +380,12 @@ class TestCellCounting(_TestCellTests):
         """No unexpected extra test methods"""
         test_methods = [mthd for mthd in dir(self.t) if mthd.startswith("test_code_cell")]
         self.assertListEqual(sorted(test_methods), ['test_code_cell_1', 'test_code_cell_2', 'test_code_cell_3'])
+
+
+def test_is_empty():
+    assert _is_empty("import blah\nblah.do_something()") is False
+    assert _is_empty("%matplotlib inline") is False
+    assert _is_empty("pass") is False
+    assert _is_empty("") is True
+    assert _is_empty("#pass") is True
+    assert _is_empty("\n\n\n") is True
