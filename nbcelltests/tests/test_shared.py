@@ -7,6 +7,7 @@
 #
 import os
 
+import pytest
 import nbformat
 
 from nbcelltests.shared import extract_extrametadata, get_coverage, is_empty
@@ -15,7 +16,7 @@ from nbcelltests.shared import extract_extrametadata, get_coverage, is_empty
 BASIC_NB = os.path.join(os.path.dirname(__file__), 'basic.ipynb')
 MORE_NB = os.path.join(os.path.dirname(__file__), 'more.ipynb')
 MAGICS_NB = os.path.join(os.path.dirname(__file__), 'magics.ipynb')
-COVERAGE_NB = os.path.join(os.path.dirname(__file__), 'coverage.ipynb')
+COVERAGE_NB = os.path.join(os.path.dirname(__file__), '_cell_coverage.ipynb')
 
 
 def test_is_empty():
@@ -119,5 +120,22 @@ def test_extract_extrametadata_cell_test_coverage():
     assert _metadata(COVERAGE_NB, 'test_count') == 1
 
 
-def test_get_coverage():
+def test_get_coverage_nb():
     assert get_coverage(extract_extrametadata(nbformat.read(COVERAGE_NB, 4))) == 25
+
+
+@pytest.mark.parametrize(
+    "test_count, cell_count, expected", [
+        (0, 10, 0),
+        (5, 10, 50),
+        (10, 10, 100),
+        (0, 0, 0),
+        (10, 0, 0),  # this would be an error at test generation time
+    ]
+)
+def test_get_coverage(test_count, cell_count, expected):
+    metadata = {
+        'test_count': test_count,
+        'cell_count': cell_count
+    }
+    assert get_coverage(metadata) == expected
