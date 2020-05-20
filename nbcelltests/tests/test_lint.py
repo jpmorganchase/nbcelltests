@@ -144,13 +144,13 @@ def test_magics_lists_sanity():
         # one rule, pass
         ({'lines_per_cell': -1}, [], True),
         # one rule, fail
-        ({'lines_per_cell': 1}, [LR(x, LintType.LINES_PER_CELL) for x in [False, True, True, True, False, False]], False),
+        ({'lines_per_cell': 1}, [LR(x, LintType.LINES_PER_CELL) for x in [False, True, False, False]], False),
         # multiple rules, combo fail
         ({'lines_per_cell': 5,
-          'cells_per_notebook': 1}, [LR(True, LintType.LINES_PER_CELL)] * 6 + [LR(False, LintType.CELLS_PER_NOTEBOOK)], False),
+          'cells_per_notebook': 1}, [LR(True, LintType.LINES_PER_CELL)] * 4 + [LR(False, LintType.CELLS_PER_NOTEBOOK)], False),
         # multiple rules, combo pass
         ({'lines_per_cell': 5,
-          'cells_per_notebook': 10}, [LR(True, LintType.LINES_PER_CELL)] * 6 + [LR(True, LintType.CELLS_PER_NOTEBOOK)], True),
+          'cells_per_notebook': 10}, [LR(True, LintType.LINES_PER_CELL)] * 4 + [LR(True, LintType.CELLS_PER_NOTEBOOK)], True),
         # all the expected rules
         ({'lines_per_cell': 5,
           'cells_per_notebook': 2,
@@ -159,7 +159,7 @@ def test_magics_lists_sanity():
           'cell_coverage': 90,
           'kernelspec_requirements':
             {'name': 'python3'},
-          'magics_whitelist': ['matplotlib']}, [LR(True, LintType.LINES_PER_CELL)] * 6 +
+          'magics_whitelist': ['matplotlib']}, [LR(True, LintType.LINES_PER_CELL)] * 4 +
                                                [LR(False, LintType.CELLS_PER_NOTEBOOK)] +
                                                [LR(False, LintType.FUNCTION_DEFINITIONS)] +
                                                [LR(False, LintType.CLASS_DEFINITIONS)] +

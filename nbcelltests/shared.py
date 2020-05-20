@@ -105,8 +105,7 @@ def extract_extrametadata(notebook, override=None):
     base['cell_lines'] = []
 
     for c in notebook.cells:
-        # TODO if not c['cell_type'] == 'source'
-        if c.get('cell_type') in ('markdown', 'raw',):
+        if c['cell_type'] != 'code' or is_empty(c['source']):
             continue
 
         base['cell_lines'].append(0)
@@ -116,11 +115,9 @@ def extract_extrametadata(notebook, override=None):
         for line in c['source'].split('\n'):
             base['lines'] += 1
             base['cell_lines'][-1] += 1
-        for t in c['metadata'].get('tests', []):
-            if t.strip().startswith('%cell'):
-                base['test_count'] += 1
-                base['cell_tested'][-1] = True
-                break
+        if cell_injected_into_test(c['metadata'].get('tests', [])):
+            base['test_count'] += 1
+            base['cell_tested'][-1] = True
 
     # in case you want to override notebook settings
     if override:
@@ -129,6 +126,26 @@ def extract_extrametadata(notebook, override=None):
     return base
 
 
-def get_coverage(notebook):
-    meta = extract_extrametadata(notebook)
-    return meta['cell_tested'] / meta['cell_count'] * 100
+def is_empty(source):
+    try:
+        parsed = ast.parse(source)
+    except SyntaxError:
+        # If there's a syntax error, it's not an empty code cell.
+        # Handling and communicating syntax errors is a general issue
+        # (https://github.com/jpmorganchase/nbcelltests/issues/101).
+        # Note: this will also handle magics.
+        return False
+
+    # TODO: py2 utf8
+    return len(parsed.body) == 0
+
+
+def cell_injected_into_test(test_lines):
+    for test_line in test_lines:
+        if test_line.strip().startswith(r"%cell"):
+            return True
+    return False
+
+
+def get_coverage(metadata):
+    return 100.0 * metadata['test_count'] / metadata['cell_count']
