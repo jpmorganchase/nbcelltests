@@ -208,6 +208,11 @@ def runWithHTMLReturn(notebook, executable=None, rules=None):
     by pytest's --self-contained-html.
 
     rules: coverage requirements (if any).
+
+    Note - leaves behind the following generated files for
+    "/path/to/notebook.ipynb":
+      * /path/to/notebook_test.py (notebook test script)
+      * /path/to/notebook_test.html (pytest's html report)
     """
     name = run(notebook, rules=rules)
     html = name.replace('.py', '.html')
