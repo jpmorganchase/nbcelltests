@@ -5,12 +5,13 @@
 # This file is part of the nbcelltests library, distributed under the terms of
 # the Apache License 2.0.  The full license can be found in the LICENSE file.
 #
+from bs4 import BeautifulSoup
 import tempfile
 import os
 import sys
 import unittest
 
-from nbcelltests.test import run, runWithReturn, runWithReport
+from nbcelltests.test import run, runWithReturn, runWithReport, runWithHTMLReturn
 
 # TODO: we should generate the notebooks rather than having them as
 # files (same for lint ones). Would also allow for simplification of
@@ -446,6 +447,9 @@ class TestCellCoverage(_TestCellTests):
 # https://github.com/jpmorganchase/nbcelltests/issues/125 before
 # deciding how to handle that better here.
 
+# runWithReturn
+
+
 def test_basic_runWithReturn_pass():
     """Basic check - just that it runs without error"""
     generates = os.path.join(os.path.dirname(__file__), "_cell_coverage_test.py")
@@ -480,6 +484,8 @@ def test_basic_runWithReturn_fail():
             pass
 
 
+# runWithReport
+
 def test_basic_runWithReport_pass():
     """Basic check - just that it runs without error"""
     generates = os.path.join(os.path.dirname(__file__), "_cell_coverage_test.py")
@@ -505,6 +511,90 @@ def test_basic_runWithReport_pass():
 #    ret = runWithReport(COVERAGE, executable=None, rules={'cell_coverage':100})
 #    assert len(ret) == 1
 #    assert (ret[0].passed, ret[0].type, ret[0].message) == (False, TestType.CELL_COVERAGE, 'Testing cell coverage')
+
+
+# runWithHTMLReturn
+
+def test_basic_runWithHTMLReturn_pass():
+    """Check it runs without error and generates the expected files and html."""
+    generates = [os.path.join(os.path.dirname(__file__), "_cell_coverage_test.py"),
+                 os.path.join(os.path.dirname(__file__), "_cell_coverage_test.html")]
+    exists_check = [os.path.exists(f) for f in generates]
+    if any(exists_check):
+        raise ValueError("Going to generate %s but already exist(s)" % [f for f, exists in zip(generates, exists_check) if exists])
+
+    try:
+        ret = runWithHTMLReturn(COVERAGE, executable=None, rules={'cell_coverage': 10})
+
+        for f in generates:
+            assert os.path.exists(f), "Should have generated %s but did not" % f
+    finally:
+        try:
+            for f in generates:
+                os.remove(f)
+        except Exception:
+            pass
+
+        _check(ret, coverage_result="Passed")
+
+
+def test_basic_runWithHTMLReturn_fail():
+    """Check it runs without error and generates the expected files and html."""
+    generates = [os.path.join(os.path.dirname(__file__), "_cell_coverage_test.py"),
+                 os.path.join(os.path.dirname(__file__), "_cell_coverage_test.html")]
+    exists_check = [os.path.exists(f) for f in generates]
+    if any(exists_check):
+        raise ValueError("Going to generate %s but already exist(s)" % [f for f, exists in zip(generates, exists_check) if exists])
+
+    try:
+        ret = runWithHTMLReturn(COVERAGE, executable=None, rules={'cell_coverage': 100})
+
+        for f in generates:
+            assert os.path.exists(f), "Should have generated %s but did not" % f
+    finally:
+        try:
+            for f in generates:
+                os.remove(f)
+        except Exception:
+            pass
+
+        _check(ret, coverage_result="Failed")
+
+
+def _check(html, coverage_result):
+    """
+    """
+    html_soup = BeautifulSoup(html, "html.parser")
+
+    tests_ran = False
+    for p in html_soup.find_all("p"):
+        # 1 cell test plus coverage test
+        if p.text.startswith("2 tests ran in"):
+            tests_ran = True
+            break
+
+    assert tests_ran
+
+    expected_results = {
+        "test_code_cell_1": "Skipped",
+        "test_code_cell_2": "Passed",
+        "test_code_cell_3": "Skipped",
+        "test_code_cell_4": "Skipped",
+        "test_code_cell_5": "Skipped",
+        "test_cell_coverage": coverage_result,
+    }
+
+    actual_results = html_soup.find_all(class_="results-table-row")
+
+    assert len(actual_results) == len(expected_results)
+
+    for actual_result, expected_name in zip(sorted(actual_results, key=lambda x: x.find_next(class_="col-name").text),
+                                            sorted(expected_results)):
+        name = actual_result.find_next(class_="col-name").text
+        state = actual_result.find_next(class_="col-result").text
+
+        assert name.endswith(expected_name)
+        assert state == expected_results[expected_name]
 
 
 del _TestCellTests  # TODO: either make genuinely abstract, or don't use classes/inheritance at all here (since classes/inheritance are not meaningful here anyway).

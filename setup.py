@@ -31,7 +31,8 @@ dev_requires = requires + [
     'bump2version',
     'mock',
     'autopep8',
-    'pytest-xdist ; sys_platform != "win32"'
+    'pytest-xdist ; sys_platform != "win32"',
+    'beautifulsoup4'
 ]
 
 data_spec = [
