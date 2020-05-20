@@ -99,9 +99,6 @@ class TestNotebookBase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        # TODO: these probably ought to be in __init__ - want one per
-        # *instance* of TestNotebookBase. Would only affect people
-        # instantiating multiple times per process (not normal usage).
         cls.kernel = RunningKernel(cls.KERNEL_NAME)
         cls.cells_run = set()
 
