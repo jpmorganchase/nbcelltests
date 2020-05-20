@@ -53,6 +53,7 @@ def assemble_code(notebook):
         else:
             skiptest = ""
 
+        # TODO: Use namedtuples for these:
         cells.append([code_cell, [], "%sdef test_code_cell_%d(self):\n" % (skiptest, code_cell)])
 
         if skiptest:
