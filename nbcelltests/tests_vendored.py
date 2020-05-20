@@ -58,35 +58,91 @@ from nbval.kernel import RunningKernel
 
 
 class TestNotebookBase(unittest.TestCase):
-    # abstract - subclasses must define KERNEL_NAME
+    """Base class for representing a notebook's code cells and their
+    associated tests; can submit cells to a kernel, track which cells
+    have been executed, and ensure all necessary cells are executed in
+    order.
+
+    For instance, requesting to run test_code_cell_7,
+    test_code_cell_8, and test_code_cell_9 (in that order) will result
+    in:
+
+      1. test_code_cell_7: executes cells 1, 2, 3, 4, 5, 6, 7
+      2. test_code_cell_8: executes cell 8
+      3. test_code_cell_9: executes cell 9
+
+    The above assumes all cells+tests succeed.
+
+    If e.g. cell 3 fails, the above changes to:
+
+      1. test_code_cell_7: executes cells 1, 2; fails on 3 (with a
+                           message that cell 3 failed)
+      2. test_code_cell_8: also fails on 3
+      3. test_code_cell_9: also fails on 3
+
+    Requesting to run test_code_cell_5 and test_code_cell_3 (in that order)
+    will result in:
+
+      1. test_code_cell_5: executes cells 1, 2, 3, 4, 5 (test passes)
+      2. test_code_cell_3: execute nothing (test passes)
+
+    This is an abstract class; subclasses will supply the source of
+    code cells and their associated tests in cells_and_tests, plus
+    test methods as entry points for test runners.
+
+    Note: 'cell' used in this class refers to cell number; 'cell
+    content' typically refers to code_cell+test (depending what is
+    passed in).
+    """
+    # abstract - subclasses will define KERNEL_NAME (TODO: make
+    # actually abstract...)
 
     @classmethod
     def setUpClass(cls):
         cls.kernel = RunningKernel(cls.KERNEL_NAME)
+        cls.cells_run = set()
 
     @classmethod
     def tearDownClass(cls):
         cls.kernel.stop()
 
-    # TODO: starting a new kernel per test is expensive, and
-    # could be optimized.
-    def setUp(self):
-        self.kernel = RunningKernel(self.KERNEL_NAME)
+    def run_test(self, cell):
+        """
+        Run any cells preceding cell (number) that have not already been
+        run, then run cell itself.
+        """
+        # maybe do some assertions that we didn't get all messed up
+        # with missing cells etc
+        preceding_cells = set(range(1, cell))
+        for preceding_cell in sorted(set(preceding_cells) - self.cells_run):
+            self._run_cell(preceding_cell)
+        self._run_cell(cell)
 
-    def tearDown(self):
-        self.kernel.stop()
+    def _run_cell(self, cell):
+        # convenience method
+        self._run(self.cells_and_tests[cell], "Running cell+test for code cell %d" % cell)
+        # will only add if there was no error running
+        self.cells_run.add(cell)
 
-    def run_test(self, cell_content):
-        # Start of code from nbval
+    def _run(self, cell_content, description=''):
+        """
+        Send supplied cell_content (cell source string) to kernel and
+        check it runs without exception.
+        """
+        # Start of code from nbval (with modifications)
         # https://github.com/computationalmodelling/nbval
-        # (but note, there are evidently some modifications)
+        #
+        # Modifications:
+        #   * ? (things before 2020)
+        #   * Add description to exception messages, so it's easy to see which
+        #     cell is failing.
         msg_id = self.kernel.execute_cell_input(cell_content, allow_stdin=False)
 
         # Poll the shell channel to get a message
         try:
             self.kernel.await_reply(msg_id)
         except Empty:
-            raise Exception('Kernel timed out waiting for message!')
+            raise Exception('%s; Kernel timed out waiting for message!' % description)
 
         while True:
             # The iopub channel broadcasts a range of messages. We keep reading
@@ -97,7 +153,7 @@ class TestNotebookBase(unittest.TestCase):
                 msg = self.kernel.get_message(stream='iopub')
 
             except Empty:
-                raise Exception('Kernel timed out waiting for message!')
+                raise Exception('%s; Kernel timed out waiting for message!' % description)
 
             # now we must handle the message by checking the type and reply
             # info and we store the output of the cell in a notebook node object
@@ -133,13 +189,13 @@ class TestNotebookBase(unittest.TestCase):
             # traceback information.
             elif msg_type == 'error':
                 traceback = '\\n' + '\\n'.join(reply['traceback'])
-                msg = "Cell execution caused an exception"
+                msg = "%s; execution caused an exception" % description
                 raise Exception(msg + '\\n' + traceback)
 
             # any other message type is not expected
             # should this raise an error?
             else:
-                print("unhandled iopub msg:", msg_type)
+                print("%s; unhandled iopub msg:" % description, msg_type)
 
         # End of code from nbval
 

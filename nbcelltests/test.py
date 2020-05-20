@@ -46,17 +46,18 @@ def assemble_code(notebook):
 
         if is_empty(cell['source']):
             skiptest = "@nbcelltests.tests_vendored.unittest.skip('empty code cell')\n" + INDENT
-        elif is_empty("".join(test_lines).replace(r"%cell", "pass")):
+        elif is_empty("".join(test_lines).replace(r"%cell", "pass # no test was supplied")):
             skiptest = "@nbcelltests.tests_vendored.unittest.skip('no test supplied')\n" + INDENT
         elif not cell_injected_into_test(test_lines):
             skiptest = "@nbcelltests.tests_vendored.unittest.skip('cell code not injected into test')\n" + INDENT
         else:
             skiptest = ""
 
-        cells.append([i, [], "%sdef test_code_cell_%d(self):\n" % (skiptest, code_cell)])
+        # TODO: Use namedtuples for these:
+        cells.append([code_cell, [], "%sdef test_code_cell_%d(self):\n" % (skiptest, code_cell)])
 
         if skiptest:
-            cells[-1][1].append(INDENT + 'pass # code cell %d\n\n' % code_cell)
+            cells[-1][1].append(INDENT + 'pass # code cell %d was skipped\n' % code_cell)
             continue
 
         for test_line in test_lines:
@@ -74,46 +75,27 @@ def assemble_code(notebook):
                 cells[-1][1].append(INDENT + test_line)
                 if not test_line[-1] == '\n':
                     cells[-1][1][-1] += '\n'
-
     return cells
 
 
 def writeout_test(fp, cells, kernel_name):
-    # base import and class
     fp.write(BASE.format(kernel_name=kernel_name))
 
-    # grab all code to write out
-    for i, code, meth in cells:
+    # write out source of cells+tests
+    fp.write(INDENT + "cells_and_tests = {")
+    for i, code, _ in cells:
+        fp.write('\n')
+        fp.write(INDENT * 2 + '%d: """\n' % i)
+        for line in code:
+            fp.write(INDENT + line)
+        fp.write(INDENT * 2 + '""",\n')
+    fp.write(INDENT + "}\n")
+
+    # write out test methods
+    for i, _, meth in cells:
         fp.write('\n')
         fp.write(INDENT + meth)
-        fp.write(INDENT * 2 + 'self.run_test("""\n')
-        to_write = []
-
-        for j, code2, _ in cells:
-            if j < i:
-                for c in code2:
-                    if(c != '\n'):
-                        # indent if necessary
-                        to_write.append(INDENT + c)
-                    else:
-                        to_write.append(c)
-
-            else:
-                break
-
-        for c in code:
-            if(c != '\n'):
-                to_write.append(INDENT + c)
-            else:
-                to_write.append(c)
-
-        if len(to_write) == 0:
-            to_write.append(INDENT + 'pass')
-
-        fp.writelines(to_write)
-        fp.write('        """)\n')
-
-    fp.write('\n')
+        fp.write(INDENT * 2 + 'self.run_test(%d)\n' % i)
 
 
 def writeout_lines_per_cell(fp, lines_per_cell, metadata):
