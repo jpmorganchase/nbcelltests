@@ -117,6 +117,7 @@ def writeout_cell_coverage(fp, cell_coverage, metadata):
 
 
 def run(notebook, rules=None, filename=None):
+    """Runs no tests: just generates test script for supplied notebook."""
     nb = nbformat.read(notebook, 4)
     name = filename or notebook[:-6] + '_test.py'  # remove .ipynb, replace with _test.py
 
@@ -142,6 +143,11 @@ def run(notebook, rules=None, filename=None):
 
 
 def runWithReturn(notebook, executable=None, rules=None):
+    """
+    Run notebook's celltests in a subprocess and return exit status.
+
+    rules: coverage requirements (if any).
+    """
     name = run(notebook, rules=rules)
     executable = executable or [sys.executable, '-m', 'pytest', '-v']
     argv = executable + [name]
@@ -197,7 +203,12 @@ def runWithReport(notebook, executable=None, rules=None, collect_only=False):
 
 
 def runWithHTMLReturn(notebook, executable=None, rules=None):
-    '''use pytest self contained html'''
+    """
+    Run notebook's celltests in a subprocess and return html generated
+    by pytest's --self-contained-html.
+
+    rules: coverage requirements (if any).
+    """
     name = run(notebook, rules=rules)
     html = name.replace('.py', '.html')
     executable = executable or [sys.executable, '-m', 'pytest', '-v']
