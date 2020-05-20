@@ -449,7 +449,6 @@ class TestCellCoverage(_TestCellTests):
 
 # runWithReturn
 
-
 def test_basic_runWithReturn_pass():
     """Basic check - just that it runs without error"""
     generates = os.path.join(os.path.dirname(__file__), "_cell_coverage_test.py")
@@ -563,6 +562,10 @@ def test_basic_runWithHTMLReturn_fail():
 
 def _check(html, coverage_result):
     """
+    Check html report contains expected results.
+
+    coverage_result is 'Passed' or 'Failed' depending what you want to
+    check.
     """
     html_soup = BeautifulSoup(html, "html.parser")
 
