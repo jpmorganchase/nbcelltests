@@ -10,7 +10,7 @@ import os
 import sys
 import unittest
 
-from nbcelltests.test import run
+from nbcelltests.test import run, runWithReturn, runWithReport
 
 # TODO: we should generate the notebooks rather than having them as
 # files (same for lint ones). Would also allow for simplification of
@@ -22,7 +22,7 @@ TEST_FAIL = os.path.join(os.path.dirname(__file__), '_test_fail.ipynb')
 COUNTING = os.path.join(os.path.dirname(__file__), '_cell_counting.ipynb')
 NONCODE = os.path.join(os.path.dirname(__file__), '_non_code_cell.ipynb')
 SKIPS = os.path.join(os.path.dirname(__file__), '_skips.ipynb')
-COVERAGE = os.path.join(os.path.dirname(__file__), 'coverage.ipynb')
+COVERAGE = os.path.join(os.path.dirname(__file__), '_cell_coverage.ipynb')
 
 # Hack. We want to test expected behavior in distributed situation,
 # which we are doing via pytest --forked.
@@ -418,6 +418,77 @@ class TestCellCoverage(_TestCellTests):
             assert e.args[0] == 'Actual cell coverage 25.0 < minimum required of 50'
         else:
             raise ValueError("Cell coverage test should have failed.")
+
+
+######
+
+# should split this file up - but only after deciding on organization
+# of module being tested
+
+# TODO: there's a repeated pattern of cleaning up files generated
+# during tests, but address
+# https://github.com/jpmorganchase/nbcelltests/issues/125 before
+# deciding how to handle that better here.
+
+def test_basic_runWithReturn_pass():
+    """Basic check - just that it runs without error"""
+    generates = os.path.join(os.path.dirname(__file__), "_cell_coverage_test.py")
+    if os.path.exists(generates):
+        raise ValueError("Going to generate %s but it already exists." % generates)
+
+    try:
+        _ = runWithReturn(COVERAGE, rules={'cell_coverage': 10})
+    finally:
+        try:
+            os.remove(generates)
+        except Exception:
+            pass
+
+
+def test_basic_runWithReturn_fail():
+    """Basic check - just that it fails"""
+    generates = os.path.join(os.path.dirname(__file__), "_cell_coverage_test.py")
+    if os.path.exists(generates):
+        raise ValueError("Going to generate %s but it already exists." % generates)
+
+    try:
+        _ = runWithReturn(COVERAGE, rules={'cell_coverage': 100})
+    except Exception:
+        pass  # would need to alter run fn or capture output to check more exactly
+    else:
+        raise ValueError("coverage check should have failed, but didn't")
+    finally:
+        try:
+            os.remove(generates)
+        except Exception:
+            pass
+
+
+def test_basic_runWithReport_pass():
+    """Basic check - just that it runs without error"""
+    generates = os.path.join(os.path.dirname(__file__), "_cell_coverage_test.py")
+    if os.path.exists(generates):
+        raise ValueError("Going to generate %s but it already exists." % generates)
+
+    from nbcelltests.define import TestType
+    try:
+        ret = runWithReport(COVERAGE, executable=None, rules={'cell_coverage': 10})
+    finally:
+        try:
+            os.remove(generates)
+        except Exception:
+            pass
+
+    assert len(ret) == 1
+    assert (ret[0].passed, ret[0].type, ret[0].message) == (1, TestType.CELL_COVERAGE, 'Testing cell coverage')
+
+
+# def test_basic_runWithReport_fail():
+#    from nbcelltests.define import TestType
+#    # TODO it fails here, but it shouldn't, right? we want to be able to report
+#    ret = runWithReport(COVERAGE, executable=None, rules={'cell_coverage':100})
+#    assert len(ret) == 1
+#    assert (ret[0].passed, ret[0].type, ret[0].message) == (False, TestType.CELL_COVERAGE, 'Testing cell coverage')
 
 
 del _TestCellTests  # TODO: either make genuinely abstract, or don't use classes/inheritance at all here (since classes/inheritance are not meaningful here anyway).

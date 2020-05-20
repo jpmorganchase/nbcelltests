@@ -9,7 +9,7 @@ from collections import namedtuple
 import os
 import pytest
 
-from nbcelltests.lint import lint_lines_per_cell, lint_cells_per_notebook, lint_function_definitions, lint_class_definitions, lint_cell_coverage, lint_kernelspec, lint_magics, run
+from nbcelltests.lint import lint_lines_per_cell, lint_cells_per_notebook, lint_function_definitions, lint_class_definitions, lint_kernelspec, lint_magics, run
 from nbcelltests.define import LintType
 
 LR = namedtuple("lint_result", ['passed', 'type'])
@@ -68,20 +68,6 @@ def test_lint_function_definitions(max_function_definitions, functions, expected
 )
 def test_lint_class_definitions(max_class_definitions, classes, expected_ret, expected_pass):
     ret, passed = lint_class_definitions(classes, max_class_definitions)
-    _verify(ret, passed, expected_ret, expected_pass)
-
-
-@pytest.mark.parametrize(
-    "test_count, cell_count, min_cell_coverage, expected_ret, expected_pass", [
-        (0, 10, 50, [LR(False, LintType.CELL_COVERAGE)], False),
-        (5, 10, 50, [LR(True, LintType.CELL_COVERAGE)], True),
-        (0, 10, 0, [LR(True, LintType.CELL_COVERAGE)], True),
-        (0, 10, -1, [], True),
-        (0, 0, 0, [], True)
-    ]
-)
-def test_cell_coverage(test_count, cell_count, min_cell_coverage, expected_ret, expected_pass):
-    ret, passed = lint_cell_coverage(test_count, cell_count, min_cell_coverage)
     _verify(ret, passed, expected_ret, expected_pass)
 
 
@@ -156,14 +142,12 @@ def test_magics_lists_sanity():
           'cells_per_notebook': 2,
           'function_definitions': 0,
           'class_definitions': 0,
-          'cell_coverage': 90,
           'kernelspec_requirements':
             {'name': 'python3'},
           'magics_whitelist': ['matplotlib']}, [LR(True, LintType.LINES_PER_CELL)] * 4 +
                                                [LR(False, LintType.CELLS_PER_NOTEBOOK)] +
                                                [LR(False, LintType.FUNCTION_DEFINITIONS)] +
                                                [LR(False, LintType.CLASS_DEFINITIONS)] +
-                                               [LR(False, LintType.CELL_COVERAGE)] +
                                                [LR(True, LintType.KERNELSPEC)] +
                                                [LR(True, LintType.MAGICS)], False)
     ]

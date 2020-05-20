@@ -13,17 +13,12 @@ class LintType(Enum):
     CELLS_PER_NOTEBOOK = 'cells_per_notebook'
     FUNCTION_DEFINITIONS = 'function_definitions'
     CLASS_DEFINITIONS = 'class_definitions'
-    CELL_COVERAGE = 'cell_coverage'
     LINTER = 'linter'
     KERNELSPEC = 'kernelspec'
     MAGICS = 'magics'
 
 
 class TestType(Enum):
-    LINES_PER_CELL = 'lines_per_cell'
-    CELLS_PER_NOTEBOOK = 'cells_per_notebook'
-    FUNCTION_DEFINITIONS = 'function_definitions'
-    CLASS_DEFINITIONS = 'class_definitions'
     CELL_COVERAGE = 'cell_coverage'
     CELL_TEST = 'cell_test'
 

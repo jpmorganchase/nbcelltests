@@ -123,24 +123,6 @@ def writeout_lines_per_cell(fp, lines_per_cell, metadata):
             fp.write(2 * INDENT + 'assert {lines_in_cell} <= {limit}\n\n'.format(limit=lines_per_cell, lines_in_cell=lines_in_cell))
 
 
-def writeout_cells_per_notebook(fp, cells_per_notebook, metadata):
-    if cells_per_notebook:
-        fp.write(INDENT + 'def test_cells_per_notebook(self):\n')
-        fp.write(2 * INDENT + 'assert {cells_in_notebook} <= {limit}\n\n'.format(limit=cells_per_notebook, cells_in_notebook=metadata.get('cell_count', -1)))
-
-
-def writeout_function_definitions(fp, function_definitions, metadata):
-    if function_definitions:
-        fp.write(INDENT + 'def test_function_definition_count(self):\n')
-        fp.write(2 * INDENT + 'assert {functions_in_notebook} <= {limit}\n\n'.format(limit=function_definitions, functions_in_notebook=metadata.get('functions', -1)))
-
-
-def writeout_class_definitions(fp, class_definitions, metadata):
-    if class_definitions:
-        fp.write(INDENT + 'def test_class_definition_count(self):\n')
-        fp.write(2 * INDENT + 'assert {classes_in_notebook} <= {limit}\n\n'.format(limit=class_definitions, classes_in_notebook=metadata.get('classes', -1)))
-
-
 def writeout_cell_coverage(fp, cell_coverage, metadata):
     if cell_coverage:
         fp.write(INDENT + 'def test_cell_coverage(self):\n')
@@ -170,27 +152,15 @@ def run(notebook, rules=None, filename=None):
             lines_per_cell = extra_metadata.get('lines_per_cell', -1)
             writeout_lines_per_cell(fp, lines_per_cell, extra_metadata)
 
-        if 'cells_per_notebook' in extra_metadata:
-            cells_per_notebook = extra_metadata.get('cells_per_notebook', -1)
-            writeout_cells_per_notebook(fp, cells_per_notebook, extra_metadata)
-
-        if 'function_definitions' in extra_metadata:
-            function_definitions = extra_metadata.get('function_definitions', -1)
-            writeout_function_definitions(fp, function_definitions, extra_metadata)
-
-        if 'class_definitions' in extra_metadata:
-            class_definitions = extra_metadata.get('class_definitions', -1)
-            writeout_class_definitions(fp, class_definitions, extra_metadata)
-
         if 'cell_coverage' in extra_metadata:
-            cell_coverage = extra_metadata.get('cell_coverage', 0)
+            cell_coverage = extra_metadata['cell_coverage']
             writeout_cell_coverage(fp, cell_coverage, extra_metadata)
 
     return name
 
 
 def runWithReturn(notebook, executable=None, rules=None):
-    name = run(notebook)
+    name = run(notebook, rules=rules)
     executable = executable or [sys.executable, '-m', 'pytest', '-v']
     argv = executable + [name]
     return subprocess.check_output(argv)
@@ -204,7 +174,7 @@ def runWithReport(notebook, executable=None, rules=None, collect_only=False):
     tmpd = tempfile.mkdtemp()
     py_file = os.path.join(tmpd, os.path.basename(notebook).replace('.ipynb', '.py'))
     json_file = os.path.join(tmpd, os.path.basename(notebook).replace('.ipynb', '.json'))
-    _ = run(notebook, filename=py_file)
+    _ = run(notebook, filename=py_file, rules=rules)
     ret = []
     try:
         # enable collecting info via json
@@ -234,15 +204,6 @@ def runWithReport(notebook, executable=None, rules=None, collect_only=False):
 
             if 'test_cell_coverage' in node['nodeid']:
                 ret.append(TestMessage(-1, 'Testing cell coverage', TestType.CELL_COVERAGE, outcome))
-            elif 'test_cells_per_notebook' in node['nodeid']:
-                ret.append(TestMessage(-1, 'Testing cells per notebook', TestType.CELLS_PER_NOTEBOOK, outcome))
-            elif 'test_class_definition_count' in node['nodeid']:
-                ret.append(TestMessage(-1, 'Testing class definitions per notebook', TestType.CLASS_DEFINITIONS, outcome))
-            elif 'test_function_definition_count' in node['nodeid']:
-                ret.append(TestMessage(-1, 'Testing function definitions per notebook', TestType.FUNCTION_DEFINITIONS, outcome))
-            elif 'test_lines_per_cell_' in node['nodeid']:
-                cell_no = node['nodeid'].rsplit('_', 1)[-1]
-                ret.append(TestMessage(int(cell_no) + 1, 'Testing lines per cell', TestType.LINES_PER_CELL, outcome))
             elif 'test_cell' in node['nodeid']:
                 cell_no = node['nodeid'].rsplit('_', 1)[-1]
                 ret.append(TestMessage(int(cell_no) + 1, 'Testing cell', TestType.CELL_TEST, outcome))
@@ -255,7 +216,7 @@ def runWithReport(notebook, executable=None, rules=None, collect_only=False):
 
 def runWithHTMLReturn(notebook, executable=None, rules=None):
     '''use pytest self contained html'''
-    name = run(notebook)
+    name = run(notebook, rules=rules)
     html = name.replace('.py', '.html')
     executable = executable or [sys.executable, '-m', 'pytest', '-v']
     argv = executable + ['--html=' + html, '--self-contained-html', name]
@@ -268,7 +229,7 @@ def runWithHTMLReturn2(notebook, executable=None, rules=None):
     '''use custom return objects'''
     ret = ''
     executable = executable or [sys.executable, '-m', 'pytest', '-v']
-    ret_tmp = run(notebook)
+    ret_tmp = run(notebook, rules=rules)
     for test in ret_tmp:
         test = test.to_html()
         ret += '<p>' + test + '</p>'

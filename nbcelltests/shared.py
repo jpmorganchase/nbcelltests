@@ -148,4 +148,6 @@ def cell_injected_into_test(test_lines):
 
 
 def get_coverage(metadata):
+    if metadata['cell_count'] == 0:
+        return 0
     return 100.0 * metadata['test_count'] / metadata['cell_count']
