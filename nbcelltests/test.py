@@ -98,13 +98,6 @@ def writeout_test(fp, cells, kernel_name):
         fp.write(INDENT * 2 + 'self.run_test(%d)\n' % i)
 
 
-def writeout_lines_per_cell(fp, lines_per_cell, metadata):
-    if lines_per_cell:
-        for i, lines_in_cell in enumerate(metadata.get('cell_lines', [])):
-            fp.write(INDENT + 'def test_lines_per_cell_%d(self):\n' % i)
-            fp.write(2 * INDENT + 'assert {lines_in_cell} <= {limit}\n\n'.format(limit=lines_per_cell, lines_in_cell=lines_in_cell))
-
-
 def writeout_cell_coverage(fp, cell_coverage, metadata):
     if cell_coverage:
         fp.write(INDENT + 'def test_cell_coverage(self):\n')
@@ -130,10 +123,6 @@ def run(notebook, rules=None, filename=None):
     # output tests to test file
     with open(name, 'w', encoding='utf-8') as fp:
         writeout_test(fp, cells, kernel_name)
-
-        if 'lines_per_cell' in extra_metadata:
-            lines_per_cell = extra_metadata.get('lines_per_cell', -1)
-            writeout_lines_per_cell(fp, lines_per_cell, extra_metadata)
 
         if 'cell_coverage' in extra_metadata:
             cell_coverage = extra_metadata['cell_coverage']
