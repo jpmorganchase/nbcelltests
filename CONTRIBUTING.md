@@ -66,5 +66,5 @@ To make a new release of nbcelltests:
 6. You can upload release candidates to pypi and npm if you want:
   - pypi: `twine check /path/to/dist/* && twine upload /path/to/dist/*` (updating the path to match what you downloaded from azure).
   - npm: `npm publish --tag beta /path/to/nbcelltests-0.2.0-alpha.0.tgz` (updating the filename to match what you downloaded from azure).
-7. Once satisfied, use `bumpversion` either to set or increment `release` to `final` (e.g.  `bumpversion release`), and then grab the resulting releases from azure and upload to pypi and npm.
-8. At some point after this (?), someone should bump the version to ?
+7. Once satisfied, use `bumpversion` either to set or increment `release` to `final` (e.g.  `bumpversion release`), and then repeat steps 3 and 4. Grab the resulting releases from azure and upload to pypi and npm.
+8. At some point after this (?), someone should bump the version to something something alpha (?).
