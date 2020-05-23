@@ -54,15 +54,17 @@ Once you have such a development setup, you should:
 
 To make a new release of nbcelltests:
 
-1. If the version has not already been bumped (which you figure out by comparing the version in `.bumpversion.cfg` with the latest git tag and the latest release on pypi), then bump the version by doing something like: `bumpversion patch` (replacing `patch` with whatever is appropriate for the current release, e.g. `minor`, `major`, etc) - This will also create a git commit (but not a tag).
-2. `git tag vX.Y.Z` (where `X.Y.Z` is from step 1, above) - This will create a lightweight tag (most team members do not use annotated tags).
-3. `git push upstream vX.Y.Z` (assuming all your commits are already in `upstream`, and `upstream` represents jpmorganchase/nbcelltests master) - This will push the tag you created above, which will trigger python and npm package builds on azure, and upload to [our azure feed](https://dev.azure.com/tpaine154/jupyter/_packaging?_a=feed&feed=python-packages).
-4. Check the resulting packages:
+1. Assuming `jpmorgan/celltests` is `origin` (note: package uploads do not work from forks).
+2. The version in `.bumpversion.cfg` should already be something like `(0, 2, 0, 'alpha', 0)` or similar (i.e. some pre-release version that is ahead of the most recent version at pypi). If not, you should increment: `bumpversion patch` (replace `patch` with whatever is appropriate for the current release, e.g. `minor`, `major`, etc) - This will also create a git commit (but not a tag). Say the version is now `(0, 2, 0, 'alpha', 0)`.
+3. `git tag -a v0.2.0a0 "Release new alpha"`
+4. `git push origin && git push origin --tags v0.2.0a0` - This will push the tag you created above, which will trigger python and npm package builds on azure, and upload to [our azure feed](https://dev.azure.com/tpaine154/jupyter/_packaging?_a=feed&feed=python-packages).
+5. Check the resulting packages:
   - Install and test in a clean environment:
-    - You can install for python with `pip install --index-url=https://pkgs.dev.azure.com/tpaine154/jupyter/_packaging/python-packages/pypi/simple/ nbcelltests==0.1.3a0 --extra-index-url=https://pypi.org/simple`, modifying as appropriate to use the wheel or the sdist, and to install the version you want to test. Following that, you should at least run the installed package's tests (after installing the test dependencies - see setup.py's dev dependencies): `python -m py.test --pyargs nbcelltests`.
-    - Download the nbcelltests npm package from [our azure feed](https://dev.azure.com/tpaine154/jupyter/_packaging?_a=feed&feed=python-packages) and then install with `jupyter labextension install /path/to/nbcelltests-0.1.3-alpha.0.tgz` (replacing the filename with whatever you downloaded).
+    - You can install for python with `pip install --index-url=https://pkgs.dev.azure.com/tpaine154/jupyter/_packaging/python-packages/pypi/simple/ nbcelltests==0.2.0a0 --extra-index-url=https://pypi.org/simple`, modifying as appropriate to use the wheel or the sdist, and to install the version you want to test. Following that, you should at least run the installed package's tests (after installing the test dependencies - see setup.py's dev dependencies): `python -m py.test --pyargs nbcelltests`.
+    - Download the nbcelltests npm package from [our azure feed](https://dev.azure.com/tpaine154/jupyter/_packaging?_a=feed&feed=python-packages) and then install with `jupyter labextension install /path/to/nbcelltests-0.2.0-alpha.0.tgz` (replacing the filename with whatever you downloaded).
   - Inspect the sdist, wheel, and npm tgz to make sure they contain the right files, version numbers, etc.
-5. You can upload release candidates to pypi and npm if you want:
+6. You can upload release candidates to pypi and npm if you want:
   - pypi: `twine check /path/to/dist/* && twine upload /path/to/dist/*` (updating the path to match what you downloaded from azure).
-  - npm: `npm publish --tag beta /path/to/nbcelltests-0.1.3-candidate.0.tgz` (updating the filename to match what you downloaded from azure).
-6. Once satisfied, use `bumpversion` either to set or increment `release` to `final` (e.g.  `bumpversion release`), and then grab the resulting releases from azure and upload to pypi and npm.
+  - npm: `npm publish --tag beta /path/to/nbcelltests-0.2.0-alpha.0.tgz` (updating the filename to match what you downloaded from azure).
+7. Once satisfied, use `bumpversion` either to set or increment `release` to `final` (e.g.  `bumpversion release`), and then grab the resulting releases from azure and upload to pypi and npm.
+8. At some point after this (?), someone should bump the version to ?
