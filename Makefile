@@ -65,9 +65,13 @@ dist: js  ## create dists
 	rm -rf dist build
 	${PYTHON} setup.py sdist bdist_wheel
 
-publish: dist  ## dist to pypi and npm
+publishpy: dist  ## dist to pypi
 	twine check dist/* && twine upload dist/*
+
+publishjs: dist  ## dist to npm
 	cd js; npm publish
+
+publish: publishpy publishjs  ## dist to pypi and npm
 
 verify-install:  ## verify all components are installed and active
 	${PYTHON} -c "import nbcelltests"
