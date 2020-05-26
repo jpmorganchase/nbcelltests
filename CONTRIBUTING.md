@@ -54,17 +54,23 @@ Once you have such a development setup, you should:
 
 To make a new release of nbcelltests:
 
-1. Assuming `jpmorgan/celltests` is `origin` (note: package uploads do not work from forks).
+1. Assuming `jpmorgan/celltests` is `upstream` (note: package uploads to azure feed not possible from forks).
 2. The version in `.bumpversion.cfg` should already be something like `(0, 2, 0, 'alpha', 0)` or similar (i.e. some pre-release version that is ahead of the most recent version at pypi). If not, you should increment: `bumpversion patch` (replace `patch` with whatever is appropriate for the current release, e.g. `minor`, `major`, etc) - This will also create a git commit (but not a tag). Say the version is now `(0, 2, 0, 'alpha', 0)`.
-3. `git tag -a v0.2.0a0 "Release new alpha"`
-4. `git push origin && git push origin --tags v0.2.0a0` - This will push the tag you created above, which will trigger python and npm package builds on azure, and upload to [our azure feed](https://dev.azure.com/tpaine154/jupyter/_packaging?_a=feed&feed=python-packages).
+3. `git tag -a v0.2.0a0 -m "Release new alpha"`
+4. `git push upstream && git push upstream --tags v0.2.0a0` - This will push the tag you created above, which will trigger python and npm package builds on azure, and upload to [our azure feed](https://dev.azure.com/tpaine154/jupyter/_packaging?_a=feed&feed=packages-testing).
 5. Check the resulting packages:
     - Install and test in a clean environment:
-        - You can install for python with `pip install --index-url=https://pkgs.dev.azure.com/tpaine154/jupyter/_packaging/python-packages/pypi/simple/ nbcelltests==0.2.0a0 --extra-index-url=https://pypi.org/simple`, modifying as appropriate to use the wheel or the sdist, and to install the version you want to test. Following that, you should at least run the installed package's tests (after installing the test dependencies - see setup.py's dev dependencies): `python -m py.test --pyargs nbcelltests`.
-        - Download the nbcelltests npm package from [our azure feed](https://dev.azure.com/tpaine154/jupyter/_packaging?_a=feed&feed=python-packages) and then install with `jupyter labextension install /path/to/nbcelltests-0.2.0-alpha.0.tgz` (replacing the filename with whatever you downloaded).
+	    - Ensure you are not in the celltests directory (e.g. change to a temp dir).
+		- `conda create -n test_celltests020a0 python=3.7` (or equivalent if not using conda)
+        - Install for python with `pip install --index-url=https://pkgs.dev.azure.com/tpaine154/jupyter/_packaging/packages-testing/pypi/simple/ nbcelltests==0.2.0a0 --extra-index-url=https://pypi.org/simple`, modifying as appropriate to use the wheel or the sdist, and to install the version you want to test.
+		- Following that, you should at least run the installed package's tests (after installing the test dependencies - see setup.py's dev dependencies): `python -m py.test --pyargs nbcelltests`.
+		- Install node.js (e.g. `conda install nodejs`).
+        - Download the nbcelltests npm package from [our azure feed](https://dev.azure.com/tpaine154/jupyter/_packaging?_a=feed&feed=packages-testing) and then install with `jupyter labextension install /path/to/nbcelltests-0.2.0-alpha.0.tgz` (replacing the filename with whatever you downloaded).
+		- There are no tests of the labextension, so run jupyterlab with a sample notebook and check you can run lint tests, run cell tests, and write tests.
     - Inspect the sdist, wheel, and npm tgz to make sure they contain the right files, version numbers, etc.
 6. You can upload release candidates to pypi and npm if you want:
     - pypi: `twine check /path/to/dist/* && twine upload /path/to/dist/*` (updating the path to match what you downloaded from azure).
     - npm: `npm publish --tag beta /path/to/nbcelltests-0.2.0-alpha.0.tgz` (updating the filename to match what you downloaded from azure).
-7. Once satisfied, use `bumpversion` either to set or increment `release` to `final` (e.g.  `bumpversion release`), and then repeat steps 3 and 4. Grab the resulting releases from azure and upload to pypi and npm.
-8. At some point after this (?), someone should bump the version to something something alpha (?).
+7. If there's a problem with the packages, fix the issue, then go back to step 2.
+8. Once satisfied, use `bumpversion` either to set or increment `release` to `final` (e.g.  `bumpversion release`), and then repeat steps 3 and 4. Grab the resulting releases from azure and upload to pypi and npm.
+9. At some point (?) after the release, bump the version to (?).
