@@ -18,8 +18,8 @@ Python package installation: `pip install nbcelltests`
 To use in JupyterLab, you will also need the lab and server extensions. Typically, these are
 automatically installed alongside nbcelltests, so you should not need to do anything special
 to use them. The lab extension will require a rebuild of JupyterLab, which you'll be prompted
-to do on starting JupyterLab the first time after installing celltests. Note that to use any
-lab extensions, you must have node.js installed.
+to do on starting JupyterLab the first time after installing celltests (or you can do manually
+with `jupyter lab build`. Note that you must have node.js installed (as for any lab extension).
 
 To see what extensions you have, check the output of `jupyter labextension list` (look for
 `jupyterlab_celltests`, and `jupyter serverextension list` (look for `nbcelltests`).
