@@ -7,7 +7,7 @@
 #
 # for Coverage
 from mock import MagicMock
-from nbcelltests.extension import load_jupyter_server_extension
+from nbcelltests import load_jupyter_server_extension
 
 
 class TestExtension:
