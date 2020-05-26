@@ -81,7 +81,7 @@ class RunLintsHandler(IPythonHandler):
         self.finish({'status': status, 'lint': ret})
 
 
-def load_jupyter_server_extension(nb_server_app):
+def _load_jupyter_server_extension(nb_server_app):
     """
     Called when the extension is loaded.
 
