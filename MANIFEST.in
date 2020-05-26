@@ -5,6 +5,9 @@ include AUTHORS
 include LICENSE
 include CONTRIBUTING.md
 
+# test data
+include nbcelltests/tests/*.ipynb
+
 # Webapp
 graft js
 prune js/node_modules
