@@ -60,8 +60,8 @@ To make a new release of nbcelltests:
 4. `git push upstream && git push upstream --tags v0.2.0a0` - This will push the tag you created above, which will trigger python and npm package builds on azure, and upload to [our azure feed](https://dev.azure.com/tpaine154/jupyter/_packaging?_a=feed&feed=packages-testing).
 5. Check the resulting packages:
     - Install and test the packages generated above in a clean environment (but which contains node.js).
-	    - See `.azure/test-template.yml` for the commands run by CI to install and test from the azure feed.
-		- There are no tests of the labextension, so run jupyterlab with a sample notebook and check you can run lint tests, run cell tests, write tests, etc.
+        - See `.azure/test-template.yml` for the commands run by CI to install and test from the azure feed.
+        - There are no tests of the labextension, so run jupyterlab with a sample notebook and check you can run lint tests, run cell tests, write tests, etc.
     - Inspect the sdist, wheel, and npm tgz to make sure they contain the right files, version numbers, etc.
 6. You can upload release candidates to pypi and npm if you want:
     - pypi: `twine check /path/to/dist/* && twine upload /path/to/dist/*` (updating the path to match what you downloaded from azure).
