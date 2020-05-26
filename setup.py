@@ -39,7 +39,7 @@ data_spec = [
     # Lab extension installed by default:
     ('share/jupyter/lab/extensions',
      'js/lab-dist',
-     'nbcelltests-*.tgz'),
+     'jupyterlab_celltests-*.tgz'),
     # Config to enable server extension by default:
     ('etc/jupyter',
      'jupyter-config',
