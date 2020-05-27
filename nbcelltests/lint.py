@@ -158,11 +158,6 @@ def _run_and_capture_utf8(args):
     return subprocess.run(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8', **run_kw)
 
 
-def runWithReturn(notebook, executable=None, rules=None):
-    ret, fail = run(notebook)
-    return ret
-
-
 def runWithHTMLReturn(notebook, executable=None, rules=None):
     ret = ''
     ret_tmp, fail = run(notebook, executable=executable, rules=rules)
