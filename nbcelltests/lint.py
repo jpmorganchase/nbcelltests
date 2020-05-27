@@ -14,6 +14,7 @@ from tempfile import NamedTemporaryFile
 from .shared import extract_extrametadata
 from .define import LintMessage, LintType
 
+
 def lint_lines_per_cell(cell_lines, max_lines_per_cell=-1):
     ret = []
     if max_lines_per_cell < 0:
