@@ -165,7 +165,7 @@ def runWithReturn(notebook, executable=None, rules=None):
 
 def runWithHTMLReturn(notebook, executable=None, rules=None):
     ret = ''
-    ret_tmp, fail = run(notebook, executable)
+    ret_tmp, fail = run(notebook, executable=executable, rules=rules)
     for lint in ret_tmp:
         lint = lint.to_html()
         ret += '<p>' + lint + '</p>'
