@@ -113,6 +113,8 @@ def extract_extrametadata(notebook, override=None):
         base['cell_count'] += 1
 
         for line in c['source'].split('\n'):
+            if is_empty(line):
+                continue
             base['lines'] += 1
             base['cell_lines'][-1] += 1
         if cell_injected_into_test(c['metadata'].get('tests', [])):
