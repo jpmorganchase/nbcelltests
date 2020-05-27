@@ -59,14 +59,9 @@ To make a new release of nbcelltests:
 3. `git tag -a v0.2.0a0 -m "Release new alpha"`
 4. `git push upstream && git push upstream --tags v0.2.0a0` - This will push the tag you created above, which will trigger python and npm package builds on azure, and upload to [our azure feed](https://dev.azure.com/tpaine154/jupyter/_packaging?_a=feed&feed=packages-testing).
 5. Check the resulting packages:
-    - Install and test in a clean environment:
-	    - Ensure you are not in the celltests directory (e.g. change to a temp dir).
-		- `conda create -n test_celltests020a0 python=3.7` (or equivalent if not using conda)
-        - Install for python with `pip install --index-url=https://pkgs.dev.azure.com/tpaine154/jupyter/_packaging/packages-testing/pypi/simple/ nbcelltests==0.2.0a0 --extra-index-url=https://pypi.org/simple`, modifying as appropriate to use the wheel or the sdist, and to install the version you want to test.
-		- Following that, you should at least run the installed package's tests (after installing the test dependencies - see setup.py's dev dependencies): `python -m py.test --pyargs nbcelltests`.
-		- Install node.js (e.g. `conda install nodejs`).
-        - Download the nbcelltests npm package from [our azure feed](https://dev.azure.com/tpaine154/jupyter/_packaging?_a=feed&feed=packages-testing) and then install with `jupyter labextension install /path/to/nbcelltests-0.2.0-alpha.0.tgz` (replacing the filename with whatever you downloaded).
-		- There are no tests of the labextension, so run jupyterlab with a sample notebook and check you can run lint tests, run cell tests, and write tests.
+    - Install and test the packages generated above in a clean environment (but which contains node.js).
+        - See `.azure/test-template.yml` for the commands run by CI to install and test from the azure feed.
+        - There are no tests of the labextension, so run jupyterlab with a sample notebook and check you can run lint tests, run cell tests, write tests, etc.
     - Inspect the sdist, wheel, and npm tgz to make sure they contain the right files, version numbers, etc.
 6. You can upload release candidates to pypi and npm if you want:
     - pypi: `twine check /path/to/dist/* && twine upload /path/to/dist/*` (updating the path to match what you downloaded from azure).

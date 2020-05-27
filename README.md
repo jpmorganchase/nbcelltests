@@ -15,12 +15,22 @@ Cell-by-cell testing for production Jupyter notebooks in JupyterLab
 ## Installation
 Python package installation: `pip install nbcelltests`
 
-To use in JupyterLab, you will also need the lab and server extensions:
+To use in JupyterLab, you will also need the lab and server extensions. Typically, these are
+automatically installed alongside nbcelltests, so you should not need to do anything special
+to use them. The lab extension will require a rebuild of JupyterLab, which you'll be prompted
+to do on starting JupyterLab the first time after installing celltests (or you can do manually
+with `jupyter lab build`. Note that you must have node.js installed (as for any lab extension).
+
+To see what extensions you have, check the output of `jupyter labextension list` (look for
+`jupyterlab_celltests`, and `jupyter serverextension list` (look for `nbcelltests`).
+If for some reason you need to manually install the extensions, you can do so as follows:
 
 ```bash
 jupyter labextension install jupyterlab_celltests
 jupyter serverextension enable --py nbcelltests
 ```
+
+(Note: if using in an environment, you might wish to add `--sys-prefix` to the `serverextension` command.)
 
 ## "Linearly executed notebooks?"
 When converting notebooks into html/pdf/email reports, they are executed top-to-bottom one time, and are expected to contain as little code as reasonably possible, focusing primarily on the plotting and markdown bits. Libraries for this type of thing include [Papermill](https://github.com/nteract/papermill), [JupyterLab Emails](https://github.com/timkpaine/jupyterlab_email), etc. 

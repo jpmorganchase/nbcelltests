@@ -38,8 +38,8 @@ dev_requires = requires + [
 data_spec = [
     # Lab extension installed by default:
     ('share/jupyter/lab/extensions',
-     'lab-dist',
-     'nbcelltests-*.tgz'),
+     'js/lab-dist',
+     'jupyterlab_celltests-*.tgz'),
     # Config to enable server extension by default:
     ('etc/jupyter',
      'jupyter-config',
