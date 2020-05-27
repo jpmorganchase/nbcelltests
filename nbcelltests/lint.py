@@ -184,12 +184,10 @@ def _run_and_capture_utf8(args):
     return subprocess.run(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8', **run_kw)
 
 
-# TODO: is this used? should remove, or test and fix.
 def runWithReturn(notebook, executable=None, rules=None):
     ret, fail = run(notebook)
     return ret
 
-# TODO: should be passing rules through (used by extension)
 
 
 def runWithHTMLReturn(notebook, executable=None, rules=None):
