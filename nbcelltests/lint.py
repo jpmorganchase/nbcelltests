@@ -189,7 +189,6 @@ def runWithReturn(notebook, executable=None, rules=None):
     return ret
 
 
-
 def runWithHTMLReturn(notebook, executable=None, rules=None):
     ret = ''
     ret_tmp, fail = run(notebook, executable)
