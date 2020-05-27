@@ -7,9 +7,11 @@
 #
 from collections import namedtuple
 import os
+from operator import itemgetter
+from bs4 import BeautifulSoup
 import pytest
 
-from nbcelltests.lint import lint_lines_per_cell, lint_cells_per_notebook, lint_function_definitions, lint_class_definitions, lint_kernelspec, lint_magics, run
+from nbcelltests.lint import lint_lines_per_cell, lint_cells_per_notebook, lint_function_definitions, lint_class_definitions, lint_kernelspec, lint_magics, run, runWithHTMLReturn
 from nbcelltests.define import LintType
 
 LR = namedtuple("lint_result", ['passed', 'type'])
@@ -161,3 +163,42 @@ def test_run(rules, expected_ret, expected_pass):
 def _verify(ret, passed, expected_ret, expected_pass):
     assert [(r.passed, r.type) for r in ret] == [(e.passed, e.type) for e in expected_ret]
     assert passed is expected_pass
+
+
+def test_runWithHTMLReturn_norules():
+    # no rules, so will pass without any checks
+    nb = os.path.join(os.path.dirname(__file__), 'more.ipynb')
+    html, passed = runWithHTMLReturn(nb)
+    assert passed is True
+    _check(html, [])
+
+
+def test_runWithHTMLReturn_pass():
+    # checks should pass
+    nb = os.path.join(os.path.dirname(__file__), 'more.ipynb')
+    html, passed = runWithHTMLReturn(nb, rules={"cells_per_notebook": 10})
+    assert passed is True
+    _check(html, [("PASSED", "Checking cells per notebook (max=10; actual=4) (Notebook)")])
+
+
+def test_runWithHTMLReturn_fail():
+    # checks should fail
+    nb = os.path.join(os.path.dirname(__file__), 'more.ipynb')
+    html, passed = runWithHTMLReturn(nb, rules={"cells_per_notebook": 1, "lines_per_cell": 2})
+    assert passed is False
+    _check(html, [
+        ("PASSED", "Checking lines in cell (max=2; actual=2)(Cell 1)"),
+        ("PASSED", "Checking lines in cell (max=2; actual=1)(Cell 2)"),
+        ("PASSED", "Checking lines in cell (max=2; actual=2)(Cell 3)"),
+        ("FAILED", "Checking lines in cell (max=2; actual=3)(Cell 4)"),
+        ("FAILED", "Checking cells per notebook (max=1; actual=4) (Notebook)")])
+
+
+def _check(html, expected_results):
+    # quick checking html matches expected results
+    soup = BeautifulSoup(html, "html.parser")
+    actual_results = soup.find_all("p")
+    assert len(actual_results) == len(expected_results)
+    for actual, expected in zip(sorted(actual_results, key=lambda x: x.text[x.text.find("Checking ")::]), sorted(expected_results, key=itemgetter(1))):
+        assert actual.text.startswith(expected[0])
+        assert actual.text.endswith(expected[1])
