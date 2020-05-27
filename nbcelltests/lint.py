@@ -14,10 +14,6 @@ from tempfile import NamedTemporaryFile
 from .shared import extract_extrametadata
 from .define import LintMessage, LintType
 
-# TODO: there's duplication with tests here. Should both use same
-# underlying code. Also, some of these things are not lint (e.g.
-# test coverage, while some of the tests are really just lint).
-
 
 def lint_lines_per_cell(cell_lines, max_lines_per_cell=-1):
     ret = []
@@ -54,18 +50,6 @@ def lint_class_definitions(classes, max_class_definitions=-1):
         return [], True
     passed = classes <= max_class_definitions
     return [LintMessage(-1, 'Checking classes per notebook (max={max_}; actual={actual})'.format(max_=max_class_definitions, actual=classes), LintType.CLASS_DEFINITIONS, passed)], passed
-
-
-# TODO: I think this isn't lint and should be removed.
-def lint_cell_coverage(test_count, cell_count, min_cell_coverage=-1):
-    """
-    Note: cell coverage is expressed as a percentage.
-    """
-    if (min_cell_coverage < 0) or (cell_count == 0):
-        return [], True
-    measured_cell_coverage = 100 * test_count / cell_count
-    passed = measured_cell_coverage >= min_cell_coverage
-    return [LintMessage(-1, 'Checking cell test coverage (min={min_}; actual={actual})'.format(min_=min_cell_coverage, actual=measured_cell_coverage), LintType.CELL_COVERAGE, passed)], passed
 
 
 def lint_kernelspec(kernelspec, kernelspec_requirements=False):
@@ -137,11 +121,6 @@ def run(notebook, executable=None, rules=None):
 
     if 'class_definitions' in extra_metadata:
         lintret, lintfail = lint_class_definitions(extra_metadata['classes'], max_class_definitions=extra_metadata['class_definitions'])
-        ret.extend(lintret)
-        passed = passed and lintfail
-
-    if 'cell_coverage' in extra_metadata:
-        lintret, lintfail = lint_cell_coverage(test_count=extra_metadata['test_count'], cell_count=extra_metadata['cell_count'], min_cell_coverage=extra_metadata['cell_coverage'])
         ret.extend(lintret)
         passed = passed and lintfail
 
