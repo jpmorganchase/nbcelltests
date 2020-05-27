@@ -124,19 +124,22 @@ def test_magics_lists_sanity():
 
 
 @pytest.mark.parametrize(
-    "rules, expected_ret, expected_pass", [
+    "rules, noqa_regex, expected_ret, expected_pass", [
         # no rules
-        ({}, [], True),
+        ({}, None, [], True),
         # one rule, pass
-        ({'lines_per_cell': -1}, [], True),
+        ({'lines_per_cell': -1}, None, [], True),
         # one rule, fail
-        ({'lines_per_cell': 1}, [LR(x, LintType.LINES_PER_CELL) for x in [False, True, False, False]], False),
+        ({'lines_per_cell': 1}, None, [LR(x, LintType.LINES_PER_CELL) for x in [False, True, False, False]], False),
         # multiple rules, combo fail
         ({'lines_per_cell': 5,
-          'cells_per_notebook': 1}, [LR(True, LintType.LINES_PER_CELL)] * 4 + [LR(False, LintType.CELLS_PER_NOTEBOOK)], False),
+          'cells_per_notebook': 1}, None, [LR(True, LintType.LINES_PER_CELL)] * 4 + [LR(False, LintType.CELLS_PER_NOTEBOOK)], False),
+        # multiple rules, one disabled, combo pass
+        ({'lines_per_cell': 1,
+          'cells_per_notebook': 10}, "# LINT_DISABLE: notebook_(.*)$", [LR(True, LintType.CELLS_PER_NOTEBOOK)], True),
         # multiple rules, combo pass
         ({'lines_per_cell': 5,
-          'cells_per_notebook': 10}, [LR(True, LintType.LINES_PER_CELL)] * 4 + [LR(True, LintType.CELLS_PER_NOTEBOOK)], True),
+          'cells_per_notebook': 10}, None, [LR(True, LintType.LINES_PER_CELL)] * 4 + [LR(True, LintType.CELLS_PER_NOTEBOOK)], True),
         # all the expected rules
         ({'lines_per_cell': 5,
           'cells_per_notebook': 2,
@@ -144,17 +147,17 @@ def test_magics_lists_sanity():
           'class_definitions': 0,
           'kernelspec_requirements':
             {'name': 'python3'},
-          'magics_whitelist': ['matplotlib']}, [LR(True, LintType.LINES_PER_CELL)] * 4 +
-                                               [LR(False, LintType.CELLS_PER_NOTEBOOK)] +
-                                               [LR(False, LintType.FUNCTION_DEFINITIONS)] +
-                                               [LR(False, LintType.CLASS_DEFINITIONS)] +
-                                               [LR(True, LintType.KERNELSPEC)] +
-                                               [LR(True, LintType.MAGICS)], False)
+          'magics_whitelist': ['matplotlib']}, None, [LR(True, LintType.LINES_PER_CELL)] * 4 +
+                                                     [LR(False, LintType.CELLS_PER_NOTEBOOK)] +
+                                                     [LR(False, LintType.FUNCTION_DEFINITIONS)] +
+                                                     [LR(False, LintType.CLASS_DEFINITIONS)] +
+                                                     [LR(True, LintType.KERNELSPEC)] +
+                                                     [LR(True, LintType.MAGICS)], False)
     ]
 )
-def test_run(rules, expected_ret, expected_pass):
+def test_run(rules, noqa_regex, expected_ret, expected_pass):
     nb = os.path.join(os.path.dirname(__file__), 'more.ipynb')
-    ret, passed = run(nb, rules=rules)
+    ret, passed = run(nb, rules=rules, noqa_regex=noqa_regex)
     _verify(ret, passed, expected_ret, expected_pass)
 
 
