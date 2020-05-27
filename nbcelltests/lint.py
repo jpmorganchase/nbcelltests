@@ -93,14 +93,19 @@ def lint_magics(magics, whitelist=None, blacklist=None):
     return [LintMessage(-1, 'Checking magics{}'.format(" ({} {})".format(msg, bad) if bad else ""), LintType.MAGICS, passed)], passed
 
 
-def run(notebook, executable=None, rules=None):
+def run(notebook, executable=None, rules=None, noqa_regex=None):
     nb = nbformat.read(notebook, 4)
-    extra_metadata = extract_extrametadata(nb)
+    extra_metadata = extract_extrametadata(nb, noqa_regex=noqa_regex)
     ret = []
     passed = True
 
     rules = rules or {}
     extra_metadata.update(rules)
+
+    # TODO: consider warning if referring to non-existent rules
+    rules_to_remove = extra_metadata['noqa'] & extra_metadata.keys()
+    for rule in rules_to_remove:
+        del extra_metadata[rule]
 
     # TODO: lintfail is more like lintpassed?
 
@@ -168,6 +173,7 @@ def runWithHTMLReturn(notebook, executable=None, rules=None):
 
 
 if __name__ == '__main__':
+    # TODO: doesn't support the typical interface of run (e.g. rules)
     if len(sys.argv) != 2:
         raise Exception('Usage:python -m nbcelltests.lint <ipynb file>')
     notebook = sys.argv[1]

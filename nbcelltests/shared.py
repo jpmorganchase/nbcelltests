@@ -7,6 +7,7 @@
 #
 import sys
 import ast
+import re
 import nbconvert
 
 
@@ -71,7 +72,12 @@ class MagicsRecorder(ast.NodeVisitor):
 # Note: this always does everything, which might be unnecessary
 # (e.g. if haven't asked for magics checking, don't need to extract
 # them)
-def extract_extrametadata(notebook, override=None):
+def extract_extrametadata(notebook, override=None, noqa_regex=None):
+    if noqa_regex is not None:
+        noqa_regex = re.compile(noqa_regex)
+        if not noqa_regex.groups == 1:
+            raise ValueError("noqa_regex must contain one capture group (specifying the rule)")
+
     base = notebook.metadata.get('celltests', {})
     override = override or {}
     base['lines'] = 0  # TODO: is this used?
@@ -103,6 +109,7 @@ def extract_extrametadata(notebook, override=None):
     base['cell_tested'] = []
     base['test_count'] = 0
     base['cell_lines'] = []
+    base['noqa'] = set()
 
     for c in notebook.cells:
         if c['cell_type'] != 'code' or is_empty(c['source']):
@@ -113,10 +120,13 @@ def extract_extrametadata(notebook, override=None):
         base['cell_count'] += 1
 
         for line in c['source'].split('\n'):
-            if is_empty(line):
-                continue
-            base['lines'] += 1
-            base['cell_lines'][-1] += 1
+            if noqa_regex:
+                noqa_match = noqa_regex.match(line)
+                if noqa_match:
+                    base['noqa'].add(noqa_match.group(1))
+            if not is_empty(line):
+                base['lines'] += 1
+                base['cell_lines'][-1] += 1
         if cell_injected_into_test(c['metadata'].get('tests', [])):
             base['test_count'] += 1
             base['cell_tested'][-1] = True
