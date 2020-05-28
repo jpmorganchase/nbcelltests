@@ -6,7 +6,7 @@ Cell-by-cell testing for production Jupyter notebooks in JupyterLab
 [![Docs](https://img.shields.io/readthedocs/nbcelltests.svg)](https://nbcelltests.readthedocs.io)
 [![PyPI](https://img.shields.io/pypi/l/nbcelltests.svg)](https://pypi.python.org/pypi/nbcelltests)
 [![PyPI](https://img.shields.io/pypi/v/nbcelltests.svg)](https://pypi.python.org/pypi/nbcelltests)
-[![npm](https://img.shields.io/npm/v/nbcelltests.svg)](https://www.npmjs.com/package/nbcelltests)
+[![npm](https://img.shields.io/npm/v/jupyterlab_celltests.svg)](https://www.npmjs.com/package/jupyterlab_celltests)
 
 
 # Overview

@@ -52,20 +52,25 @@ Once you have such a development setup, you should:
 
 # Releasing
 
-To make a new release of nbcelltests:
+To make a new release of nbcelltests from a fork, you can follow the
+procedure below to have package building and testing occur on neutral
+CI machines across multiple platforms. This is best viewed as a
+somewhat asynchronous process, during which you'll likely want to be
+working on other things. If you are further from release and want to
+iterate faster, you can of course use local commands and environments
+to build and test packages (see the Makefile, e.g. `make dist`).
 
 1. Assuming `jpmorgan/celltests` is `upstream` (note: package uploads to azure feed not possible from forks).
-2. The version in `.bumpversion.cfg` should already be something like `(0, 2, 0, 'alpha', 0)` or similar (i.e. some pre-release version that is ahead of the most recent version at pypi). If not, you should increment: `bumpversion patch` (replace `patch` with whatever is appropriate for the current release, e.g. `minor`, `major`, etc) - This will also create a git commit (but not a tag). Say the version is now `(0, 2, 0, 'alpha', 0)`.
-3. `git tag -a v0.2.0a0 -m "Release new alpha"`
-4. `git push upstream && git push upstream --tags v0.2.0a0` - This will push the tag you created above, which will trigger python and npm package builds on azure, and upload to [our azure feed](https://dev.azure.com/tpaine154/jupyter/_packaging?_a=feed&feed=packages-testing).
-5. Check the resulting packages:
-    - Install and test the packages generated above in a clean environment (but which contains node.js).
+2. The version in `.bumpversion.cfg` should already be something like `(0, 2, 0, 'alpha', 0)` or similar (i.e. some pre-release version that is ahead of the most recent version at pypi). If not, you should increment: `bumpversion patch` (replace `patch` with whatever is appropriate for the current release, e.g. `minor`, `major`, etc) - This will also create a git commit (but not a tag). You will need to do this in your fork, then open a PR and get it approved and merged. Say the version is now `(0, 2, 0, 'alpha', 0)`. 
+3. After your PR is merged, update your fork, and then `git tag -a v0.2.0a0 -m "Release new alpha"` followed by `git push upstream --tags v0.2.0a0` - Pushing the tag will trigger python and npm package builds on azure, and upload to [our azure feed](https://dev.azure.com/tpaine154/jupyter/_packaging?_a=feed&feed=packages-testing).
+4. Assuming packages were built and tested successfully on azure, you should then manually check the resulting packages:
+    - Install and test the packages generated above in a clean environment (containing python and node.js).
         - See `.azure/test-template.yml` for the commands run by CI to install and test from the azure feed.
         - There are no tests of the labextension, so run jupyterlab with a sample notebook and check you can run lint tests, run cell tests, write tests, etc.
     - Inspect the sdist, wheel, and npm tgz to make sure they contain the right files, version numbers, etc.
-6. You can upload release candidates to pypi and npm if you want:
+5. You can upload release candidates to pypi and npm if you want to do an extra check:
     - pypi: `twine check /path/to/dist/* && twine upload /path/to/dist/*` (updating the path to match what you downloaded from azure).
     - npm: `npm publish --tag beta /path/to/nbcelltests-0.2.0-alpha.0.tgz` (updating the filename to match what you downloaded from azure).
-7. If there's a problem with the packages, fix the issue, then go back to step 2.
-8. Once satisfied, use `bumpversion` either to set or increment `release` to `final` (e.g.  `bumpversion release`), and then repeat steps 3 and 4. Grab the resulting releases from azure and upload to pypi and npm.
-9. At some point (?) after the release, bump the version to (?).
+6. If there's a problem with the packages, fix the issue, then go back to step 2.
+7. Once satisfied with the packages, repeat steps 2 and 3, using `bumpversion` in step 2 either to set or increment `release` to `final` (e.g.  `bumpversion release`). Grab the resulting releases from azure and upload to pypi and npm.
+8. At some point (?) after the release, bump the version to (?).
