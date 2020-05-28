@@ -50,6 +50,22 @@ Once you have such a development setup, you should:
 - Commit your changes and publish the branch to your github repo.
 - Open a pull-request (PR) back to the main repo on Github.
 
+## Good first issues
+
+We use the [good first
+issue](https://github.com/jpmorganchase/nbcelltests/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
+label to denote issues:
+- that should be approachable to new contributors without detailed knowledge of the project;
+- for which guidance is available;
+- that we are not currently working on.
+
+Note: Such issues are not necessarily easy; they might require
+knowledge of some other framework such as pytest or jupyter - but
+please feel free to ask for guesses/estimates. And of course, new
+contributors are welcome to tackle any issue, not just ones labeled
+"good first issue".
+
+
 # Releasing
 
 To make a new release of nbcelltests from a fork, you can follow the
