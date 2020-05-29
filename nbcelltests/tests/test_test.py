@@ -534,7 +534,7 @@ def test_basic_runWithHTMLReturn_pass():
         except Exception:
             pass
 
-        _check(ret, coverage_result="Passed")
+    _check(ret, coverage_result="Passed")
 
 
 def test_basic_runWithHTMLReturn_fail():
@@ -557,7 +557,7 @@ def test_basic_runWithHTMLReturn_fail():
         except Exception:
             pass
 
-        _check(ret, coverage_result="Failed")
+    _check(ret, coverage_result="Failed")
 
 
 def _check(html, coverage_result):
