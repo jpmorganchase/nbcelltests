@@ -174,9 +174,6 @@ class TestSkips(_TestCellTests):
         """Previous tests were skipped, but cells should execute for this test"""
         self.t.test_code_cell_7()
         self.t._run("assert x == 1, x")
-        self.t.tearDown()
-        if FORKED:
-            self.t.tearDownClass()
 
 
 class TestCumulativeRun(_TestCellTests):
