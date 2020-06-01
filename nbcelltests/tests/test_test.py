@@ -468,7 +468,7 @@ class TestInputCellMultilineString(_TestInput):
 
     NBNAME = INPUT_CELL_MULTILINE_STRING
 
-    @pytest.mark.xfail
+    @pytest.mark.xfail(raises=SyntaxError, reason="mangled code in generated test file")
     def test_input_cell_multiline_string(self):
         self.t.test_code_cell_1()
         expected = "\nanything\n"
@@ -479,7 +479,7 @@ class TestInputTestMultilineString(_TestInput):
 
     NBNAME = INPUT_TEST_MULTILINE_STRING
 
-    @pytest.mark.xfail
+    @pytest.mark.xfail(raises=SyntaxError, reason="mangled code in generated test file")
     def test_input_celltest_multiline_string(self):
         self.t.test_code_cell_1()
         self.t._run("assert x == 1")
@@ -491,7 +491,7 @@ class TestInputCellNewlineString(_TestInput):
 
     NBNAME = INPUT_CELL_NEWLINE_STRING
 
-    @pytest.mark.xfail
+    @pytest.mark.xfail(raises=Exception, reason="mangled code submitted to kernel")
     def test_input_cell_newline_string(self):
         self.t.test_code_cell_1()
         expected = "\n"
@@ -502,7 +502,7 @@ class TestInputTestNewlineString(_TestInput):
 
     NBNAME = INPUT_TEST_NEWLINE_STRING
 
-    @pytest.mark.xfail
+    @pytest.mark.xfail(raises=Exception, reason="mangled code submitted to kernel")
     def test_input_celltest_newline_string(self):
         self.t.test_code_cell_1()
         self.t._run("assert problemc == 'x'")
@@ -514,7 +514,7 @@ class TestInputTestInjectionComment(_TestInput):
 
     NBNAME = INPUT_TEST_INJECTION_COMMENT
 
-    @pytest.mark.xfail
+    @pytest.mark.xfail(raises=Exception, reason="injected cell got commented out")
     def test_input_celltest_injection_comment(self):
         self.t.test_code_cell_1()
         # though it's in the nb test itself, make sure the test
