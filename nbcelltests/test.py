@@ -57,8 +57,8 @@ def assemble_code(notebook):
         cells.append([code_cell, [], "%sdef test_code_cell_%d(self):\n" % (skiptest, code_cell)])
 
         if skiptest:
-            cells[-1][1].append(INDENT + 'pass # code cell %d was skipped\n' % code_cell)
-            continue
+            # still need the cell to be present for any subsequent tests to execute
+            test_lines = ["%cell"]
 
         for test_line in test_lines:
             if test_line.strip().startswith(r"%cell"):

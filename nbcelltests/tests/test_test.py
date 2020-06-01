@@ -170,6 +170,14 @@ class TestSkips(_TestCellTests):
         """Test+cell where test does not inject cell should be skipped"""
         self._assert_skipped(self.t.test_code_cell_6, "cell code not injected into test")
 
+    def test_if_test_is_skipped_cell_should_still_be_run_for_subsequent_tests(self):
+        """Previous tests were skipped, but cells should execute for this test"""
+        self.t.test_code_cell_7()
+        self.t._run("assert x == 1, x")
+        self.t.tearDown()
+        if FORKED:
+            self.t.tearDownClass()
+
 
 class TestCumulativeRun(_TestCellTests):
     """Tests that state in notebook is built up correctly."""
