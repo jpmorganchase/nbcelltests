@@ -10,6 +10,7 @@ import tempfile
 import os
 import sys
 import unittest
+import pytest
 
 from nbcelltests.test import run, runWithReturn, runWithReport, runWithHTMLReturn
 
@@ -24,6 +25,12 @@ COUNTING = os.path.join(os.path.dirname(__file__), '_cell_counting.ipynb')
 NONCODE = os.path.join(os.path.dirname(__file__), '_non_code_cell.ipynb')
 SKIPS = os.path.join(os.path.dirname(__file__), '_skips.ipynb')
 COVERAGE = os.path.join(os.path.dirname(__file__), '_cell_coverage.ipynb')
+
+INPUT_CELL_MULTILINE_STRING = os.path.join(os.path.dirname(__file__), '_input_cell_multiline_string.ipynb')
+INPUT_TEST_MULTILINE_STRING = os.path.join(os.path.dirname(__file__), '_input_test_multiline_string.ipynb')
+INPUT_CELL_NEWLINE_STRING = os.path.join(os.path.dirname(__file__), '_input_cell_newline_string.ipynb')
+INPUT_TEST_NEWLINE_STRING = os.path.join(os.path.dirname(__file__), '_input_test_newline_string.ipynb')
+INPUT_TEST_INJECTION_COMMENT = os.path.join(os.path.dirname(__file__), '_input_test_injection_comment.ipynb')
 
 # Hack. We want to test expected behavior in distributed situation,
 # which we are doing via pytest --forked.
@@ -437,6 +444,84 @@ class TestCellCoverage(_TestCellTests):
             raise ValueError("Cell coverage test should have failed.")
 
 
+class _TestInput(unittest.TestCase):
+    """Various input that breaks celltests."""
+
+    # abstract
+
+    @classmethod
+    def setUpClass(cls):
+        assert hasattr(cls, "NBNAME"), "Subclasses must have NBNAME attribute."  # TODO: make actually abstract
+        cls.generated_tests = _generate_test_module(notebook=cls.NBNAME, module_name="nbcelltests.tests.%s.%s" % (__name__, cls.__name__))
+
+    def setUp(self):
+        self.t = self.generated_tests.TestNotebook()
+        self.t.setUpClass()
+        self.t.setUp()
+
+    def tearDown(self):
+        self.t.tearDown()
+        self.t.tearDownClass()
+
+
+class TestInputCellMultilineString(_TestInput):
+
+    NBNAME = INPUT_CELL_MULTILINE_STRING
+
+    @pytest.mark.xfail
+    def test_input_cell_multiline_string(self):
+        self.t.test_code_cell_1()
+        expected = "\nanything\n"
+        self.t._run("assert problemc == %s" % expected)
+
+
+class TestInputTestMultilineString(_TestInput):
+
+    NBNAME = INPUT_TEST_MULTILINE_STRING
+
+    @pytest.mark.xfail
+    def test_input_celltest_multiline_string(self):
+        self.t.test_code_cell_1()
+        self.t._run("assert x == 1")
+        expected = "\nanything\n"
+        self.t._run("assert problemt == %s" % expected)
+
+
+class TestInputCellNewlineString(_TestInput):
+
+    NBNAME = INPUT_CELL_NEWLINE_STRING
+
+    @pytest.mark.xfail
+    def test_input_cell_newline_string(self):
+        self.t.test_code_cell_1()
+        expected = "\n"
+        self.t._run("assert problem == %s" % expected)
+
+
+class TestInputTestNewlineString(_TestInput):
+
+    NBNAME = INPUT_TEST_NEWLINE_STRING
+
+    @pytest.mark.xfail
+    def test_input_celltest_newline_string(self):
+        self.t.test_code_cell_1()
+        self.t._run("assert problemc == 'x'")
+        expected = "\n"
+        self.t._run("assert problemt == %s" % expected)
+
+
+class TestInputTestInjectionComment(_TestInput):
+
+    NBNAME = INPUT_TEST_INJECTION_COMMENT
+
+    @pytest.mark.xfail
+    def test_input_celltest_injection_comment(self):
+        self.t.test_code_cell_1()
+        # though it's in the nb test itself, make sure the test
+        # actually ran
+        self.t._run("assert x == 1")
+
+
 ######
 
 # should split this file up - but only after deciding on organization
@@ -600,4 +685,6 @@ def _check(html, coverage_result):
         assert state == expected_results[expected_name]
 
 
-del _TestCellTests  # TODO: either make genuinely abstract, or don't use classes/inheritance at all here (since classes/inheritance are not meaningful here anyway).
+# TODO: either make genuinely abstract, or don't use classes/inheritance at all here (since classes/inheritance are not meaningful here anyway).
+del _TestCellTests
+del _TestInput
