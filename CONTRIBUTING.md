@@ -32,10 +32,11 @@ If you want to help resolve an issue by making some changes that are larger than
 
 - Fork the repository on Github
 - Clone your fork to your computer
+- Ensure you have nodejs
 - Run the following commands inside the cloned repository:
   - `pip install -e .[dev]` - This will install the Python package in development
     mode.
-  - `jupyter labextension install .` - This will add the lab extension in development
+  - `jupyter labextension install js` - This will add the lab extension in development
     mode.
   - `jupyter serverextension enable --py nbcelltests` - This will enable the server extension (note: you might want to supply `--sys-prefix` or a related option here).
 - Validate the install by running the tests:
