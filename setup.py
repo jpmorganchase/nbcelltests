@@ -25,6 +25,7 @@ requires = [
     'pytest-cov',
     'pytest-html>=1.20.0',
     'flake8',
+    'parameterized',
 ]
 
 dev_requires = requires + [
