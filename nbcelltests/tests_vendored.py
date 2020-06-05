@@ -62,7 +62,7 @@ from nbcelltests.shared import is_empty, cell_injected_into_test, source2lines, 
 
 def get_kernel(path_to_notebook):
     notebook = nbformat.read(path_to_notebook, 4)
-    # TODO don't default like this here
+    # TODO don't default kernel like this here (address as part of https://github.com/jpmorganchase/nbcelltests/issues/164)
     return notebook['metadata'].get('kernelspec', {}).get('name', 'python')
 
 
