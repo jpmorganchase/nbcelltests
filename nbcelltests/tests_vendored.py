@@ -319,8 +319,8 @@ BASE = '''
 from parameterized import parameterized
 from nbcelltests.tests_vendored import TestNotebookBase, get_celltests, get_kernel, generate_name
 
-_celltests = get_celltests("{path_to_notebook}")
-_kernel_name = get_kernel("{path_to_notebook}")
+_celltests = get_celltests(r"{path_to_notebook}")
+_kernel_name = get_kernel(r"{path_to_notebook}")
 
 class TestNotebook(TestNotebookBase):
     KERNEL_NAME = "{override_kernel_name}" or _kernel_name
