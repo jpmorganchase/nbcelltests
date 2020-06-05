@@ -25,6 +25,10 @@ def run(notebook, rules=None, filename=None, override_kernel_name=""):
     rules = rules or {}
     extra_metadata.update(rules)
 
+    # TODO: Coverage shouldn't be recorded at generation time as it
+    # will go stale if the notebook changes. Should move to same
+    # mechanism as source/tests. However, we plan to replace coverage
+    # with code coverage measured during test execution.
     coverage = []
     if 'cell_coverage' in extra_metadata:
         coverage.append((get_coverage(extra_metadata), extra_metadata['cell_coverage']))
