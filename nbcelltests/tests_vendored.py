@@ -76,12 +76,12 @@ def _inject_cell_into_test(cell_source, test_source):
     whitespace as %cell.
 
     Example:
- 
+
       test:
         if x > 0:
             %cell # end of %cell
         assert x == 10
-        assert z == 15 
+        assert z == 15
 
       cell:
         x*=5
