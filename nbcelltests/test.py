@@ -20,7 +20,7 @@ from .tests_vendored import BASE, JSON_CONFD
 def run(notebook, rules=None, filename=None, override_kernel_name=""):
     """Runs no tests: just generates test script for supplied notebook."""
     nb = nbformat.read(notebook, 4)
-    name = filename or notebook[:-6] + '_test.py'
+    name = filename or os.path.splitext(notebook)[0] + '_test.py'
     extra_metadata = extract_extrametadata(nb)
     rules = rules or {}
     extra_metadata.update(rules)
