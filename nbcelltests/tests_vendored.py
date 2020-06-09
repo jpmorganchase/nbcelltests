@@ -51,13 +51,13 @@ try:
     from Queue import Empty
 except ImportError:
     from queue import Empty
-
+import logging
 import unittest
 
 import nbformat
 from nbval.kernel import RunningKernel
 
-from nbcelltests.shared import is_empty, cell_injected_into_test, source2lines, lines2source, get_cell_inj_span, get_test
+from nbcelltests.shared import empty_ast, cell_injected_into_test, source2lines, lines2source, get_cell_inj_span, get_test, only_whitespace, CELL_SKIP_TOKEN, CELL_INJ_TOKEN
 
 
 def get_kernel(path_to_notebook):
@@ -118,44 +118,51 @@ def _inject_cell_into_test(cell_source, test_source):
 
 def get_celltests(path_to_notebook):
     """
-    Return a dictionary of {code cell number: celltest} for all the code
-    cells in the given notebook.
+    Return a dictionary of {code cell number: celltest_info} for all
+    non-empty code cells in the given notebook.
 
-    A celltest is a source code string of the test supplied for a
-    cell, plus the cell itself wherever (if) injected into the test
-    using %cell.
+    celltest_info is a dictionary containing:
 
-    (celltest is actually currently a dictionary of skip_reason (if any)
-    and the source code, but we're unsure if we want to keep the skipping
-    part. If keeping, we'll need to clean up and doc.)
+      * 'source' string of the test supplied for a cell, plus the
+        cell itself wherever injected into the test using %cell.
+
+      * 'cell_injected' flag indicating whether the cell was injected
+        into the test
     """
     notebook = nbformat.read(path_to_notebook, 4)
     celltests = {}
     code_cell = 0
     for i, cell in enumerate(notebook.cells, start=1):
         test_source = lines2source(get_test(cell))
-        empty_test = is_empty(_inject_cell_into_test("pass", test_source))
+        test_ast_empty = empty_ast(_inject_cell_into_test("pass", test_source))
 
         if cell.get('cell_type') != 'code':
-            if not empty_test:
+            if not test_ast_empty:
                 raise ValueError("Cell %d is not a code cell, but metadata contains test code!" % i)
             continue
 
         code_cell += 1
-        celltest = _inject_cell_into_test(cell['source'], test_source)
 
-        # TODO: we are unsure if we want to keep the skipping part!
-        # If keeping, clean up and document above.
-        skip_reason = None
-        if is_empty(cell['source']):
-            skip_reason = "empty code cell"
-        elif empty_test:
-            skip_reason = "no test supplied"
-        elif not cell_injected_into_test(test_source):
-            skip_reason = "cell code not injected into test"
+        if empty_ast(cell['source']): # TODO: maybe this should be only_whitespace?
+            if not test_ast_empty:
+                raise ValueError("Code cell %d is empty, but test contains code." % code_cell)
+            continue
 
-        celltests[code_cell] = {'skip_reason': skip_reason,
-                                'source': celltest if not skip_reason else ""}
+        cell_injected = cell_injected_into_test(test_source)
+
+        if only_whitespace(test_source):
+            celltest = cell['source']
+            cell_injected = True
+        elif cell_injected is None:
+            raise ValueError(
+                r"Test {}: cell code not injected into test; either add '{}' to the test, or add '{}' to deliberately suppress cell execution".format(
+                    code_cell, CELL_INJ_TOKEN, CELL_SKIP_TOKEN))
+        elif cell_injected is False:
+            celltest = test_source
+        else:
+            celltest = _inject_cell_into_test(cell['source'], test_source)
+
+        celltests[code_cell] = {'source': celltest, 'cell_injected': cell_injected}
 
     return celltests
 
@@ -194,16 +201,40 @@ class TestNotebookBase(unittest.TestCase):
       1. test_code_cell_5: executes cells 1, 2, 3, 4, 5 (test passes)
       2. test_code_cell_3: execute nothing (test passes)
 
-    This is an abstract class; subclasses will supply the source of
-    code cells and their associated tests in cells_and_tests, plus
-    test methods as entry points for test runners.
 
-    Note: 'cell' used in this class refers to cell number; 'cell
-    content' typically refers to code_cell+test (depending what is
-    passed in).
+    When does a cell execute?
+    -------------------------
+
+    A cell's test will execute its corresponding cell wherever %cell
+    appears at the start of a stripped line.
+
+    If a cell does not have a test defined, or the test is only
+    whitespace, the cell will be executed (i.e. the test will be
+    assumed to be just %cell).
+
+    If a cell's test contains a "# no %cell" comment line, the cell
+    will not be executed (though the test will). Use for mocking out a
+    whole cell (ideally it's better to avoid this and mock things the
+    cell uses, but that might not be possible).
+
+    Code cells that have an empty ast are considered empty. An
+    exception will be raised if attempting to test empty code cells or
+    non-code cells.
+
+
+    Notes
+    -----
+
+    This is an abstract class; subclasses will supply the source of
+    code cells and their associated tests in celltests, plus test
+    methods as entry points for test runners.
+
+    'cell' used in this class refers to cell number; 'cell content'
+    typically refers to code_cell+test (depending what is passed in).
+
     """
-    # abstract - subclasses will define KERNEL_NAME (TODO: make
-    # actually abstract...)
+    # abstract - subclasses will define KERNEL_NAME and celltests
+    # (TODO: make actually abstract...)
 
     @classmethod
     def setUpClass(cls):
@@ -222,13 +253,18 @@ class TestNotebookBase(unittest.TestCase):
         Run any cells preceding cell (number) that have not already been
         run, then run cell itself.
         """
-        if self.celltests[cell]['skip_reason']:
-            raise unittest.SkipTest(self.celltests[cell]['skip_reason'])
-
-        preceding_cells = set(range(1, cell))
+        preceding_cells = set(range(1, cell)) & self.celltests.keys()
         for preceding_cell in sorted(set(preceding_cells) - self.celltests_run):
             self._run_cell(preceding_cell)
         self._run_cell(cell)
+        if not self.celltests[cell]['cell_injected']:
+            # TODO: this will appear in the html report under the test
+            # method as captured logging, but it would be better
+            # reported as a warning by pytest. However, (a) pytest is
+            # already reporting various spurious warnings
+            # (e.g. traitlets deprecations), and (b) pytest warnings
+            # are not being reported in the html we show right now.
+            logging.warning("Cell %d was not executed as part of the cell test", cell)
 
     def _run_cell(self, cell):
         """Run cell and record its execution"""
@@ -293,6 +329,9 @@ class TestNotebookBase(unittest.TestCase):
             elif msg_type in ('display_data', 'execute_result'):
                 continue
             elif msg_type == 'stream':
+                # TODO: temporary/should not be here; needs fix in nbval
+                if msg['content']['name'] == 'stderr':
+                    raise Exception(msg['content']['text'])
                 continue
 
             # if the message type is an error then an error has occurred during

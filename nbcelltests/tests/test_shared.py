@@ -10,7 +10,7 @@ import os
 import pytest
 import nbformat
 
-from nbcelltests.shared import extract_extrametadata, get_coverage, is_empty
+from nbcelltests.shared import extract_extrametadata, get_coverage, empty_ast, only_whitespace
 
 # TODO: should generate these
 BASIC_NB = os.path.join(os.path.dirname(__file__), 'basic.ipynb')
@@ -19,14 +19,51 @@ MAGICS_NB = os.path.join(os.path.dirname(__file__), 'magics.ipynb')
 COVERAGE_NB = os.path.join(os.path.dirname(__file__), '_cell_coverage.ipynb')
 LINT_DISABLE_NB = os.path.join(os.path.dirname(__file__), '_lint_disable.ipynb')
 
+# TODO should parameterize test_empty_ast _whitespace
 
-def test_is_empty():
-    assert is_empty("import blah\nblah.do_something()") is False
-    assert is_empty("%matplotlib inline") is False
-    assert is_empty("pass") is False
-    assert is_empty("") is True
-    assert is_empty("#pass") is True
-    assert is_empty("\n\n\n") is True
+# empty ast, empty whitespace
+_empty_empty = [
+    "",
+    " ",
+    "\t",
+    "\n",
+    "\r\n"
+]
+
+# empty ast, non-empty whitespace
+_empty_nonempty = [
+    "#pass",
+]
+
+
+# non-empty ast, non-empty whitespace
+_nonempty_nonempty = [
+    "import blah\nblah.do_something()",
+    "%matplotlib inline",
+    "pass"
+]
+
+
+def test_empty_ast():
+    for x in _empty_empty:
+        assert empty_ast(x) is True
+
+    for x in _empty_nonempty:
+        assert empty_ast(x) is True
+
+    for x in _nonempty_nonempty:
+        assert empty_ast(x) is False
+
+
+def test_only_whitespace():
+    for x in _empty_empty:
+        assert only_whitespace(x) is True
+
+    for x in _empty_nonempty:
+        assert only_whitespace(x) is False
+
+    for x in _nonempty_nonempty:
+        assert only_whitespace(x) is False
 
 
 def _metadata(nb, what):
@@ -92,7 +129,7 @@ def test_extract_extrametadata_cell_lines_noncode():
 
 
 def test_extract_extrametadata_magics_noncode():
-    assert _metadata(COVERAGE_NB, 'magics') == set(['magics2'])
+    assert _metadata(COVERAGE_NB, 'magics') == set(['dirs'])
 
 
 # coverage

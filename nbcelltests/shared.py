@@ -112,7 +112,7 @@ def extract_extrametadata(notebook, override=None, noqa_regex=None):
     base['noqa'] = set()
 
     for c in notebook.cells:
-        if c['cell_type'] != 'code' or is_empty(c['source']):
+        if c['cell_type'] != 'code' or empty_ast(c['source']):
             continue
 
         base['cell_lines'].append(0)
@@ -124,7 +124,7 @@ def extract_extrametadata(notebook, override=None, noqa_regex=None):
                 noqa_match = noqa_regex.match(line)
                 if noqa_match:
                     base['noqa'].add(noqa_match.group(1))
-            if not is_empty(line):
+            if not empty_ast(line):
                 base['lines'] += 1
                 base['cell_lines'][-1] += 1
         if cell_injected_into_test(get_test(c)):
@@ -142,7 +142,20 @@ def get_test(cell):
     return lines2source(cell.get('metadata', {}).get('tests', []))
 
 
-def is_empty(source):
+def empty_ast(source):
+    """
+    Whether the supplied source string has an empty ast.
+
+    >>> empty_ast(" ")
+    True
+
+    >>> empty_ast("pass")
+    False
+
+    >>> empty_ast("# hello")
+    True
+
+    """
     try:
         parsed = ast.parse(source)
     except SyntaxError:
@@ -156,7 +169,25 @@ def is_empty(source):
     return len(parsed.body) == 0
 
 
+def only_whitespace(source):
+    """
+    Whether the supplied source string contains only whitespace.
+
+    >>> only_whitespace(" ")
+    True
+
+    >>> only_whitespace("pass")
+    False
+
+    >>> only_whitespace("# hello")
+    False
+    """
+    return len(source.strip()) == 0
+
+
+# TODO drop the "token" part
 CELL_INJ_TOKEN = r"%cell"
+CELL_SKIP_TOKEN = r"# no %cell"
 
 
 def source2lines(source):
@@ -181,10 +212,23 @@ def get_cell_inj_span(test_line):
 
 
 def cell_injected_into_test(test_source):
+    """
+    Return True if the corresponding cell is injected into the test,
+    False if the cell is deliberately not injected, or None if there
+    is no deliberate command either way.
+    """
+    inject = False
+    run = None
     for test_line in source2lines(test_source):
-        if get_cell_inj_span(test_line) is not None:
-            return True
-    return False
+        if inject is False and get_cell_inj_span(test_line) is not None:
+            inject = True
+        elif run is None and test_line.strip().startswith(CELL_SKIP_TOKEN):
+            run = False
+
+    if run is False and inject:
+        raise ValueError("'%s' and '%s' are mutually exclusive but both were supplied:\n%s" % (CELL_SKIP_TOKEN, CELL_INJ_SPAN, test_source))
+
+    return inject or run
 
 
 def get_coverage(metadata):
