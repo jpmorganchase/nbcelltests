@@ -127,7 +127,7 @@ def extract_extrametadata(notebook, override=None, noqa_regex=None):
             if not is_empty(line):
                 base['lines'] += 1
                 base['cell_lines'][-1] += 1
-        if cell_injected_into_test(c['metadata'].get('tests', [])):
+        if cell_injected_into_test(get_test(c)):
             base['test_count'] += 1
             base['cell_tested'][-1] = True
 
@@ -136,6 +136,10 @@ def extract_extrametadata(notebook, override=None, noqa_regex=None):
         base.update(override)
 
     return base
+
+
+def get_test(cell):
+    return lines2source(cell.get('metadata', {}).get('tests', []))
 
 
 def is_empty(source):
@@ -152,9 +156,33 @@ def is_empty(source):
     return len(parsed.body) == 0
 
 
-def cell_injected_into_test(test_lines):
-    for test_line in test_lines:
-        if test_line.strip().startswith(r"%cell"):
+CELL_INJ_TOKEN = r"%cell"
+
+
+def source2lines(source):
+    return source.splitlines(keepends=True)
+
+
+def lines2source(lines):
+    return "".join(lines)
+
+
+def get_cell_inj_span(test_line):
+    """
+    Return the location of %cell in the given line as (start_index,
+    end_index), or None if %cell does not occur.
+    """
+    if not test_line.strip().startswith(CELL_INJ_TOKEN):
+        return None
+    else:
+        cell_start = test_line.index(CELL_INJ_TOKEN)
+        cell_end = cell_start + len(CELL_INJ_TOKEN)
+        return cell_start, cell_end
+
+
+def cell_injected_into_test(test_source):
+    for test_line in source2lines(test_source):
+        if get_cell_inj_span(test_line) is not None:
             return True
     return False
 

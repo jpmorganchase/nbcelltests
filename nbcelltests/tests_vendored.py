@@ -54,7 +54,115 @@ except ImportError:
 
 import unittest
 
+import nbformat
 from nbval.kernel import RunningKernel
+
+from nbcelltests.shared import is_empty, cell_injected_into_test, source2lines, lines2source, get_cell_inj_span, get_test
+
+
+def get_kernel(path_to_notebook):
+    notebook = nbformat.read(path_to_notebook, 4)
+    # TODO don't default kernel like this here (address as part of https://github.com/jpmorganchase/nbcelltests/issues/164)
+    return notebook['metadata'].get('kernelspec', {}).get('name', 'python')
+
+
+def _inject_cell_into_test(cell_source, test_source):
+    """Inserts cell_source into test.
+
+    The cell_source is inserted wherever %cell appears at the stripped
+    start of a line.
+
+    All lines of cell_source are prefixed with the same leading
+    whitespace as %cell.
+
+    Example:
+
+      test:
+        if x > 0:
+            %cell # end of %cell
+        assert x == 10
+        assert z == 15
+
+      cell:
+        x*=5
+        z = x + \
+            5
+        print(x)
+
+      celltest:
+        if x > 0:
+            x*=5
+            z = x + \
+                5
+            print(x) # end of %cell
+        assert x == 10
+        assert z == 15
+    """
+    celltest_lines = []
+    for test_line in source2lines(test_source):
+        cell_inj_span = get_cell_inj_span(test_line)
+        if cell_inj_span is not None:
+            prefix = test_line[0:cell_inj_span[0]]
+            for cell_line in source2lines(cell_source):
+                celltest_lines.append(prefix + cell_line)
+
+            suffix = test_line[cell_inj_span[1]::]
+            if len(suffix) > 0:
+                if len(celltest_lines) == 0:
+                    celltest_lines.append('')
+                celltest_lines[-1] += suffix
+        else:
+            celltest_lines.append(test_line)
+    return lines2source(celltest_lines)
+
+
+def get_celltests(path_to_notebook):
+    """
+    Return a dictionary of {code cell number: celltest} for all the code
+    cells in the given notebook.
+
+    A celltest is a source code string of the test supplied for a
+    cell, plus the cell itself wherever (if) injected into the test
+    using %cell.
+
+    (celltest is actually currently a dictionary of skip_reason (if any)
+    and the source code, but we're unsure if we want to keep the skipping
+    part. If keeping, we'll need to clean up and doc.)
+    """
+    notebook = nbformat.read(path_to_notebook, 4)
+    celltests = {}
+    code_cell = 0
+    for i, cell in enumerate(notebook.cells, start=1):
+        test_source = lines2source(get_test(cell))
+        empty_test = is_empty(_inject_cell_into_test("pass", test_source))
+
+        if cell.get('cell_type') != 'code':
+            if not empty_test:
+                raise ValueError("Cell %d is not a code cell, but metadata contains test code!" % i)
+            continue
+
+        code_cell += 1
+        celltest = _inject_cell_into_test(cell['source'], test_source)
+
+        # TODO: we are unsure if we want to keep the skipping part!
+        # If keeping, clean up and document above.
+        skip_reason = None
+        if is_empty(cell['source']):
+            skip_reason = "empty code cell"
+        elif empty_test:
+            skip_reason = "no test supplied"
+        elif not cell_injected_into_test(test_source):
+            skip_reason = "cell code not injected into test"
+
+        celltests[code_cell] = {'skip_reason': skip_reason,
+                                'source': celltest if not skip_reason else ""}
+
+    return celltests
+
+
+def generate_name(testcase_func, param_num, param):
+    """Used to generate parameterized method names like test_code_cell_n"""
+    return "test_code_cell_%s" % param.args[0]
 
 
 class TestNotebookBase(unittest.TestCase):
@@ -100,29 +208,32 @@ class TestNotebookBase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.kernel = RunningKernel(cls.KERNEL_NAME)
-        cls.cells_run = set()
+        cls.celltests_run = set()
 
     @classmethod
     def tearDownClass(cls):
         cls.kernel.stop()
+
+    def assert_coverage(self, cells_covered, min_required):
+        assert cells_covered >= min_required, "Actual cell coverage %s < minimum required of %s" % (cells_covered, min_required)
 
     def run_test(self, cell):
         """
         Run any cells preceding cell (number) that have not already been
         run, then run cell itself.
         """
-        # maybe do some assertions that we didn't get all messed up
-        # with missing cells etc
+        if self.celltests[cell]['skip_reason']:
+            raise unittest.SkipTest(self.celltests[cell]['skip_reason'])
+
         preceding_cells = set(range(1, cell))
-        for preceding_cell in sorted(set(preceding_cells) - self.cells_run):
+        for preceding_cell in sorted(set(preceding_cells) - self.celltests_run):
             self._run_cell(preceding_cell)
         self._run_cell(cell)
 
     def _run_cell(self, cell):
-        # convenience method
-        self._run(self.cells_and_tests[cell], "Running cell+test for code cell %d" % cell)
-        # will only add if there was no error running
-        self.cells_run.add(cell)
+        """Run cell and record its execution"""
+        self._run(self.celltests[cell]["source"], "Running cell+test for code cell %d" % cell)
+        self.celltests_run.add(cell)
 
     def _run(self, cell_content, description=''):
         """
@@ -200,12 +311,28 @@ class TestNotebookBase(unittest.TestCase):
         # End of code from nbval
 
 
+# Fetches notebook source at import time. Don't necessarily think we
+# should do the dynamic test generation this way; first priority was
+# just to clean up so code's not built up in string.
+
 BASE = '''
-import nbcelltests.tests_vendored
+from parameterized import parameterized
+from nbcelltests.tests_vendored import TestNotebookBase, get_celltests, get_kernel, generate_name
 
-class TestNotebook(nbcelltests.tests_vendored.TestNotebookBase):
-    KERNEL_NAME = "{kernel_name}"
+_celltests = get_celltests(r"{path_to_notebook}")
+_kernel_name = get_kernel(r"{path_to_notebook}")
 
+class TestNotebook(TestNotebookBase):
+    KERNEL_NAME = "{override_kernel_name}" or _kernel_name
+    celltests = _celltests
+
+    @parameterized.expand([(i,) for i in _celltests], name_func=generate_name)
+    def _test_code_cell(self, cell_num):
+        self.run_test(cell_num)
+
+    @parameterized.expand({coverage}, skip_on_empty=True, name_func=lambda *args: "test_cell_coverage")
+    def _test_coverage(self, actual,required):
+        self.assert_coverage(actual,required)
 '''
 
 JSON_CONFD = '''

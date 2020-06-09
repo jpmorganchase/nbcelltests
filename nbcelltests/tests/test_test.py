@@ -10,7 +10,6 @@ import tempfile
 import os
 import sys
 import unittest
-import pytest
 
 from nbcelltests.test import run, runWithReturn, runWithReport, runWithHTMLReturn
 
@@ -100,14 +99,12 @@ class _TestCellTests(unittest.TestCase):
         cls.generated_tests = _generate_test_module(notebook=cls.NBNAME, module_name="nbcelltests.tests.%s.%s" % (__name__, cls.__name__))
 
     def _assert_skipped(self, mthd, reason):
-        # TODO: actually calling the skipped method here ends
-        # everything! It's some pytest issue, I think. So for now we
-        # are checking that it would be skipped, rather than that it is
-        # definitely skipped.
-        msg = "Should have generated a skipped test method"
-        self.assertTrue(hasattr(mthd, '__unittest_skip__'), msg=msg)
-        self.assertEqual(mthd.__unittest_skip__, True, msg=msg)
-        self.assertEqual(mthd.__unittest_skip_why__, reason, msg="Skip reason should have been %s" % reason)
+        try:
+            mthd()
+        except unittest.case.SkipTest as e:
+            assert e.args[0] == reason
+        else:
+            raise ValueError("Should have skipped with reason '%s'" % reason)
 
     def test_coverage(self):
         """
@@ -468,53 +465,48 @@ class TestInputCellMultilineString(_TestInput):
 
     NBNAME = INPUT_CELL_MULTILINE_STRING
 
-    @pytest.mark.xfail(raises=SyntaxError, reason="mangled code in generated test file")
     def test_input_cell_multiline_string(self):
         self.t.test_code_cell_1()
         expected = "\nanything\n"
-        self.t._run("assert problemc == %s" % expected)
+        self.t._run('assert problemc == """%s"""' % expected)
 
 
 class TestInputTestMultilineString(_TestInput):
 
     NBNAME = INPUT_TEST_MULTILINE_STRING
 
-    @pytest.mark.xfail(raises=SyntaxError, reason="mangled code in generated test file")
     def test_input_celltest_multiline_string(self):
         self.t.test_code_cell_1()
         self.t._run("assert x == 1")
         expected = "\nanything\n"
-        self.t._run("assert problemt == %s" % expected)
+        self.t._run('assert problemt == """%s"""' % expected)
 
 
 class TestInputCellNewlineString(_TestInput):
 
     NBNAME = INPUT_CELL_NEWLINE_STRING
 
-    @pytest.mark.xfail(raises=Exception, reason="mangled code submitted to kernel")
     def test_input_cell_newline_string(self):
         self.t.test_code_cell_1()
-        expected = "\n"
-        self.t._run("assert problem == %s" % expected)
+        expected = "\\n"
+        self.t._run('assert problem == "%s"' % expected)
 
 
 class TestInputTestNewlineString(_TestInput):
 
     NBNAME = INPUT_TEST_NEWLINE_STRING
 
-    @pytest.mark.xfail(raises=Exception, reason="mangled code submitted to kernel")
     def test_input_celltest_newline_string(self):
         self.t.test_code_cell_1()
         self.t._run("assert problemc == 'x'")
-        expected = "\n"
-        self.t._run("assert problemt == %s" % expected)
+        expected = "\\n"
+        self.t._run("assert problemt == '%s'" % expected)
 
 
 class TestInputTestInjectionComment(_TestInput):
 
     NBNAME = INPUT_TEST_INJECTION_COMMENT
 
-    @pytest.mark.xfail(raises=Exception, reason="injected cell got commented out")
     def test_input_celltest_injection_comment(self):
         self.t.test_code_cell_1()
         # though it's in the nb test itself, make sure the test
