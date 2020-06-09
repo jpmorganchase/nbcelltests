@@ -57,7 +57,7 @@ import unittest
 import nbformat
 from nbval.kernel import RunningKernel
 
-from nbcelltests.shared import is_empty, cell_injected_into_test, source2lines, lines2source, cell_inj_span, get_test
+from nbcelltests.shared import is_empty, cell_injected_into_test, source2lines, lines2source, get_cell_inj_span, get_test
 
 
 def get_kernel(path_to_notebook):
@@ -100,13 +100,13 @@ def _inject_cell_into_test(cell_source, test_source):
     """
     celltest_lines = []
     for test_line in source2lines(test_source):
-        cell_span = cell_inj_span(test_line)
-        if cell_span is not None:
-            prefix = test_line[0:cell_span[0]]
+        cell_inj_span = get_cell_inj_span(test_line)
+        if cell_inj_span is not None:
+            prefix = test_line[0:cell_inj_span[0]]
             for cell_line in source2lines(cell_source):
                 celltest_lines.append(prefix + cell_line)
 
-            suffix = test_line[cell_span[1]::]
+            suffix = test_line[cell_inj_span[1]::]
             if len(suffix) > 0:
                 if len(celltest_lines) == 0:
                     celltest_lines.append('')

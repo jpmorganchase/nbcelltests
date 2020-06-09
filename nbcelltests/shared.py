@@ -167,7 +167,11 @@ def lines2source(lines):
     return "".join(lines)
 
 
-def cell_inj_span(test_line):
+def get_cell_inj_span(test_line):
+    """
+    Return the location of %cell in the given line as (start_index,
+    end_index), or None if %cell does not occur.
+    """
     if not test_line.strip().startswith(CELL_INJ_TOKEN):
         return None
     else:
@@ -178,7 +182,7 @@ def cell_inj_span(test_line):
 
 def cell_injected_into_test(test_source):
     for test_line in source2lines(test_source):
-        if cell_inj_span(test_line) is not None:
+        if get_cell_inj_span(test_line) is not None:
             return True
     return False
 
