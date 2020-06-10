@@ -33,6 +33,7 @@ TEST_FAIL = os.path.join(os.path.dirname(__file__), '_test_fail.ipynb')
 COUNTING = os.path.join(os.path.dirname(__file__), '_cell_counting.ipynb')
 NONCODE = os.path.join(os.path.dirname(__file__), '_non_code_cell.ipynb')
 EMPTY_CELL_WITH_TEST = os.path.join(os.path.dirname(__file__), '_empty_cell_with_test.ipynb')
+EMPTYAST_CELL_WITH_TEST = os.path.join(os.path.dirname(__file__), '_emptyast_cell_with_test.ipynb')
 SKIPS = os.path.join(os.path.dirname(__file__), '_skips.ipynb')
 COVERAGE = os.path.join(os.path.dirname(__file__), '_cell_coverage.ipynb')
 CELL_NOT_INJECTED_OR_MOCKED = os.path.join(os.path.dirname(__file__), '_cell_not_injected_or_mocked.ipynb')
@@ -130,9 +131,17 @@ class TestMethodGenerationError(_TestCellTests):
         else:
             raise Exception("Test script should fail to generate")
 
-    def test_non_code_cell_with_test_causes_error(self):
+    def test_onlywhitespace_code_cell_with_test_causes_error(self):
         try:
             _generate_test_module(EMPTY_CELL_WITH_TEST, "module.name.irrelevant")
+        except ValueError as e:
+            assert e.args[0] == 'Code cell 2 is empty, but test contains code.'
+        else:
+            raise Exception("Test script should fail to generate")
+
+    def test_emptyast_code_cell_with_test_causes_error(self):
+        try:
+            _generate_test_module(EMPTYAST_CELL_WITH_TEST, "module.name.irrelevant")
         except ValueError as e:
             assert e.args[0] == 'Code cell 2 is empty, but test contains code.'
         else:
