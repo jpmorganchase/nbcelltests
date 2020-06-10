@@ -143,7 +143,7 @@ def get_celltests(path_to_notebook):
 
         code_cell += 1
 
-        if empty_ast(cell['source']): # TODO: maybe this should be only_whitespace?
+        if empty_ast(cell['source']):  # TODO: maybe this should be only_whitespace?
             if not test_ast_empty:
                 raise ValueError("Code cell %d is empty, but test contains code." % code_cell)
             continue
