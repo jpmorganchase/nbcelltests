@@ -226,7 +226,7 @@ def cell_injected_into_test(test_source):
             run = False
 
     if run is False and inject:
-        raise ValueError("'%s' and '%s' are mutually exclusive but both were supplied:\n%s" % (CELL_SKIP_TOKEN, CELL_INJ_SPAN, test_source))
+        raise ValueError("'%s' and '%s' are mutually exclusive but both were supplied:\n%s" % (CELL_SKIP_TOKEN, CELL_INJ_TOKEN, test_source))
 
     return inject or run
 
