@@ -207,16 +207,16 @@ def test_extract_extrametadata_disable_bad_regex():
 
 @pytest.mark.parametrize(
     "test_line, expected", [
-        (r"%cell", (0,5)),
-        (r"%cell;x", (0,5)),
+        (r"%cell", (0, 5)),
+        (r"%cell;x", (0, 5)),
         pytest.param(r"%celll", None, marks=pytest.mark.xfail(reason="need to decide rules/really treat as token")),
         (r"", None),
-        (r"    %cell", (4,9)),
+        (r"    %cell", (4, 9)),
         (r"# no %cell", None),
         (r"# %cell", None)
     ]
 )
-def test_get_cell_inj_span(test_line,expected):
+def test_get_cell_inj_span(test_line, expected):
     assert get_cell_inj_span(test_line) == expected
 
 
@@ -277,8 +277,8 @@ if x==1:
 %cell
 # no %cell
 """, NotImplemented, (ValueError, "mutually exclusive")),
-])
-def test_cell_injected_into_test(test_source,expected,exception):
+    ])
+def test_cell_injected_into_test(test_source, expected, exception):
     if exception is None:
         assert cell_injected_into_test(test_source) is expected
     else:
