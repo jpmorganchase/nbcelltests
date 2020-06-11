@@ -55,15 +55,9 @@ import logging
 import unittest
 
 import nbformat
-from nbval.kernel import RunningKernel
+from nbval.kernel import RunningKernel, CURRENT_ENV_KERNEL_NAME
 
 from nbcelltests.shared import empty_ast, cell_injected_into_test, source2lines, lines2source, get_cell_inj_span, get_test, only_whitespace, CELL_SKIP_TOKEN, CELL_INJ_TOKEN
-
-
-def get_kernel(path_to_notebook):
-    notebook = nbformat.read(path_to_notebook, 4)
-    # TODO don't default kernel like this here (address as part of https://github.com/jpmorganchase/nbcelltests/issues/164)
-    return notebook['metadata'].get('kernelspec', {}).get('name', 'python')
 
 
 def _inject_cell_into_test(cell_source, test_source):
@@ -238,8 +232,19 @@ class TestNotebookBase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.kernel = RunningKernel(cls.KERNEL_NAME)
         cls.celltests_run = set()
+        # the rest is like nbval's IPyNbFile.setup() (or will be...)
+        if cls._current_env and cls._kernel_name:
+            raise ValueError("current_env and kernel_name are mutually exclusive")
+        if cls._current_env:
+            kernel_name = CURRENT_ENV_KERNEL_NAME
+        elif cls._kernel_name:
+            kernel_name = cls._kernel_name
+        else:
+            notebook = nbformat.read(cls._notebook, 4)
+            kernel_name = notebook['metadata'].get('kernelspec', {}).get('name', 'python')
+        # TODO: should be setting dir too!
+        cls.kernel = RunningKernel(kernel_name)
 
     @classmethod
     def tearDownClass(cls):
@@ -356,13 +361,16 @@ class TestNotebookBase(unittest.TestCase):
 
 BASE = '''
 from parameterized import parameterized
-from nbcelltests.tests_vendored import TestNotebookBase, get_celltests, get_kernel, generate_name
+from nbcelltests.tests_vendored import TestNotebookBase, get_celltests, generate_name
 
-_celltests = get_celltests(r"{path_to_notebook}")
-_kernel_name = get_kernel(r"{path_to_notebook}")
+_notebook = r"{path_to_notebook}"
+_celltests = get_celltests(_notebook)
 
 class TestNotebook(TestNotebookBase):
-    KERNEL_NAME = "{override_kernel_name}" or _kernel_name
+
+    _current_env = {current_env}
+    _kernel_name = "{kernel_name}"
+    _notebook = _notebook
     celltests = _celltests
 
     @parameterized.expand([(i,) for i in _celltests], name_func=generate_name, skip_on_empty=True)
