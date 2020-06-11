@@ -38,6 +38,7 @@ SKIPS = os.path.join(os.path.dirname(__file__), '_skips.ipynb')
 COVERAGE = os.path.join(os.path.dirname(__file__), '_cell_coverage.ipynb')
 CELL_NOT_INJECTED_OR_MOCKED = os.path.join(os.path.dirname(__file__), '_cell_not_injected_or_mocked.ipynb')
 BROKEN_MAGICS = os.path.join(os.path.dirname(__file__), '_broken_magics.ipynb')
+NO_CODE_CELLS = os.path.join(os.path.dirname(__file__), '_no_code_cells.ipynb')
 
 INPUT_CELL_MULTILINE_STRING = os.path.join(os.path.dirname(__file__), '_input_cell_multiline_string.ipynb')
 INPUT_TEST_MULTILINE_STRING = os.path.join(os.path.dirname(__file__), '_input_test_multiline_string.ipynb')
@@ -154,6 +155,29 @@ class TestMethodGenerationError(_TestCellTests):
             assert e.args[0].startswith('Test 5: cell code not injected into test')
         else:
             raise Exception("Test script should fail to generate")
+
+
+class TestNoCodeCells(_TestCellTests):
+    """Notebook with no code cells."""
+
+    NBNAME = NO_CODE_CELLS
+
+    # the tests are independent, so it's fine to call setUpClass and
+    # setUp before every test (and same for tearDown after). When we
+    # are generating notebooks, we won't need the single, shared
+    # notebook.
+    def setUp(self):
+        self.t = self.generated_tests.TestNotebook()
+        self.t.setUpClass()
+        self.t.setUp()
+
+    def tearDown(self):
+        self.t.tearDown()
+        self.t.tearDownClass()
+
+    def test_no_code_cells(self):
+        test_methods = [mthd for mthd in dir(self.t) if mthd.startswith("test_code_cell")]
+        assert len(test_methods) == 0
 
 
 class TestSkips(_TestCellTests):

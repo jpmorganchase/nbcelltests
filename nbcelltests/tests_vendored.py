@@ -365,7 +365,7 @@ class TestNotebook(TestNotebookBase):
     KERNEL_NAME = "{override_kernel_name}" or _kernel_name
     celltests = _celltests
 
-    @parameterized.expand([(i,) for i in _celltests], name_func=generate_name)
+    @parameterized.expand([(i,) for i in _celltests], name_func=generate_name, skip_on_empty=True)
     def _test_code_cell(self, cell_num):
         self.run_test(cell_num)
 
