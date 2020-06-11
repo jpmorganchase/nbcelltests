@@ -59,8 +59,6 @@ INPUT_TEST_INJECTION_COMMENT = os.path.join(os.path.dirname(__file__), '_input_t
 FORKED = '--forked' in sys.argv
 
 # Default to using kernel from current environment (like --current-env of nbval).
-
-# By default, will use kernel from current env
 TEST_RUN_KW = {
     'current_env': int(os.environ.get("NBCELLTESTS_TESTS_CURRENT_ENV", "1")),
     'kernel_name': os.environ.get("NBCELLTESTS_TESTS_KERNEL_NAME", "")
