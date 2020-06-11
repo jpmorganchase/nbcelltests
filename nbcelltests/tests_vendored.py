@@ -46,13 +46,13 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 try:
     from Queue import Empty
 except ImportError:
     from queue import Empty
 import logging
 import unittest
+import os
 
 import nbformat
 from nbval.kernel import RunningKernel, CURRENT_ENV_KERNEL_NAME
@@ -243,8 +243,7 @@ class TestNotebookBase(unittest.TestCase):
         else:
             notebook = nbformat.read(cls._notebook, 4)
             kernel_name = notebook['metadata'].get('kernelspec', {}).get('name', 'python')
-        # TODO: should be setting dir too!
-        cls.kernel = RunningKernel(kernel_name)
+        cls.kernel = RunningKernel(kernel_name, os.path.dirname(cls._notebook))
 
     @classmethod
     def tearDownClass(cls):
