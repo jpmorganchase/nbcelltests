@@ -647,7 +647,7 @@ class TestInputTestInjectionComment(_TestInput):
         # current env's kernel
         ('_kernel_check.ipynb', True, "", None, CURRENT_ENV_KERNEL_NAME),
         # named kernel
-        ('_kernel_check.ipynb', False, "OR THIS", kspec.NoSuchKernel, "OR THIS"),
+        ('_kernel_check.ipynb', False, "OR THIS", kspec.NoSuchKernel, None),
         # default kernel if none specified or in nb
         ('_kernel_check1.ipynb', False, "python3", None, None),
         # inconsistent request
@@ -655,6 +655,8 @@ class TestInputTestInjectionComment(_TestInput):
     ]
 )
 def test_kernel_selection(notebook, current_env, kernel_name, exception, expected_text):
+    if not expected_text:
+        expected_text = kernel_name
 
     nb = os.path.join(os.path.dirname(__file__), notebook)
 
@@ -670,7 +672,7 @@ def test_kernel_selection(notebook, current_env, kernel_name, exception, expecte
             raise ValueError("Expected exception %s(%s) to be raised", (exc_type, expected_text))
     else:
         test_mod.TestNotebook.setUpClass()
-        assert test_mod.TestNotebook.kernel.km.kernel_name == (expected_text if expected_text else kernel_name)
+        assert test_mod.TestNotebook.kernel.km.kernel_name == expected_text
 
 ######
 
