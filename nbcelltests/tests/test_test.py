@@ -12,7 +12,6 @@ import unittest
 
 from bs4 import BeautifulSoup
 import pytest
-import nbformat
 from nbval.kernel import CURRENT_ENV_KERNEL_NAME
 import jupyter_client.kernelspec as kspec
 
@@ -660,17 +659,20 @@ def test_kernel_selection(notebook, current_env, kernel_name, exception, expecte
 
     nb = os.path.join(os.path.dirname(__file__), notebook)
 
-    test_mod = _generate_test_module(nb, module_name="nbcelltests.tests.%s.%s" % (__name__, "test_kernel_selection"),
+    def make_test_mod():
+        return _generate_test_module(nb, module_name="nbcelltests.tests.%s.%s" % (__name__, "test_kernel_selection"),
                                      run_kw=dict(current_env=current_env, kernel_name=kernel_name))
 
     if exception:
         try:
+            test_mod = make_test_mod()
             test_mod.TestNotebook.setUpClass()
         except exception as e:
             assert e.args[0].endswith(expected_text)
         else:
-            raise ValueError("Expected exception %s(%s) to be raised", (exc_type, expected_text))
+            raise ValueError("Expected exception %s(%s) to be raised", (exception, expected_text))
     else:
+        test_mod = make_test_mod()
         test_mod.TestNotebook.setUpClass()
         assert test_mod.TestNotebook.kernel.km.kernel_name == expected_text
 
