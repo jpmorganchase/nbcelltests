@@ -46,6 +46,7 @@ COVERAGE = os.path.join(os.path.dirname(__file__), '_cell_coverage.ipynb')
 CELL_NOT_INJECTED_OR_MOCKED = os.path.join(os.path.dirname(__file__), '_cell_not_injected_or_mocked.ipynb')
 BROKEN_MAGICS = os.path.join(os.path.dirname(__file__), '_broken_magics.ipynb')
 NO_CODE_CELLS = os.path.join(os.path.dirname(__file__), '_no_code_cells.ipynb')
+KERNEL_CWD = os.path.join(os.path.dirname(__file__), '_kernel_cwd.ipynb')
 
 INPUT_CELL_MULTILINE_STRING = os.path.join(os.path.dirname(__file__), '_input_cell_multiline_string.ipynb')
 INPUT_TEST_MULTILINE_STRING = os.path.join(os.path.dirname(__file__), '_input_test_multiline_string.ipynb')
@@ -636,6 +637,40 @@ class TestInputTestInjectionComment(_TestInput):
         # though it's in the nb test itself, make sure the test
         # actually ran
         self.t._run("assert x == 1")
+
+
+class TestKernelCwd(_TestCellTests):
+    """Do we remember to set cwd?"""
+
+    NBNAME = KERNEL_CWD
+
+    # the tests are independent, so it's fine to call setUpClass and
+    # setUp before every test (and same for tearDown after). When we
+    # are generating notebooks, we won't need the single, shared
+    # notebook.
+    def setUp(self):
+        self.t = self.generated_tests.TestNotebook()
+        self.t.setUpClass()
+        self.t.setUp()
+
+    def tearDown(self):
+        self.t.tearDown()
+        self.t.tearDownClass()
+
+    def test_file_in_nb_dir(self):
+        """file in same dir as nb, which nb will look for"""
+        target_file = os.path.join(os.path.dirname(self.NBNAME), "hello.txt")
+        if os.path.exists(target_file):
+            raise ValueError("Going to generate %s but it already exists." % target_file)
+
+        try:
+            open(target_file, 'w').close()
+            self.t.test_code_cell_1()
+        finally:
+            try:
+                os.remove(target_file)
+            except BaseException:
+                pass
 
 
 # some cryptic interface going on here, could be improved :)
