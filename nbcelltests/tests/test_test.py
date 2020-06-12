@@ -11,6 +11,8 @@ import os
 import sys
 import unittest
 
+import pytest
+
 from nbcelltests.test import run, runWithReturn, runWithReport, runWithHTMLReturn
 
 # Some straightforward TODOs:
@@ -431,11 +433,12 @@ class TestFailureInTest(_TestCellTests):
         t.tearDownClass()
 
 
-# TODO: this is an nbval bug
+# TODO: see https://github.com/computationalmodelling/nbval/issues/147
 class TestSomeSanity(_TestCellTests):
 
     NBNAME = BROKEN_MAGICS
 
+    @pytest.mark.xfail(reason="error messages on shell channel are ignored by nbval")
     def test_bad_magic_does_let_everything_pass(self):
         t = self.generated_tests.TestNotebook()
 
