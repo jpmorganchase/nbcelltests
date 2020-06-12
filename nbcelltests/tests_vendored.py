@@ -334,9 +334,6 @@ class TestNotebookBase(unittest.TestCase):
             elif msg_type in ('display_data', 'execute_result'):
                 continue
             elif msg_type == 'stream':
-                # TODO: temporary/should not be here; needs fix in nbval
-                if msg['content']['name'] == 'stderr':
-                    raise Exception(msg['content']['text'])
                 continue
 
             # if the message type is an error then an error has occurred during
