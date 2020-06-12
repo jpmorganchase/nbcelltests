@@ -273,7 +273,7 @@ export class CelltestsWidget extends Widget {
       let tests = this.currentActiveCell.model.metadata.get("tests") as string[];
       let s = "";
       if (tests === undefined || tests.length === 0) {
-        tests = ["# Use %cell to execute the cell\n"];
+        tests = ["# Use %cell to mark where the cell should be inserted, or add a line comment \"# no %cell\" to deliberately skip the cell\n", "%cell\n"];
       }
       // eslint-disable-next-line @typescript-eslint/prefer-for-of
       for (let i = 0; i < tests.length; i++) {
