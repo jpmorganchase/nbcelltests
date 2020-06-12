@@ -5,13 +5,15 @@
 # This file is part of the nbcelltests library, distributed under the terms of
 # the Apache License 2.0.  The full license can be found in the LICENSE file.
 #
-from bs4 import BeautifulSoup
 import tempfile
 import os
 import sys
 import unittest
 
+from bs4 import BeautifulSoup
 import pytest
+from nbval.kernel import CURRENT_ENV_KERNEL_NAME
+import jupyter_client.kernelspec as kspec
 
 from nbcelltests.test import run, runWithReturn, runWithReport, runWithHTMLReturn
 
@@ -24,6 +26,9 @@ from nbcelltests.test import run, runWithReturn, runWithReport, runWithHTMLRetur
 # - Should use assert(Regex)Raises rather than manual try/catch
 #
 # - Some classes are abstract but not declared as such
+#
+# - Should split this file up - but only after deciding on
+#   organization of modules being tested
 
 
 # TODO: This test file's manual use of unittest is brittle
@@ -51,6 +56,12 @@ INPUT_TEST_INJECTION_COMMENT = os.path.join(os.path.dirname(__file__), '_input_t
 # Hack. We want to test expected behavior in distributed situation,
 # which we are doing via pytest --forked.
 FORKED = '--forked' in sys.argv
+
+# Default to using kernel from current environment (like --current-env of nbval).
+TEST_RUN_KW = {
+    'current_env': int(os.environ.get("NBCELLTESTS_TESTS_CURRENT_ENV", "1")),
+    'kernel_name': os.environ.get("NBCELLTESTS_TESTS_KERNEL_NAME", "")
+}
 
 
 def _assert_undefined(t, name='x'):
@@ -81,18 +92,21 @@ def _import_from_path(path, module_name):
     return mod
 
 
-def _generate_test_module(notebook, module_name):
+def _generate_test_module(notebook, module_name, run_kw=None):
     """
     Generate test file from notebook, then import it with __name__ set
     to module_name, and return it.
     """
+    if run_kw is None:
+        run_kw = TEST_RUN_KW
+
     tf = tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf8')
     tf_name = tf.name
     try:
         # the module name (__name__) doesn't really matter, but
         # will be nbcelltests.tests.test_tests.X, where X is
         # whatever concrete subclass is this method belongs to.
-        generated_module = _import_from_path(run(notebook, filename=tf_name), module_name)
+        generated_module = _import_from_path(run(notebook, filename=tf_name, **run_kw), module_name)
     finally:
         try:
             tf.close()
@@ -624,10 +638,47 @@ class TestInputTestInjectionComment(_TestInput):
         self.t._run("assert x == 1")
 
 
+# some cryptic interface going on here, could be improved :)
+
+@pytest.mark.parametrize(
+    "notebook, current_env, kernel_name, exception, expected_text", [
+        # the notebook's own kernel
+        ('_kernel_check.ipynb', False, "", kspec.NoSuchKernel, "NOBODY WOULD EVER CALL A KERNEL THIS"),
+        # current env's kernel
+        ('_kernel_check.ipynb', True, "", None, CURRENT_ENV_KERNEL_NAME),
+        # named kernel
+        ('_kernel_check.ipynb', False, "OR THIS", kspec.NoSuchKernel, None),
+        # default kernel if none specified or in nb
+        ('_kernel_check1.ipynb', False, "python3", None, None),
+        # inconsistent request
+        ('_kernel_check.ipynb', True, "something", ValueError, "mutually exclusive"),
+    ]
+)
+def test_kernel_selection(notebook, current_env, kernel_name, exception, expected_text):
+    if not expected_text:
+        expected_text = kernel_name
+
+    nb = os.path.join(os.path.dirname(__file__), notebook)
+
+    def make_test_mod():
+        return _generate_test_module(nb, module_name="nbcelltests.tests.%s.%s" % (__name__, "test_kernel_selection"),
+                                     run_kw=dict(current_env=current_env, kernel_name=kernel_name))
+
+    if exception:
+        try:
+            test_mod = make_test_mod()
+            test_mod.TestNotebook.setUpClass()
+        except exception as e:
+            assert e.args[0].endswith(expected_text)
+        else:
+            raise ValueError("Expected exception %s(%s) to be raised", (exception, expected_text))
+    else:
+        test_mod = make_test_mod()
+        test_mod.TestNotebook.setUpClass()
+        assert test_mod.TestNotebook.kernel.km.kernel_name == expected_text
+
 ######
 
-# should split this file up - but only after deciding on organization
-# of module being tested
 
 # TODO: there's a repeated pattern of cleaning up files generated
 # during tests, but address
@@ -643,7 +694,7 @@ def test_basic_runWithReturn_pass():
         raise ValueError("Going to generate %s but it already exists." % generates)
 
     try:
-        _ = runWithReturn(COVERAGE, rules={'cell_coverage': 10})
+        _ = runWithReturn(COVERAGE, rules={'cell_coverage': 10}, **TEST_RUN_KW)
     finally:
         try:
             os.remove(generates)
@@ -658,7 +709,7 @@ def test_basic_runWithReturn_fail():
         raise ValueError("Going to generate %s but it already exists." % generates)
 
     try:
-        _ = runWithReturn(COVERAGE, rules={'cell_coverage': 100})
+        _ = runWithReturn(COVERAGE, rules={'cell_coverage': 100}, **TEST_RUN_KW)
     except Exception:
         pass  # would need to alter run fn or capture output to check more exactly
     else:
@@ -680,7 +731,7 @@ def test_basic_runWithReport_pass():
 
     from nbcelltests.define import TestType
     try:
-        ret = runWithReport(COVERAGE, executable=None, rules={'cell_coverage': 10})
+        ret = runWithReport(COVERAGE, executable=None, rules={'cell_coverage': 10}, **TEST_RUN_KW)
     finally:
         try:
             os.remove(generates)
@@ -710,7 +761,7 @@ def test_basic_runWithHTMLReturn_pass():
         raise ValueError("Going to generate %s but already exist(s)" % [f for f, exists in zip(generates, exists_check) if exists])
 
     try:
-        ret = runWithHTMLReturn(COVERAGE, executable=None, rules={'cell_coverage': 10})
+        ret = runWithHTMLReturn(COVERAGE, executable=None, rules={'cell_coverage': 10}, **TEST_RUN_KW)
 
         for f in generates:
             assert os.path.exists(f), "Should have generated %s but did not" % f
@@ -733,7 +784,7 @@ def test_basic_runWithHTMLReturn_fail():
         raise ValueError("Going to generate %s but already exist(s)" % [f for f, exists in zip(generates, exists_check) if exists])
 
     try:
-        ret = runWithHTMLReturn(COVERAGE, executable=None, rules={'cell_coverage': 100})
+        ret = runWithHTMLReturn(COVERAGE, executable=None, rules={'cell_coverage': 100}, **TEST_RUN_KW)
 
         for f in generates:
             assert os.path.exists(f), "Should have generated %s but did not" % f
