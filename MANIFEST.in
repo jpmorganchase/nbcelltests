@@ -6,7 +6,7 @@ include LICENSE
 include CONTRIBUTING.md
 
 # inclusion in sdist varies somewhat between python tools
-pyproject.toml
+include pyproject.toml
 
 # test data
 include nbcelltests/tests/*.ipynb
