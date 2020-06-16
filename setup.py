@@ -26,6 +26,7 @@ requires = [
     'pytest-html>=1.20.0',
     'flake8',
     'parameterized',
+    'backports.tempfile ; python_version < "3"'
 ]
 
 dev_requires = requires + [

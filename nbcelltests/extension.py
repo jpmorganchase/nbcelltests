@@ -16,9 +16,9 @@ from concurrent.futures import ThreadPoolExecutor
 from notebook.base.handlers import IPythonHandler
 from notebook.utils import url_path_join
 try:
-    from backports.tempfile import TemporaryDirectory
-except ImportError:
     from tempfile import TemporaryDirectory
+except ImportError:
+    from backports.tempfile import TemporaryDirectory
 
 from .test import runWithHTMLReturn as runTest
 from .lint import runWithHTMLReturn as runLint
