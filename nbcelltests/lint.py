@@ -103,7 +103,8 @@ def run(notebook, executable=None, rules=None, noqa_regex=None):
     extra_metadata.update(rules)
 
     # TODO: consider warning if referring to non-existent rules
-    rules_to_remove = extra_metadata['noqa'] & extra_metadata.keys()
+    # set() is for python 2; remove when py2 is fully dropped
+    rules_to_remove = extra_metadata['noqa'] & set(extra_metadata.keys())
     for rule in rules_to_remove:
         del extra_metadata[rule]
 

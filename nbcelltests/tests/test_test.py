@@ -33,6 +33,8 @@ from nbcelltests.test import run, runWithReturn, runWithReport, runWithHTMLRetur
 
 # TODO: This test file's manual use of unittest is brittle
 
+pytestmark = pytest.mark.skipif(sys.version_info.major < 3, reason="python 3 required")
+
 CUMULATIVE_RUN = os.path.join(os.path.dirname(__file__), '_cumulative_run.ipynb')
 CELL_ERROR = os.path.join(os.path.dirname(__file__), '_cell_error.ipynb')
 TEST_ERROR = os.path.join(os.path.dirname(__file__), '_test_error.ipynb')
