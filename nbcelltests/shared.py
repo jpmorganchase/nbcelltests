@@ -191,7 +191,7 @@ CELL_SKIP_TOKEN = r"# no %cell"
 
 
 def source2lines(source):
-    return source.splitlines(keepends=True)
+    return source.splitlines(True)
 
 
 def lines2source(lines):
