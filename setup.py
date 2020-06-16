@@ -18,7 +18,8 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 requires = [
-    'jupyterlab>=1.0.0',
+    'jupyterlab>=1.0.0 ; python_version > "3"',
+    'jupyterlab ; python_version < "3"',
     'nbval>=0.9.1',
     'nbconvert',
     'pytest>=4.4.0',
