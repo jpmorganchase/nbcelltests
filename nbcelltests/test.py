@@ -129,11 +129,11 @@ def runWithHTMLReturn2(notebook, executable=None, **run_kw):
     '''use custom return objects'''
     ret = ''
     executable = executable or [sys.executable, '-m', 'pytest', '-v']
-    ret_tmp = run(notebook, **run_kw)
+    ret_tmp = runWithReport(notebook, **run_kw)
     for test in ret_tmp:
         test = test.to_html()
         ret += '<p>' + test + '</p>'
-    return '<div style="display: flex; flex-direction: column;">' + test + '</div>'
+    return '<div style="display: flex; flex-direction: column;">' + ret + '</div>'
 
 
 if __name__ == '__main__':
