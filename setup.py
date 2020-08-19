@@ -32,7 +32,7 @@ requires = [
 
 dev_requires = requires + [
     'autopep8',
-    'beautifulsoup4'
+    'beautifulsoup4',
     'bump2version',
     'mock',
     'pytest-xdist ; sys_platform != "win32"',
