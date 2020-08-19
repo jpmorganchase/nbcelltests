@@ -16,6 +16,8 @@ def main():
     parser.add_argument(
         'notebook',
         help='On which notebook to run')
+
+    # process args
     args = parser.parse_args()
 
     if args.option == 'lint':
@@ -28,10 +30,6 @@ def main():
             sys.exit(1)
     else:
         name = runTest(args.notebook)
-        argv = [sys.executable, '-m', 'pytest', name, '-v', '--html=' + name.replace('.py', '.html'), '--self-contained-html']
-        print(' '.join(argv))
-        subprocess.call(argv)
-
 
 
 if __name__ == '__main__':

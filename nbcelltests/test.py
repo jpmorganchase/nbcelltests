@@ -17,14 +17,25 @@ from .shared import extract_extrametadata, get_coverage
 from .tests_vendored import BASE, JSON_CONFD
 
 
-def run(notebook, rules=None, filename=None, kernel_name="", current_env=False):
-    """
-    Runs no tests: just generates test script for supplied notebook.
+def generateTests(notebook,
+                 rules=None,
+                 filename=None,
+                 kernel_name="",
+                 current_env=False):
+    '''Runs no tests: just generates test script for supplied notebook. kernel_name and current_env 'will be passed to nbval'.
 
-    kernel_name and current_env 'will be passed to nbval'.
-    """
+    Args:
+        notebook (str): Path to notebook to run
+        rules (list): list of extra rules to enforce
+        filename (Optional[str]): filename to output the tests in, if not provided will use the name of the notebook prefixed with a "_" and .py ending
+        kernel_name (Optional[str]): optional kernel name to use
+        current_env (bool): 
+    Returns:
+        str: name of file where tests were output
+    '''
     nb = nbformat.read(notebook, 4)
-    name = filename or os.path.splitext(notebook)[0] + '_test.py'
+    path = os.path.splitext(notebook)[0].split(os.path.sep)
+    py_path = filename or os.path.join(os.path.sep.join(path[:-1]), "_{}_test.py".format(path[-1]))
     extra_metadata = extract_extrametadata(nb)
     rules = rules or {}
     extra_metadata.update(rules)
@@ -38,22 +49,34 @@ def run(notebook, rules=None, filename=None, kernel_name="", current_env=False):
         coverage.append((get_coverage(extra_metadata), extra_metadata['cell_coverage']))
 
     # output tests to test file
-    with open(name, 'w', encoding='utf-8') as fp:
+    with open(py_path, 'w', encoding='utf-8') as fp:
         fp.write(BASE.format(kernel_name=kernel_name, current_env=current_env, path_to_notebook=notebook, coverage=coverage))
 
-    return name
+    return py_path
 
 
-def runWithReturn(notebook, executable=None, **run_kw):
-    """
-    Run notebook's celltests in a subprocess and return exit status.
-
-    run_kw will be passed to run().
-    """
-    name = run(notebook, **run_kw)
+def run(notebook, html=False, executable=None, **kwargs):
+    '''Run notebook's celltests in a subprocess and optionally return html report using pytest's --self-contained-html.
+    
+    Note - htlm report leaves behind the following generated files for
+    "/path/to/notebook.ipynb":
+      * /path/to/_notebook_test.py (notebook test script)
+      * /path/to/_notebook_test.html (pytest's html report)
+    '''
+    name = generateTests(notebook, **kwargs)
     executable = executable or [sys.executable, '-m', 'pytest', '-v']
+
+    if html:
+        # return html report
+        html = name.replace('.py', '.html')
+        argv = executable + ['--html=' + html, '--self-contained-html', name]
+        subprocess.call(argv)
+        with open(html, 'r', encoding='utf-8') as fp:
+            return fp.read()
+
+    # otherwise run inline
     argv = executable + [name]
-    return subprocess.check_output(argv)
+    return subprocess.call(argv)
 
 
 def _pytest_nodeid_prefix(path):
@@ -61,6 +84,7 @@ def _pytest_nodeid_prefix(path):
 
 
 def runWithReport(notebook, executable=None, collect_only=False, **run_kw):
+    '''Run notebook's celltests in a subprocess and return exit status.'''
     tmpd = tempfile.mkdtemp()
     py_file = os.path.join(tmpd, os.path.basename(notebook).replace('.ipynb', '.py'))
     json_file = os.path.join(tmpd, os.path.basename(notebook).replace('.ipynb', '.json'))
@@ -104,29 +128,8 @@ def runWithReport(notebook, executable=None, collect_only=False, **run_kw):
     return ret
 
 
-def runWithHTMLReturn(notebook, executable=None, **run_kw):
-    """
-    Run notebook's celltests in a subprocess and return html generated
-    by pytest's --self-contained-html.
-
-    rules: coverage requirements (if any).
-
-    Note - leaves behind the following generated files for
-    "/path/to/notebook.ipynb":
-      * /path/to/notebook_test.py (notebook test script)
-      * /path/to/notebook_test.html (pytest's html report)
-    """
-    name = run(notebook, **run_kw)
-    html = name.replace('.py', '.html')
-    executable = executable or [sys.executable, '-m', 'pytest', '-v']
-    argv = executable + ['--html=' + html, '--self-contained-html', name]
-    subprocess.call(argv)
-    with open(html, 'r', encoding='utf-8') as fp:
-        return fp.read()
-
-
-def runWithHTMLReturn2(notebook, executable=None, **run_kw):
-    '''use custom return objects'''
+def _runWithHTMLReturnNoPytest(notebook, executable=None, **run_kw):
+    '''internal method to avoid pytest HTML'''
     ret = ''
     executable = executable or [sys.executable, '-m', 'pytest', '-v']
     ret_tmp = run(notebook, **run_kw)
