@@ -76,7 +76,7 @@ def run(notebook, html=False, executable=None, **kwargs):
 
     # otherwise run inline
     argv = executable + [name]
-    return subprocess.call(argv)
+    return subprocess.check_call(argv)
 
 
 def _pytest_nodeid_prefix(path):

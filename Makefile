@@ -14,6 +14,7 @@ testpy-forked: ## Python unit tests --forked (not windows!)
 	${PYTHON} -m pytest -v --forked nbcelltests/tests
 
 tests: lint ## run the tests
+	rm -rf nbcelltests/tests/_*_test.py
 	${PYTHON} -m pytest -v nbcelltests/tests --cov=nbcelltests --junitxml=python_junit.xml --cov-report=xml --cov-branch
 	cd js; yarn test
 
