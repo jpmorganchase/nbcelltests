@@ -6,7 +6,8 @@
 # the Apache License 2.0.  The full license can be found in the LICENSE file.
 #
 from ._version import __version__  # noqa: F401
-
+from .lint import run as runLint  # noqa: F401
+from .test import run as runTest  # noqa: F401
 
 def _jupyter_server_extension_paths():
     return [{

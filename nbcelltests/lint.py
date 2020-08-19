@@ -171,17 +171,3 @@ def runWithHTMLReturn(notebook, executable=None, rules=None):
         lint = lint.to_html()
         ret += '<p>' + lint + '</p>'
     return '<div style="display: flex; flex-direction: column;">' + ret + '</div>', fail
-
-
-if __name__ == '__main__':
-    # TODO: doesn't support the typical interface of run (e.g. rules)
-    if len(sys.argv) != 2:
-        raise Exception('Usage:python -m nbcelltests.lint <ipynb file>')
-    notebook = sys.argv[1]
-    ret, passed = run(notebook, ['flake8', '--ignore=W391'])
-    if passed:
-        print('\n'.join(str(r) for r in ret))
-        sys.exit(0)
-    else:
-        print('\n'.join(str(r) for r in ret))
-        sys.exit(1)

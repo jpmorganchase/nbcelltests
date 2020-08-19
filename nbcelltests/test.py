@@ -134,14 +134,3 @@ def runWithHTMLReturn2(notebook, executable=None, **run_kw):
         test = test.to_html()
         ret += '<p>' + test + '</p>'
     return '<div style="display: flex; flex-direction: column;">' + test + '</div>'
-
-
-if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        raise Exception('Usage:python -m nbcelltests.test <ipynb file>')
-    notebook = sys.argv[1]
-    # TODO: seems likely this should use one of the above run fns.
-    name = run(notebook)
-    argv = [sys.executable, '-m', 'pytest', name, '-v', '--html=' + name.replace('.py', '.html'), '--self-contained-html']
-    print(' '.join(argv))
-    subprocess.call(argv)

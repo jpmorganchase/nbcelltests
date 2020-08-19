@@ -18,24 +18,24 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 requires = [
-    'jupyterlab>=1.0.0 ; python_version > "3"',
-    'jupyterlab ; python_version < "3"',
-    'nbval>=0.9.1',
+    'backports.tempfile ; python_version < "3"',
+    'flake8',
     'nbconvert',
+    'nbformat>=5.0.0',
+    'nbval>=0.9.1',
+    'notebook',
+    'parameterized',
     'pytest>=4.4.0',
     'pytest-cov',
     'pytest-html>=1.20.0',
-    'flake8',
-    'parameterized',
-    'backports.tempfile ; python_version < "3"'
 ]
 
 dev_requires = requires + [
+    'autopep8',
+    'beautifulsoup4'
     'bump2version',
     'mock',
-    'autopep8',
     'pytest-xdist ; sys_platform != "win32"',
-    'beautifulsoup4'
 ]
 
 data_spec = [
@@ -87,7 +87,11 @@ setup(
     extras_require={
         'dev': dev_requires
     },
+    entry_points={
+        'console_scripts': [
+            'nbcelltests=nbcelltests.__main__:main',
+        ],
+    },
     include_package_data=True,
     zip_safe=False,
-
 )
