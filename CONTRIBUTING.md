@@ -35,7 +35,7 @@ If you want to help resolve an issue by making some changes that are larger than
 - Ensure you have nodejs
 - Run the following commands inside the cloned repository:
   - `pip install -e .[dev]` - This will install the Python package in development
-    mode. (note: if you get errors related to pyqt5 or pyqtwebengine version, run `pip install pyqt5==5.9` and `pip install pyqtwebengine` respectively)
+    mode.
   - `jupyter labextension install js` - This will add the lab extension in development
     mode. (note: you might have to run `pip install -U jupyterlab` first to install the current JupyterLab package)
   - `jupyter serverextension enable --py nbcelltests` - This will enable the server extension (note: you might want to supply `--sys-prefix` or a related option here).
