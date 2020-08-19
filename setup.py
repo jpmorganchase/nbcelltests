@@ -34,6 +34,8 @@ dev_requires = requires + [
     'autopep8',
     'beautifulsoup4',
     'bump2version',
+    'jupyterlab>=1.0.0 ; python_version > "3"',
+    'jupyterlab ; python_version < "3"',
     'mock',
     'pytest-xdist ; sys_platform != "win32"',
 ]
