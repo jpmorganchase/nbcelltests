@@ -70,30 +70,30 @@ def lint_kernelspec(kernelspec, kernelspec_requirements=False):
     return [LintMessage(-1, 'Checking kernelspec (min. required={required}; actual={actual})'.format(required=kernelspec_requirements, actual=kernelspec), LintType.KERNELSPEC, passed)], passed
 
 
-def lint_magics(magics, whitelist=None, blacklist=None):
+def lint_magics(magics, allowlist=None, denylist=None):
     """Check that magics are acceptable.
 
-    Specify either a whitelist or a blacklist (or neither), but not
+    Specify either a allowlist or a denylist (or neither), but not
     both.
     """
-    if whitelist is None and blacklist is None:
+    if allowlist is None and denylist is None:
         return [], True
 
-    if whitelist is not None and blacklist is not None:
-        raise ValueError("Must specify either a whitelist or a blacklist, not both. Blacklist: {}; whitelist: {}".format(blacklist, whitelist))
+    if allowlist is not None and denylist is not None:
+        raise ValueError("Must specify either a allowlist or a denylist, not both. denylist: {}; allowlist: {}".format(denylist, allowlist))
 
-    if whitelist is not None:
-        bad = set(magics) - set(whitelist)
-        msg = "missing from whitelist:"
-    elif blacklist is not None:
-        bad = set(magics) & set(blacklist)
-        msg = "present in blacklist:"
+    if allowlist is not None:
+        bad = set(magics) - set(allowlist)
+        msg = "missing from allowlist:"
+    elif denylist is not None:
+        bad = set(magics) & set(denylist)
+        msg = "present in denylist:"
 
     passed = not(bad)
     return [LintMessage(-1, 'Checking magics{}'.format(" ({} {})".format(msg, bad) if bad else ""), LintType.MAGICS, passed)], passed
 
 
-def run(notebook, executable=None, rules=None, noqa_regex=None):
+def run(notebook, html=False, executable=None, rules=None, noqa_regex=None):
     nb = nbformat.read(notebook, 4)
     extra_metadata = extract_extrametadata(nb, noqa_regex=noqa_regex)
     ret = []
@@ -135,8 +135,8 @@ def run(notebook, executable=None, rules=None, noqa_regex=None):
         ret.extend(lintret)
         passed = passed and lintfail
 
-    if 'magics_whitelist' in extra_metadata or 'magics_blacklist' in extra_metadata:
-        lintret, lintfail = lint_magics(magics=extra_metadata['magics'], whitelist=extra_metadata.get('magics_whitelist', None), blacklist=extra_metadata.get('magics_blacklist', None))
+    if 'magics_allowlist' in extra_metadata or 'magics_denylist' in extra_metadata:
+        lintret, lintfail = lint_magics(magics=extra_metadata['magics'], allowlist=extra_metadata.get('magics_allowlist', None), denylist=extra_metadata.get('magics_denylist', None))
         ret.extend(lintret)
         passed = passed and lintfail
 
@@ -151,10 +151,20 @@ def run(notebook, executable=None, rules=None, noqa_regex=None):
             executable.append(tf_name)
             ret2 = _run_and_capture_utf8(executable)
             msg = ret2.stdout + '\t' + ret2.stderr
-            ret.append(LintMessage(-1, 'Checking lint:\n' + msg.strip(), LintType.LINTER, False if msg.strip() else True))
+            msg = '\n'.join('\t{}'.format(_) for _ in msg.strip().replace(tf_name, '{} (in {})'.format(notebook, tf_name)).split('\n'))
+            ret.append(LintMessage(-1,
+                'Checking lint:\n' + msg,
+                LintType.LINTER,
+                False if msg else True))
         finally:
             os.remove(tf_name)
 
+    if html:
+        ret = ''
+        for lint in ret:
+            lint = lint.to_html()
+            ret += '<p>' + lint + '</p>'
+        return '<div style="display: flex; flex-direction: column;">' + ret + '</div>', passed
     return ret, passed
 
 
@@ -162,12 +172,3 @@ def _run_and_capture_utf8(args):
     # PYTHONIOENCODING for pyflakes on Windows
     run_kw = {'env': dict(os.environ, PYTHONIOENCODING='utf8')} if sys.platform == 'win32' else {}
     return subprocess.run(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8', **run_kw)
-
-
-def runWithHTMLReturn(notebook, executable=None, rules=None):
-    ret = ''
-    ret_tmp, fail = run(notebook, executable=executable, rules=rules)
-    for lint in ret_tmp:
-        lint = lint.to_html()
-        ret += '<p>' + lint + '</p>'
-    return '<div style="display: flex; flex-direction: column;">' + ret + '</div>', fail

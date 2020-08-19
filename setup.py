@@ -21,7 +21,7 @@ requires = [
     'backports.tempfile ; python_version < "3"',
     'flake8',
     'nbconvert',
-    'nbformat>=5.0.0',
+    'nbformat>=4.0.0',
     'nbval>=0.9.1',
     'notebook',
     'parameterized',

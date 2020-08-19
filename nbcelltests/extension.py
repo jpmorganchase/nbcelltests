@@ -21,8 +21,8 @@ try:
 except ImportError:
     from backports.tempfile import TemporaryDirectory
 
-from .test import runWithHTMLReturn as runTest
-from .lint import runWithHTMLReturn as runLint
+from .test import run as runTest
+from .lint import run as runLint
 
 
 class RunCelltestsHandler(IPythonHandler):
@@ -42,7 +42,7 @@ class RunCelltestsHandler(IPythonHandler):
             path = os.path.abspath(os.path.join(tempdir, name))
             node = nbformat.from_dict(body.get('model'))
             nbformat.write(node, path)
-            ret = runTest(path, executable=self.executable, rules=self.rules)
+            ret = runTest(path, html=True, executable=self.executable, rules=self.rules)
             return ret
 
     @tornado.web.authenticated
@@ -72,7 +72,7 @@ class RunLintsHandler(IPythonHandler):
             path = os.path.abspath(os.path.join(tempdir, name))
             node = nbformat.from_dict(body.get('model'))
             nbformat.write(node, path)
-            ret, status = runLint(path, executable=self.executable, rules=self.rules)
+            ret, status = runLint(path, html=True, executable=self.executable, rules=self.rules)
             return ret, status
             self.finish({'status': status, 'lint': ret})
 

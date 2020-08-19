@@ -33,13 +33,13 @@ class LintMessage(object):
     def __repr__(self):
         ret = 'PASSED: ' if self.passed else 'FAILED: '
         ret += self.message
-        ret += " (Cell %d)" % self.cell if self.cell > 0 else " (Notebook)"
+        ret += " (Cell %d)" % self.cell if self.cell > 0 else ""
         return ret
 
     def to_html(self):
         ret = '<span style="color: green;">PASSED&nbsp;</span>' if self.passed else '<span style="color: red;">FAILED&nbsp;</span>'
         ret += self.message
-        ret += "(Cell %d)" % self.cell if self.cell > 0 else " (Notebook)"
+        ret += "(Cell %d)" % self.cell if self.cell > 0 else ""
         return ret
 
 
@@ -53,11 +53,11 @@ class TestMessage(object):
     def __repr__(self):
         ret = 'PASSED: ' if self.passed > 0 else 'FAILED: ' if self.passed < 0 else 'NOT RUN: '
         ret += self.message
-        ret += " (Cell %d)" % self.cell if self.cell > 0 else " (Notebook)"
+        ret += " (Cell %d)" % self.cell if self.cell > 0 else ""
         return ret
 
     def to_html(self):
         ret = '<span style="color: green;">PASSED&nbsp;</span>' if self.passed else '<span style="color: red;">FAILED&nbsp;</span>'
         ret += self.message
-        ret += "(Cell %d)" % self.cell if self.cell > 0 else " (Notebook)"
+        ret += "(Cell %d)" % self.cell if self.cell > 0 else ""
         return ret

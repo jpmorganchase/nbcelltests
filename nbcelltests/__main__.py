@@ -17,19 +17,76 @@ def main():
         'notebook',
         help='On which notebook to run')
 
+    parser.add_argument(
+        '--lines_per_cell',
+        help='How many lines to allowed per cell',
+        type=int,
+    )
+
+    parser.add_argument(
+        '--cells_per_notebook',
+        help='How many cells are allowed per notebook',
+        type=int,
+    )
+
+    parser.add_argument(
+        '--function_definitions',
+        help='How many function definitions are allowed per notebook',
+        type=int,
+    )
+
+    parser.add_argument(
+        '--class_definitions',
+        help='How many class definitions are allowed per notebook',
+        type=int,
+    )
+
+    parser.add_argument(
+        '--kernelspec',
+        help='Requirements of the kernelspec used in the notebook',
+    )
+
+    parser.add_argument(
+        '--kernelspec_requirements',
+        help='Requirements of the kernelspec used in the notebook',
+    )
+
+    parser.add_argument(
+        '--magics_allowlist',
+        help='Magics to explicitly allow',
+    )
+
+    parser.add_argument(
+        '--magics_denylist',
+        help='Magics to explicitly deny',
+    )
+
     # process args
     args = parser.parse_args()
 
+    rules = {}
+    if args.lines_per_cell:
+        rules['lines_per_cell'] = args.lines_per_cell
+    if args.cells_per_notebook:
+        rules['cells_per_notebook'] = args.cells_per_notebook
+    if args.function_definitions:
+        rules['function_definitions'] = args.function_definitions
+    if args.class_definitions:
+        rules['class_definitions'] = args.class_definitions
+    if args.kernelspec and args.kernelspec_requirements:
+        rules['kernelspec'] = args.kernelspec
+        rules['kernelspec_requirements'] = args.kernelspec_requirements
+    if args.magics_allowlist:
+        rules['magics_allowlist'] = args.magics_allowlist
+    if args.magics_denylist:
+        rules['magics_denylist'] = args.magics_denylist
+
     if args.option == 'lint':
-        ret, passed = runLint(args.notebook, ['flake8', '--ignore=W391'])
-        if passed:
-            print('\n'.join(str(r) for r in ret))
-            sys.exit(0)
-        else:
-            print('\n'.join(str(r) for r in ret))
-            sys.exit(1)
+        ret, passed = runLint(args.notebook, html=False, executable=['flake8', '--ignore=W391'], rules=rules)
+        print('\n'.join(str(r) for r in ret))
+        sys.exit(passed)
     else:
-        name = runTest(args.notebook)
+        runTest(args.notebook)
 
 
 if __name__ == '__main__':
