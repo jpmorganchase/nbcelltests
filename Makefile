@@ -26,10 +26,10 @@ fix:  ## run autopep8/tslint fix
 	cd js; yarn fix
 
 extest:  ## run example test
-	@ ${PYTHON} -m nbcelltests.test Untitled.ipynb
+	@ ${PYTHON} -m nbcelltests test examples/Example.ipynb
 
 exlint:  ## run example test
-	@ ${PYTHON} -m nbcelltests.lint Untitled.ipynb
+	@ ${PYTHON} -m nbcelltests lint examples/Example.ipynb
 
 annotate: ## MyPy type annotation check
 	mypy -s nbcelltests
@@ -41,6 +41,8 @@ clean: ## clean the repository
 	find . -name "__pycache__" | xargs  rm -rf
 	find . -name "*.pyc" | xargs rm -rf
 	find . -name ".ipynb_checkpoints" | xargs  rm -rf
+	find . -name "_*_test.py" | xargs rm -rf
+	find . -name "_*_test.html" | xargs rm -rf
 	rm -rf .coverage coverage cover htmlcov logs build dist *.egg-info lib node_modules
 	# make -C ./docs clean
 

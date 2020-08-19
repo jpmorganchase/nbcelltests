@@ -173,3 +173,5 @@ docs/api
 docs/index.md
 python_junit.xml
 examples/_*
+*_test.py
+*_test.html

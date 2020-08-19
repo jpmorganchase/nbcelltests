@@ -162,11 +162,11 @@ def run(notebook, html=False, executable=None, rules=None, noqa_regex=None, run_
             os.remove(tf_name)
 
     if html:
-        ret = ''
+        ret_html = ''
         for lint in ret:
             lint = lint.to_html()
-            ret += '<p>' + lint + '</p>'
-        return '<div style="display: flex; flex-direction: column;">' + ret + '</div>', passed
+            ret_html += '<p>' + lint + '</p>'
+        return '<div style="display: flex; flex-direction: column;">' + ret_html + '</div>', passed
     return ret, passed
 
 

@@ -15,7 +15,7 @@ import pytest
 from nbval.kernel import CURRENT_ENV_KERNEL_NAME
 import jupyter_client.kernelspec as kspec
 
-from nbcelltests.test import run, runWithReturn, runWithReport, runWithHTMLReturn
+from nbcelltests.test import generateTests, run, runWithReport
 
 # Some straightforward TODOs:
 #
@@ -109,7 +109,7 @@ def _generate_test_module(notebook, module_name, run_kw=None):
         # the module name (__name__) doesn't really matter, but
         # will be nbcelltests.tests.test_tests.X, where X is
         # whatever concrete subclass is this method belongs to.
-        generated_module = _import_from_path(run(notebook, filename=tf_name, **run_kw), module_name)
+        generated_module = _import_from_path(generateTests(notebook, filename=tf_name, **run_kw), module_name)
     finally:
         try:
             tf.close()
@@ -726,12 +726,12 @@ def test_kernel_selection(notebook, current_env, kernel_name, exception, expecte
 
 def test_basic_runWithReturn_pass():
     """Basic check - just that it runs without error"""
-    generates = os.path.join(os.path.dirname(__file__), "_cell_coverage_test.py")
+    generates = os.path.join(os.path.dirname(__file__), "__cell_coverage_test.py")
     if os.path.exists(generates):
         raise ValueError("Going to generate %s but it already exists." % generates)
 
     try:
-        _ = runWithReturn(COVERAGE, rules={'cell_coverage': 10}, **TEST_RUN_KW)
+        _ = run(COVERAGE, rules={'cell_coverage': 10}, **TEST_RUN_KW)
     finally:
         try:
             os.remove(generates)
@@ -741,12 +741,12 @@ def test_basic_runWithReturn_pass():
 
 def test_basic_runWithReturn_fail():
     """Basic check - just that it fails"""
-    generates = os.path.join(os.path.dirname(__file__), "_cell_coverage_test.py")
+    generates = os.path.join(os.path.dirname(__file__), "__cell_coverage_test.py")
     if os.path.exists(generates):
         raise ValueError("Going to generate %s but it already exists." % generates)
 
     try:
-        _ = runWithReturn(COVERAGE, rules={'cell_coverage': 100}, **TEST_RUN_KW)
+        _ = run(COVERAGE, rules={'cell_coverage': 100}, **TEST_RUN_KW)
     except Exception:
         pass  # would need to alter run fn or capture output to check more exactly
     else:
@@ -762,7 +762,7 @@ def test_basic_runWithReturn_fail():
 
 def test_basic_runWithReport_pass():
     """Basic check - just that it runs without error"""
-    generates = os.path.join(os.path.dirname(__file__), "_cell_coverage_test.py")
+    generates = os.path.join(os.path.dirname(__file__), "__cell_coverage_test.py")
     if os.path.exists(generates):
         raise ValueError("Going to generate %s but it already exists." % generates)
 
@@ -791,14 +791,14 @@ def test_basic_runWithReport_pass():
 
 def test_basic_runWithHTMLReturn_pass():
     """Check it runs without error and generates the expected files and html."""
-    generates = [os.path.join(os.path.dirname(__file__), "_cell_coverage_test.py"),
-                 os.path.join(os.path.dirname(__file__), "_cell_coverage_test.html")]
+    generates = [os.path.join(os.path.dirname(__file__), "__cell_coverage_test.py"),
+                 os.path.join(os.path.dirname(__file__), "__cell_coverage_test.html")]
     exists_check = [os.path.exists(f) for f in generates]
     if any(exists_check):
         raise ValueError("Going to generate %s but already exist(s)" % [f for f, exists in zip(generates, exists_check) if exists])
 
     try:
-        ret = runWithHTMLReturn(COVERAGE, executable=None, rules={'cell_coverage': 10}, **TEST_RUN_KW)
+        ret = run(COVERAGE, html=True, executable=None, rules={'cell_coverage': 10}, **TEST_RUN_KW)
 
         for f in generates:
             assert os.path.exists(f), "Should have generated %s but did not" % f
@@ -814,14 +814,14 @@ def test_basic_runWithHTMLReturn_pass():
 
 def test_basic_runWithHTMLReturn_fail():
     """Check it runs without error and generates the expected files and html."""
-    generates = [os.path.join(os.path.dirname(__file__), "_cell_coverage_test.py"),
-                 os.path.join(os.path.dirname(__file__), "_cell_coverage_test.html")]
+    generates = [os.path.join(os.path.dirname(__file__), "__cell_coverage_test.py"),
+                 os.path.join(os.path.dirname(__file__), "__cell_coverage_test.html")]
     exists_check = [os.path.exists(f) for f in generates]
     if any(exists_check):
         raise ValueError("Going to generate %s but already exist(s)" % [f for f, exists in zip(generates, exists_check) if exists])
 
     try:
-        ret = runWithHTMLReturn(COVERAGE, executable=None, rules={'cell_coverage': 100}, **TEST_RUN_KW)
+        ret = run(COVERAGE, html=True, executable=None, rules={'cell_coverage': 100}, **TEST_RUN_KW)
 
         for f in generates:
             assert os.path.exists(f), "Should have generated %s but did not" % f
