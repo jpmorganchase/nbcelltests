@@ -18,10 +18,10 @@ from .tests_vendored import BASE, JSON_CONFD
 
 
 def generateTests(notebook,
-                 rules=None,
-                 filename=None,
-                 kernel_name="",
-                 current_env=False):
+                  rules=None,
+                  filename=None,
+                  kernel_name="",
+                  current_env=False):
     '''Runs no tests: just generates test script for supplied notebook. kernel_name and current_env 'will be passed to nbval'.
 
     Args:
@@ -29,7 +29,7 @@ def generateTests(notebook,
         rules (list): list of extra rules to enforce
         filename (Optional[str]): filename to output the tests in, if not provided will use the name of the notebook prefixed with a "_" and .py ending
         kernel_name (Optional[str]): optional kernel name to use
-        current_env (bool): 
+        current_env (bool):
     Returns:
         str: name of file where tests were output
     '''
@@ -57,14 +57,14 @@ def generateTests(notebook,
 
 def run(notebook, html=False, executable=None, **kwargs):
     '''Run notebook's celltests in a subprocess and optionally return html report using pytest's --self-contained-html.
-    
+
     Note - htlm report leaves behind the following generated files for
     "/path/to/notebook.ipynb":
       * /path/to/_notebook_test.py (notebook test script)
       * /path/to/_notebook_test.html (pytest's html report)
     '''
     name = generateTests(notebook, **kwargs)
-    executable = executable or [sys.executable, '-m', 'pytest', '-v']
+    executable = executable or [sys.executable, '-m', 'pytest', '-vvv']
 
     if html:
         # return html report

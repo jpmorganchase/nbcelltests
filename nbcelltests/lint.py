@@ -93,9 +93,11 @@ def lint_magics(magics, allowlist=None, denylist=None):
     return [LintMessage(-1, 'Checking magics{}'.format(" ({} {})".format(msg, bad) if bad else ""), LintType.MAGICS, passed)], passed
 
 
-def run(notebook, html=False, executable=None, rules=None, noqa_regex=None):
+def run(notebook, html=False, executable=None, rules=None, noqa_regex=None, run_python_linter=False):
     nb = nbformat.read(notebook, 4)
     extra_metadata = extract_extrametadata(nb, noqa_regex=noqa_regex)
+    print(executable)
+    executable = executable or ['flake8', '--ignore=W391']
     ret = []
     passed = True
 
@@ -140,7 +142,7 @@ def run(notebook, html=False, executable=None, rules=None, noqa_regex=None):
         ret.extend(lintret)
         passed = passed and lintfail
 
-    if executable:
+    if run_python_linter:
         exp = ScriptExporter()
         (body, resources) = exp.from_notebook_node(nb)
         tf = NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf8')
@@ -153,9 +155,9 @@ def run(notebook, html=False, executable=None, rules=None, noqa_regex=None):
             msg = ret2.stdout + '\t' + ret2.stderr
             msg = '\n'.join('\t{}'.format(_) for _ in msg.strip().replace(tf_name, '{} (in {})'.format(notebook, tf_name)).split('\n'))
             ret.append(LintMessage(-1,
-                'Checking lint:\n' + msg,
-                LintType.LINTER,
-                False if msg else True))
+                                   'Checking lint:\n' + msg,
+                                   LintType.LINTER,
+                                   False if msg else True))
         finally:
             os.remove(tf_name)
 

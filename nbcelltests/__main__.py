@@ -1,6 +1,5 @@
 import sys
 import argparse
-import subprocess
 from .lint import run as runLint
 from .test import run as runTest
 
@@ -61,6 +60,11 @@ def main():
         help='Magics to explicitly deny',
     )
 
+    parser.add_argument(
+        '--executable',
+        help='String executable to execute lint/test',
+    )
+
     # process args
     args = parser.parse_args()
 
@@ -82,11 +86,18 @@ def main():
         rules['magics_denylist'] = args.magics_denylist
 
     if args.option == 'lint':
-        ret, passed = runLint(args.notebook, html=False, executable=['flake8', '--ignore=W391'], rules=rules)
+        ret, passed = runLint(args.notebook,
+                              html=False,
+                              executable=args.executable.split(' ') if args.executable else None,
+                              rules=rules,
+                              run_python_linter=True)
         print('\n'.join(str(r) for r in ret))
         sys.exit(passed)
     else:
-        runTest(args.notebook)
+        runTest(args.notebook,
+                html=False,
+                executable=args.executable.split(' ') if args.executable else None,
+                rules=rules)
 
 
 if __name__ == '__main__':
