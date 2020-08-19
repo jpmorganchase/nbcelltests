@@ -11,6 +11,7 @@ import os.path
 import nbformat
 import sys
 import tornado.gen
+import tornado.web
 from tornado.concurrent import run_on_executor
 from concurrent.futures import ThreadPoolExecutor
 from notebook.base.handlers import IPythonHandler
@@ -31,6 +32,7 @@ class RunCelltestsHandler(IPythonHandler):
         self.rules = rules
         self.executable = executable
 
+    @tornado.web.authenticated
     def get(self):
         self.finish({'status': 0, 'test': self.rules})
 
@@ -43,6 +45,7 @@ class RunCelltestsHandler(IPythonHandler):
             ret = runTest(path, executable=self.executable, rules=self.rules)
             return ret
 
+    @tornado.web.authenticated
     @tornado.gen.coroutine
     def post(self):
         body = json.loads(self.request.body)
@@ -59,6 +62,7 @@ class RunLintsHandler(IPythonHandler):
         self.rules = rules
         self.executable = executable
 
+    @tornado.web.authenticated
     def get(self):
         self.finish({'status': 0, 'linters': self.rules})
 
@@ -72,6 +76,7 @@ class RunLintsHandler(IPythonHandler):
             return ret, status
             self.finish({'status': status, 'lint': ret})
 
+    @tornado.web.authenticated
     @tornado.gen.coroutine
     def post(self):
         body = json.loads(self.request.body)
