@@ -265,12 +265,12 @@ export class CelltestsWidget extends Widget {
     for (let i = 0; i < splits.length; i++) {
       tests.push(splits[i] + "\n");
     }
-    this.currentActiveCell.model.metadata.set("tests", tests);
+    this.currentActiveCell.model.metadata.set("celltests", tests);
   }
 
   public loadTestsForActiveCell(): void {
     if (this.currentActiveCell !== null) {
-      let tests = this.currentActiveCell.model.metadata.get("tests") as string[];
+      let tests = this.currentActiveCell.model.metadata.get("celltests") as string[];
       let s = "";
       if (tests === undefined || tests.length === 0) {
         tests = ["# Use %cell to mark where the cell should be inserted, or add a line comment \"# no %cell\" to deliberately skip the cell\n", "%cell\n"];
@@ -296,7 +296,7 @@ export class CelltestsWidget extends Widget {
       for (let i = 0; i < splits.length; i++) {
         tests.push(splits[i] + "\n");
       }
-      this.currentActiveCell.model.metadata.set("tests", tests);
+      this.currentActiveCell.model.metadata.set("celltests", tests);
     } else {
       // eslint-disable-next-line no-console
       console.warn("Celltests: Null cell warning");
@@ -305,7 +305,7 @@ export class CelltestsWidget extends Widget {
 
   public deleteTestsForActiveCell(): void {
     if (this.currentActiveCell !== null) {
-      this.currentActiveCell.model.metadata.delete("tests");
+      this.currentActiveCell.model.metadata.delete("celltests");
     } else {
       // eslint-disable-next-line no-console
       console.warn("Celltests: Null cell warning");

@@ -139,7 +139,7 @@ def extract_extrametadata(notebook, override=None, noqa_regex=None):
 
 
 def get_test(cell):
-    return lines2source(cell.get('metadata', {}).get('tests', []))
+    return lines2source(cell.get('metadata', {}).get('celltests', []))
 
 
 def empty_ast(source):
