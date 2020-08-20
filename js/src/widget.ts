@@ -153,22 +153,22 @@ class RulesWidget extends BoxPanel {
 
   public setByKey(key: string, elem: HTMLDivElement) {
     switch (key) {
-      case "lines_per_cell": {this.lines_per_cell = elem; break; }
-      case "cells_per_notebook": {this.cells_per_notebook = elem; break; }
-      case "function_definitions": {this.function_definitions = elem; break; }
-      case "class_definitions": {this.class_definitions = elem; break; }
-      case "cell_coverage": {this.cell_coverage = elem; break; }
+    case "lines_per_cell": {this.lines_per_cell = elem; break; }
+    case "cells_per_notebook": {this.cells_per_notebook = elem; break; }
+    case "function_definitions": {this.function_definitions = elem; break; }
+    case "class_definitions": {this.class_definitions = elem; break; }
+    case "cell_coverage": {this.cell_coverage = elem; break; }
     }
   }
 
   public getValuesByKey(key: string) {
     let elem;
     switch (key) {
-      case "lines_per_cell": {elem = this.lines_per_cell; break; }
-      case "cells_per_notebook": {elem = this.cells_per_notebook; break; }
-      case "function_definitions": {elem = this.function_definitions; break; }
-      case "class_definitions": {elem = this.class_definitions; break; }
-      case "cell_coverage": {elem = this.cell_coverage; break; }
+    case "lines_per_cell": {elem = this.lines_per_cell; break; }
+    case "cells_per_notebook": {elem = this.cells_per_notebook; break; }
+    case "function_definitions": {elem = this.function_definitions; break; }
+    case "class_definitions": {elem = this.class_definitions; break; }
+    case "cell_coverage": {elem = this.cell_coverage; break; }
     }
     const chkbx: HTMLInputElement = elem.querySelector('input[type="checkbox"]');
     const input: HTMLInputElement = elem.querySelector('input[type="number"]');
@@ -178,11 +178,11 @@ class RulesWidget extends BoxPanel {
   public setValuesByKey(key: string, checked= true, value: number = null) {
     let elem;
     switch (key) {
-      case "lines_per_cell": {elem = this.lines_per_cell; break; }
-      case "cells_per_notebook": {elem = this.cells_per_notebook; break; }
-      case "function_definitions": {elem = this.function_definitions; break; }
-      case "class_definitions": {elem = this.class_definitions; break; }
-      case "cell_coverage": {elem = this.cell_coverage; break; }
+    case "lines_per_cell": {elem = this.lines_per_cell; break; }
+    case "cells_per_notebook": {elem = this.cells_per_notebook; break; }
+    case "function_definitions": {elem = this.function_definitions; break; }
+    case "class_definitions": {elem = this.class_definitions; break; }
+    case "cell_coverage": {elem = this.cell_coverage; break; }
     }
     const chkbx: HTMLInputElement = elem.querySelector('input[type="checkbox"]');
     const input: HTMLInputElement = elem.querySelector('input[type="number"]');
@@ -259,11 +259,13 @@ export class CelltestsWidget extends Widget {
     for (let i = 0; i < splits.length; i++) {
       tests.push(splits[i] + "\n");
     }
-    this.currentActiveCell.model.metadata.set("celltests", tests);
+    if (this.currentActiveCell !== null && this.currentActiveCell.model.type === "code") {
+      this.currentActiveCell.model.metadata.set("celltests", tests);
+    }
   }
 
   public loadTestsForActiveCell(): void {
-    if (this.currentActiveCell !== null && this.currentActiveCell.model.type === 'code') {
+    if (this.currentActiveCell !== null && this.currentActiveCell.model.type === "code") {
       let tests = this.currentActiveCell.model.metadata.get("celltests") as string[];
       let s = "";
       if (tests === undefined || tests.length === 0) {
@@ -284,7 +286,7 @@ export class CelltestsWidget extends Widget {
 
   public saveTestsForActiveCell(): void {
     /* if currentActiveCell exists */
-    if (this.currentActiveCell !== null && this.currentActiveCell.model.type === 'code') {
+    if (this.currentActiveCell !== null && this.currentActiveCell.model.type === "code") {
       const tests = [];
       const splits = this.editor.model.value.text.split(/\n/);
       // eslint-disable-next-line @typescript-eslint/prefer-for-of
@@ -309,8 +311,8 @@ export class CelltestsWidget extends Widget {
       const metadata: {[key: string]: number} = this.notebookTracker.currentWidget
         .model.metadata.get("celltests") as {[key: string]: number} || {};
 
-        for (const rule of [].slice.call(CELLTEST_RULES)) {
-          this.rules.setValuesByKey(rule.key, rule.key in metadata, metadata[rule.key]);
+      for (const rule of [].slice.call(CELLTEST_RULES)) {
+        this.rules.setValuesByKey(rule.key, rule.key in metadata, metadata[rule.key]);
       }
     }
   }
