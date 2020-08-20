@@ -11,7 +11,7 @@ from operator import itemgetter
 from bs4 import BeautifulSoup
 import pytest
 
-from nbcelltests.lint import lint_lines_per_cell, lint_cells_per_notebook, lint_function_definitions, lint_class_definitions, lint_kernelspec, lint_magics, run, runWithHTMLReturn
+from nbcelltests.lint import lint_lines_per_cell, lint_cells_per_notebook, lint_function_definitions, lint_class_definitions, lint_kernelspec, lint_magics, run
 from nbcelltests.define import LintType
 
 LR = namedtuple("lint_result", ['passed', 'type'])
@@ -90,39 +90,39 @@ def test_kernelspec(kernelspec_requirements, kernelspec, expected_ret, expected_
 
 
 @pytest.mark.parametrize(
-    "magics_whitelist, magics_blacklist, magics, expected_ret, expected_pass", [
+    "magics_allowlist, magics_denylist, magics, expected_ret, expected_pass", [
         # no check
         (None, None, [], [], True),
         (None, None, ['anything'], [], True),
-        # empty whitelist: no magics allowed
+        # empty allowlist: no magics allowed
         ([], None, ['anything'], [LR(False, LintType.MAGICS)], False),
-        # only whitelisted
+        # only allowlisted
         (['ok1', 'ok2'], None, ['ok1'], [LR(True, LintType.MAGICS)], True),
         (['ok1', 'ok2'], None, ['notok'], [LR(False, LintType.MAGICS)], False),
-        # no blacklisted
+        # no denylisted
         (None, ['notok'], ['ok'], [LR(True, LintType.MAGICS)], True),
         (None, ['notok'], ['notok'], [LR(False, LintType.MAGICS)], False),
     ]
 )
-def test_magics(magics_whitelist, magics_blacklist, magics, expected_ret, expected_pass):
-    ret, passed = lint_magics(magics, whitelist=magics_whitelist, blacklist=magics_blacklist)
+def test_magics(magics_allowlist, magics_denylist, magics, expected_ret, expected_pass):
+    ret, passed = lint_magics(magics, allowlist=magics_allowlist, denylist=magics_denylist)
     _verify(ret, passed, expected_ret, expected_pass)
 
 
 def test_magics_lists_sanity():
-    msg = "Must specify either a whitelist or a blacklist, not both."
+    msg = "Must specify either a allowlist or a denylist, not both."
 
     with pytest.raises(ValueError, match=msg):
-        lint_magics(set(), whitelist=['one'], blacklist=['one'])
+        lint_magics(set(), allowlist=['one'], denylist=['one'])
 
     with pytest.raises(ValueError, match=msg):
-        lint_magics(set(), whitelist=[], blacklist=['one'])
+        lint_magics(set(), allowlist=[], denylist=['one'])
 
     with pytest.raises(ValueError, match=msg):
-        lint_magics(set(), whitelist=[], blacklist=[])
+        lint_magics(set(), allowlist=[], denylist=[])
 
     with pytest.raises(ValueError, match=msg):
-        lint_magics(set(), whitelist=['one'], blacklist=[])
+        lint_magics(set(), allowlist=['one'], denylist=[])
 
 
 @pytest.mark.parametrize(
@@ -149,7 +149,7 @@ def test_magics_lists_sanity():
           'class_definitions': 0,
           'kernelspec_requirements':
             {'name': 'python3'},
-          'magics_whitelist': ['matplotlib']}, None, [LR(True, LintType.LINES_PER_CELL)] * 4 +
+          'magics_allowlist': ['matplotlib']}, None, [LR(True, LintType.LINES_PER_CELL)] * 4 +
                                                      [LR(False, LintType.CELLS_PER_NOTEBOOK)] +
                                                      [LR(False, LintType.FUNCTION_DEFINITIONS)] +
                                                      [LR(False, LintType.CLASS_DEFINITIONS)] +
@@ -171,7 +171,7 @@ def _verify(ret, passed, expected_ret, expected_pass):
 def test_runWithHTMLReturn_norules():
     # no rules, so will pass without any checks
     nb = os.path.join(os.path.dirname(__file__), 'more.ipynb')
-    html, passed = runWithHTMLReturn(nb)
+    html, passed = run(nb, html=True)
     assert passed is True
     _check(html, [])
 
@@ -179,22 +179,22 @@ def test_runWithHTMLReturn_norules():
 def test_runWithHTMLReturn_pass():
     # checks should pass
     nb = os.path.join(os.path.dirname(__file__), 'more.ipynb')
-    html, passed = runWithHTMLReturn(nb, rules={"cells_per_notebook": 10})
+    html, passed = run(nb, html=True, rules={"cells_per_notebook": 10})
     assert passed is True
-    _check(html, [("PASSED", "Checking cells per notebook (max=10; actual=4) (Notebook)")])
+    _check(html, [("PASSED", "Checking cells per notebook (max=10; actual=4)")])
 
 
 def test_runWithHTMLReturn_fail():
     # checks should fail
     nb = os.path.join(os.path.dirname(__file__), 'more.ipynb')
-    html, passed = runWithHTMLReturn(nb, rules={"cells_per_notebook": 1, "lines_per_cell": 2})
+    html, passed = run(nb, html=True, rules={"cells_per_notebook": 1, "lines_per_cell": 2})
     assert passed is False
     _check(html, [
         ("PASSED", "Checking lines in cell (max=2; actual=2)(Cell 1)"),
         ("PASSED", "Checking lines in cell (max=2; actual=1)(Cell 2)"),
         ("PASSED", "Checking lines in cell (max=2; actual=2)(Cell 3)"),
         ("FAILED", "Checking lines in cell (max=2; actual=3)(Cell 4)"),
-        ("FAILED", "Checking cells per notebook (max=1; actual=4) (Notebook)")])
+        ("FAILED", "Checking cells per notebook (max=1; actual=4)")])
 
 
 def _check(html, expected_results):

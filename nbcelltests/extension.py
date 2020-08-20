@@ -11,6 +11,7 @@ import os.path
 import nbformat
 import sys
 import tornado.gen
+import tornado.web
 from tornado.concurrent import run_on_executor
 from concurrent.futures import ThreadPoolExecutor
 from notebook.base.handlers import IPythonHandler
@@ -20,8 +21,8 @@ try:
 except ImportError:
     from backports.tempfile import TemporaryDirectory
 
-from .test import runWithHTMLReturn as runTest
-from .lint import runWithHTMLReturn as runLint
+from .test import run as runTest
+from .lint import run as runLint
 
 
 class RunCelltestsHandler(IPythonHandler):
@@ -31,6 +32,7 @@ class RunCelltestsHandler(IPythonHandler):
         self.rules = rules
         self.executable = executable
 
+    @tornado.web.authenticated
     def get(self):
         self.finish({'status': 0, 'test': self.rules})
 
@@ -40,9 +42,10 @@ class RunCelltestsHandler(IPythonHandler):
             path = os.path.abspath(os.path.join(tempdir, name))
             node = nbformat.from_dict(body.get('model'))
             nbformat.write(node, path)
-            ret = runTest(path, executable=self.executable, rules=self.rules)
+            ret = runTest(path, html=True, executable=self.executable, rules=self.rules)
             return ret
 
+    @tornado.web.authenticated
     @tornado.gen.coroutine
     def post(self):
         body = json.loads(self.request.body)
@@ -59,6 +62,7 @@ class RunLintsHandler(IPythonHandler):
         self.rules = rules
         self.executable = executable
 
+    @tornado.web.authenticated
     def get(self):
         self.finish({'status': 0, 'linters': self.rules})
 
@@ -68,10 +72,11 @@ class RunLintsHandler(IPythonHandler):
             path = os.path.abspath(os.path.join(tempdir, name))
             node = nbformat.from_dict(body.get('model'))
             nbformat.write(node, path)
-            ret, status = runLint(path, executable=self.executable, rules=self.rules)
+            ret, status = runLint(path, html=True, executable=self.executable, rules=self.rules)
             return ret, status
             self.finish({'status': status, 'lint': ret})
 
+    @tornado.web.authenticated
     @tornado.gen.coroutine
     def post(self):
         body = json.loads(self.request.body)
