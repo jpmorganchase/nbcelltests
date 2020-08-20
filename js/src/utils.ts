@@ -10,13 +10,13 @@ import {JupyterFrontEnd} from "@jupyterlab/application";
 import {IDocumentManager} from "@jupyterlab/docmanager";
 
 export
-const CELLTESTS_CATEGORY = "Celltests";
+const CELLTESTS_CATEGORY = "NBCelltests";
 
 export
-const CELLTESTS_TEST_ID = "celltests:test";
+const CELLTESTS_TEST_ID = "nbcelltests:test";
 
 export
-const CELLTESTS_LINT_ID = "celltests:lint";
+const CELLTESTS_LINT_ID = "nbcelltests:lint";
 
 export
 const CELLTESTS_TEST_CAPTION = "Run Celltests";
@@ -25,16 +25,16 @@ export
 const CELLTESTS_LINT_CAPTION = "Run Lint";
 
 export
-const CELLTEST_TOOL_CLASS = "CelltestTool";
+const CELLTEST_TOOL_CLASS = "NBCelltestTool";
 
 export
-const CELLTEST_TOOL_CONTROLS_CLASS = "CelltestsControls";
+const CELLTEST_TOOL_CONTROLS_CLASS = "NBCelltestsControls";
 
 export
-const CELLTEST_TOOL_RULES_CLASS = "CelltestsRules";
+const CELLTEST_TOOL_RULES_CLASS = "NBCelltestsRules";
 
 export
-const CELLTEST_TOOL_EDITOR_CLASS = "CelltestsEditor";
+const CELLTEST_TOOL_EDITOR_CLASS = "NBCelltestsEditor";
 
 export
 function isEnabled(app: JupyterFrontEnd, docManager: IDocumentManager): () => boolean {
