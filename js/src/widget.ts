@@ -15,10 +15,13 @@ import { CodeEditorWrapper} from "@jupyterlab/codeeditor";
 import { editorServices } from "@jupyterlab/codemirror";
 import { INotebookTracker } from "@jupyterlab/notebook";
 
+
 import {CELLTEST_RULES,
   CELLTEST_TOOL_CONTROLS_CLASS,
   CELLTEST_TOOL_EDITOR_CLASS,
   CELLTEST_TOOL_RULES_CLASS} from "./utils";
+
+const circleSvg = require("../style/circle.svg").default;
 
 /**
  * Widget responsible for holding test controls
@@ -26,18 +29,29 @@ import {CELLTEST_RULES,
  * @class      ControlsWidget (name)
  */
 class ControlsWidget extends BoxPanel {
+  public label: HTMLLabelElement;
+  public svg: HTMLElement;
+
+
   public constructor() {
     super({direction: "top-to-bottom"});
 
     /* Section Header */
-    const label = document.createElement("label");
-    label.textContent = "Tests";
+    this.label = document.createElement("label");
+    this.label.textContent = "Tests";
+    this.svg = document.createElement("svg");
+    this.svg.innerHTML = circleSvg;
+    this.svg = (this.svg.firstChild as HTMLElement);
 
-    this.node.appendChild(label);
+    const div1 = document.createElement("div");
+    div1.appendChild(this.label);
+    div1.appendChild(this.svg);
+
+    this.node.appendChild(div1);
     this.node.classList.add(CELLTEST_TOOL_CONTROLS_CLASS);
 
     /* Add button */
-    const div = document.createElement("div");
+    const div2 = document.createElement("div");
     const add = document.createElement("button");
     add.textContent = "Add";
     add.onclick = () => {
@@ -59,10 +73,10 @@ class ControlsWidget extends BoxPanel {
     };
 
     /* add to container */
-    div.appendChild(add);
-    div.appendChild(save);
-    div.appendChild(clear);
-    this.node.appendChild(div);
+    div2.appendChild(add);
+    div2.appendChild(save);
+    div2.appendChild(clear);
+    this.node.appendChild(div2);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -79,6 +93,7 @@ class ControlsWidget extends BoxPanel {
  * @class      ControlsWidget (name)
  */
 class RulesWidget extends BoxPanel {
+  public label: HTMLLabelElement;
 
   public lines_per_cell: HTMLDivElement;
   public cells_per_notebook: HTMLDivElement;
@@ -90,10 +105,10 @@ class RulesWidget extends BoxPanel {
     super({direction: "top-to-bottom"});
 
     /* Section Header */
-    const label = document.createElement("label");
-    label.textContent = "Lint Rules";
+    this.label = document.createElement("label");
+    this.label.textContent = "Lint Rules";
 
-    this.node.appendChild(label);
+    this.node.appendChild(this.label);
     this.node.classList.add(CELLTEST_TOOL_RULES_CLASS);
 
     /* Add button */
@@ -207,8 +222,11 @@ class RulesWidget extends BoxPanel {
 export class CelltestsWidget extends Widget {
   public currentActiveCell: Cell = null;
   public notebookTracker: INotebookTracker = null;
+
   private editor: CodeEditorWrapper = null;
   private rules: RulesWidget;
+  private controls: ControlsWidget;
+
 
   public constructor() {
     super();
@@ -217,7 +235,7 @@ export class CelltestsWidget extends Widget {
     const layout = (this.layout = new PanelLayout());
 
     /* create options widget */
-    const controls = new ControlsWidget();
+    const controls = (this.controls = new ControlsWidget());
 
     /* create options widget */
     const rules = (this.rules = new RulesWidget());
@@ -261,6 +279,7 @@ export class CelltestsWidget extends Widget {
     }
     if (this.currentActiveCell !== null && this.currentActiveCell.model.type === "code") {
       this.currentActiveCell.model.metadata.set("celltests", tests);
+      (this.controls.svg.firstElementChild.firstElementChild as HTMLElement).style.fill = "#008000";
     }
   }
 
@@ -270,6 +289,7 @@ export class CelltestsWidget extends Widget {
       let s = "";
       if (tests === undefined || tests.length === 0) {
         tests = ["# Use %cell to mark where the cell should be inserted, or add a line comment \"# no %cell\" to deliberately skip the cell\n", "%cell\n"];
+        (this.controls.svg.firstElementChild.firstElementChild as HTMLElement).style.fill = "#e75c57";
       }
       // eslint-disable-next-line @typescript-eslint/prefer-for-of
       for (let i = 0; i < tests.length; i++) {
@@ -277,10 +297,10 @@ export class CelltestsWidget extends Widget {
       }
       this.editor.model.value.text = s;
       this.editor.editor.setOption("readOnly", false);
-
     } else {
       this.editor.model.value.text = "# Not a code cell";
       this.editor.editor.setOption("readOnly", true);
+      (this.controls.svg.firstElementChild.firstElementChild as HTMLElement).style.fill = "var(--jp-inverse-layout-color3)";
     }
   }
 
@@ -294,15 +314,18 @@ export class CelltestsWidget extends Widget {
         tests.push(splits[i] + "\n");
       }
       this.currentActiveCell.model.metadata.set("celltests", tests);
+      (this.controls.svg.firstElementChild.firstElementChild as HTMLElement).style.fill = "#008000";
     } else if (this.currentActiveCell !== null) {
       // TODO this?
       this.currentActiveCell.model.metadata.delete("celltests");
+      (this.controls.svg.firstElementChild.firstElementChild as HTMLElement).style.fill = "var(--jp-inverse-layout-color3)";
     }
   }
 
   public deleteTestsForActiveCell(): void {
     if (this.currentActiveCell !== null) {
       this.currentActiveCell.model.metadata.delete("celltests");
+      (this.controls.svg.firstElementChild.firstElementChild as HTMLElement).style.fill = "#e75c57";
     }
   }
 
