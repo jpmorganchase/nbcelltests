@@ -34,7 +34,7 @@ class RunCelltestsHandler(IPythonHandler):
 
     @tornado.web.authenticated
     def get(self):
-        self.finish({'status': 0, 'test': self.rules})
+        self.finish({'status': 0, 'rules': self.rules})
 
     @run_on_executor
     def _run(self, body, path, name):
@@ -64,7 +64,7 @@ class RunLintsHandler(IPythonHandler):
 
     @tornado.web.authenticated
     def get(self):
-        self.finish({'status': 0, 'linters': self.rules})
+        self.finish({'status': 0, 'rules': self.rules})
 
     @run_on_executor
     def _run(self, body, path, name):

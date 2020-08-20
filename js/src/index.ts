@@ -18,7 +18,7 @@ import {activate} from "./activate";
 const extension: JupyterFrontEndPlugin<void> = {
   activate,
   autoStart: true,
-  id: "nbcelltests",
+  id: "celltests",
   optional: [ILauncher],
   requires: [IDocumentManager,
     ICommandPalette,

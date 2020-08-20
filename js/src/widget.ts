@@ -15,7 +15,7 @@ import { CodeEditorWrapper} from "@jupyterlab/codeeditor";
 import { editorServices } from "@jupyterlab/codemirror";
 import { INotebookTracker } from "@jupyterlab/notebook";
 
-import {CELLTEST_TOOL_CLASS,
+import {CELLTEST_RULES,
   CELLTEST_TOOL_CONTROLS_CLASS,
   CELLTEST_TOOL_EDITOR_CLASS,
   CELLTEST_TOOL_RULES_CLASS} from "./utils";
@@ -31,7 +31,7 @@ class ControlsWidget extends BoxPanel {
 
     /* Section Header */
     const label = document.createElement("label");
-    label.textContent = "Celltests";
+    label.textContent = "Tests";
 
     this.node.appendChild(label);
     this.node.classList.add(CELLTEST_TOOL_CONTROLS_CLASS);
@@ -91,7 +91,7 @@ class RulesWidget extends BoxPanel {
 
     /* Section Header */
     const label = document.createElement("label");
-    label.textContent = "Celltests - Rules";
+    label.textContent = "Lint Rules";
 
     this.node.appendChild(label);
     this.node.classList.add(CELLTEST_TOOL_RULES_CLASS);
@@ -99,12 +99,7 @@ class RulesWidget extends BoxPanel {
     /* Add button */
     const div = document.createElement("div");
 
-    const rules = [{label: "Lines per Cell", key: "lines_per_cell", min: 1, step: 1, value: 10},
-      {label: "Cells per Notebook", key: "cells_per_notebook", min: 1, step: 1, value: 20},
-      {label: "Function definitions", key: "function_definitions", min: 0, step: 1, value: 10},
-      {label: "Class definitions", key: "class_definitions", min: 0, step: 1, value: 5},
-      {label: "Cell test coverage (%)", key: "cell_coverage", min: 1, max: 100, step: 1, value: 50}];
-    for (const val of [].slice.call(rules)) {
+    for (const val of [].slice.call(CELLTEST_RULES)) {
       const row = document.createElement("div");
       const span = document.createElement("span");
       span.textContent = val.label;
@@ -158,22 +153,22 @@ class RulesWidget extends BoxPanel {
 
   public setByKey(key: string, elem: HTMLDivElement) {
     switch (key) {
-    case "lines_per_cell": {this.lines_per_cell = elem; break; }
-    case "cells_per_notebook": {this.cells_per_notebook = elem; break; }
-    case "function_definitions": {this.function_definitions = elem; break; }
-    case "class_definitions": {this.class_definitions = elem; break; }
-    case "cell_coverage": {this.cell_coverage = elem; break; }
+      case "lines_per_cell": {this.lines_per_cell = elem; break; }
+      case "cells_per_notebook": {this.cells_per_notebook = elem; break; }
+      case "function_definitions": {this.function_definitions = elem; break; }
+      case "class_definitions": {this.class_definitions = elem; break; }
+      case "cell_coverage": {this.cell_coverage = elem; break; }
     }
   }
 
   public getValuesByKey(key: string) {
     let elem;
     switch (key) {
-    case "lines_per_cell": {elem = this.lines_per_cell; break; }
-    case "cells_per_notebook": {elem = this.cells_per_notebook; break; }
-    case "function_definitions": {elem = this.function_definitions; break; }
-    case "class_definitions": {elem = this.class_definitions; break; }
-    case "cell_coverage": {elem = this.cell_coverage; break; }
+      case "lines_per_cell": {elem = this.lines_per_cell; break; }
+      case "cells_per_notebook": {elem = this.cells_per_notebook; break; }
+      case "function_definitions": {elem = this.function_definitions; break; }
+      case "class_definitions": {elem = this.class_definitions; break; }
+      case "cell_coverage": {elem = this.cell_coverage; break; }
     }
     const chkbx: HTMLInputElement = elem.querySelector('input[type="checkbox"]');
     const input: HTMLInputElement = elem.querySelector('input[type="number"]');
@@ -183,11 +178,11 @@ class RulesWidget extends BoxPanel {
   public setValuesByKey(key: string, checked= true, value: number = null) {
     let elem;
     switch (key) {
-    case "lines_per_cell": {elem = this.lines_per_cell; break; }
-    case "cells_per_notebook": {elem = this.cells_per_notebook; break; }
-    case "function_definitions": {elem = this.function_definitions; break; }
-    case "class_definitions": {elem = this.class_definitions; break; }
-    case "cell_coverage": {elem = this.cell_coverage; break; }
+      case "lines_per_cell": {elem = this.lines_per_cell; break; }
+      case "cells_per_notebook": {elem = this.cells_per_notebook; break; }
+      case "function_definitions": {elem = this.function_definitions; break; }
+      case "class_definitions": {elem = this.class_definitions; break; }
+      case "cell_coverage": {elem = this.cell_coverage; break; }
     }
     const chkbx: HTMLInputElement = elem.querySelector('input[type="checkbox"]');
     const input: HTMLInputElement = elem.querySelector('input[type="number"]');
@@ -217,7 +212,6 @@ export class CelltestsWidget extends Widget {
 
   public constructor() {
     super();
-    this.node.classList.add(CELLTEST_TOOL_CLASS);
 
     /* create layout */
     const layout = (this.layout = new PanelLayout());
@@ -269,7 +263,7 @@ export class CelltestsWidget extends Widget {
   }
 
   public loadTestsForActiveCell(): void {
-    if (this.currentActiveCell !== null) {
+    if (this.currentActiveCell !== null && this.currentActiveCell.model.type === 'code') {
       let tests = this.currentActiveCell.model.metadata.get("celltests") as string[];
       let s = "";
       if (tests === undefined || tests.length === 0) {
@@ -280,16 +274,17 @@ export class CelltestsWidget extends Widget {
         s += tests[i];
       }
       this.editor.model.value.text = s;
+      this.editor.editor.setOption("readOnly", false);
 
     } else {
-      // eslint-disable-next-line no-console
-      console.warn("Celltests: Null cell warning");
+      this.editor.model.value.text = "# Not a code cell";
+      this.editor.editor.setOption("readOnly", true);
     }
   }
 
   public saveTestsForActiveCell(): void {
     /* if currentActiveCell exists */
-    if (this.currentActiveCell !== null) {
+    if (this.currentActiveCell !== null && this.currentActiveCell.model.type === 'code') {
       const tests = [];
       const splits = this.editor.model.value.text.split(/\n/);
       // eslint-disable-next-line @typescript-eslint/prefer-for-of
@@ -297,18 +292,15 @@ export class CelltestsWidget extends Widget {
         tests.push(splits[i] + "\n");
       }
       this.currentActiveCell.model.metadata.set("celltests", tests);
-    } else {
-      // eslint-disable-next-line no-console
-      console.warn("Celltests: Null cell warning");
+    } else if (this.currentActiveCell !== null) {
+      // TODO this?
+      this.currentActiveCell.model.metadata.delete("celltests");
     }
   }
 
   public deleteTestsForActiveCell(): void {
     if (this.currentActiveCell !== null) {
       this.currentActiveCell.model.metadata.delete("celltests");
-    } else {
-      // eslint-disable-next-line no-console
-      console.warn("Celltests: Null cell warning");
     }
   }
 
@@ -316,38 +308,24 @@ export class CelltestsWidget extends Widget {
     if (this.notebookTracker !== null) {
       const metadata: {[key: string]: number} = this.notebookTracker.currentWidget
         .model.metadata.get("celltests") as {[key: string]: number} || {};
-      const rules = ["lines_per_cell",
-        "cells_per_notebook",
-        "function_definitions",
-        "class_definitions",
-        "cell_coverage"];
-      for (const rule of [].slice.call(rules)) {
-        this.rules.setValuesByKey(rule, rule in metadata, metadata[rule]);
+
+        for (const rule of [].slice.call(CELLTEST_RULES)) {
+          this.rules.setValuesByKey(rule.key, rule.key in metadata, metadata[rule.key]);
       }
-    } else {
-      // eslint-disable-next-line no-console
-      console.warn("Celltests: Null notebook warning");
     }
   }
 
   public saveRulesForCurrentNotebook(): void {
     if (this.notebookTracker !== null) {
       const metadata = {} as {[key: string]: number};
-      const rules = ["lines_per_cell",
-        "cells_per_notebook",
-        "function_definitions",
-        "class_definitions",
-        "cell_coverage"];
-      for (const rule of [].slice.call(rules)) {
-        const settings = this.rules.getValuesByKey(rule);
+
+      for (const rule of [].slice.call(CELLTEST_RULES)) {
+        const settings = this.rules.getValuesByKey(rule.key);
         if (settings.enabled) {
           metadata[settings.key] = settings.value;
         }
       }
       this.notebookTracker.currentWidget.model.metadata.set("celltests", metadata);
-    } else {
-      // eslint-disable-next-line no-console
-      console.warn("Celltests: Null notebook warning");
     }
   }
 

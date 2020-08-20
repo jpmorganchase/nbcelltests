@@ -37,6 +37,16 @@ export
 const CELLTEST_TOOL_EDITOR_CLASS = "CelltestsEditor";
 
 export
+const CELLTEST_RULES = [
+  // TODO fetch from server
+  {label: "Lines per Cell", key: "lines_per_cell", min: 1, step: 1, value: 10},
+  {label: "Cells per Notebook", key: "cells_per_notebook", min: 1, step: 1, value: 20},
+  {label: "Function definitions", key: "function_definitions", min: 0, step: 1, value: 10},
+  {label: "Class definitions", key: "class_definitions", min: 0, step: 1, value: 5},
+  {label: "Cell test coverage (%)", key: "cell_coverage", min: 1, max: 100, step: 1, value: 50}
+];
+
+export
 function isEnabled(app: JupyterFrontEnd, docManager: IDocumentManager): () => boolean {
   return () => (app.shell.currentWidget &&
                 docManager.contextForWidget(app.shell.currentWidget) &&

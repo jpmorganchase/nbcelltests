@@ -7,7 +7,7 @@
  *
  */
 import { Message } from "@lumino/messaging";
-import { PanelLayout } from "@lumino/widgets";
+import { PanelLayout, Widget } from "@lumino/widgets";
 
 import { JupyterFrontEnd } from "@jupyterlab/application";
 import { INotebookTools, INotebookTracker, NotebookTools } from "@jupyterlab/notebook";
@@ -26,6 +26,11 @@ export class CelltestsTool extends NotebookTools.Tool {
     this.notebookTracker = notebook_Tracker;
     this.cellTools = cellTools;
     const layout = (this.layout = new PanelLayout());
+
+    /* Section Header */
+    const label = document.createElement("label");
+    label.textContent = "Celltests";
+    layout.addWidget(new Widget({node: label}));
 
     this.addClass(CELLTEST_TOOL_CLASS);
     this.widget = new CelltestsWidget();
