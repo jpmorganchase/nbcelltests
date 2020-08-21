@@ -14,7 +14,7 @@ import nbformat
 import os
 import sys
 import subprocess
-from nbconvert import ScriptExporter
+from nbconvert import PythonExporter
 from tempfile import NamedTemporaryFile
 from ..shared import extract_extrametadata
 from ..define import LintMessage, LintType
@@ -68,7 +68,7 @@ def run(notebook, html=False, executable=None, rules=None, noqa_regex=None, run_
         passed = passed and lintpassed
 
     if run_python_linter:
-        exp = ScriptExporter()
+        exp = PythonExporter(exclude_raw=True)
         (body, resources) = exp.from_notebook_node(nb)
         tf = NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf8')
         tf_name = tf.name
