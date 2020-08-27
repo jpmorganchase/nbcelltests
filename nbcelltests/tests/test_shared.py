@@ -18,6 +18,7 @@ MORE_NB = os.path.join(os.path.dirname(__file__), 'more.ipynb')
 MAGICS_NB = os.path.join(os.path.dirname(__file__), 'magics.ipynb')
 COVERAGE_NB = os.path.join(os.path.dirname(__file__), '_cell_coverage.ipynb')
 LINT_DISABLE_NB = os.path.join(os.path.dirname(__file__), '_lint_disable.ipynb')
+LINT_DISABLE_NB_EMPTY_CELL = os.path.join(os.path.dirname(__file__), '_lint_disable_empty_cell.ipynb')
 
 # TODO should parameterize test_empty_ast _whitespace
 
@@ -193,6 +194,11 @@ def test_extract_extrametadata_disable_notpresent():
 
 def test_extract_extrametadata_disable_cells_count():
     metadata = extract_extrametadata(nbformat.read(LINT_DISABLE_NB, 4), noqa_regex=r"^# noqa notebook:\s*(.*)$")
+    assert metadata['noqa'] == {'cells_per_notebook'}
+
+
+def test_extract_extrametadata_disable_cells_count_in_empty_cell():
+    metadata = extract_extrametadata(nbformat.read(LINT_DISABLE_NB_EMPTY_CELL, 4), noqa_regex=r"^# noqa notebook:\s*(.*)$")
     assert metadata['noqa'] == {'cells_per_notebook'}
 
 
