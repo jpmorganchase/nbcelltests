@@ -37,7 +37,7 @@ If you want to help resolve an issue by making some changes that are larger than
   - `pip install -e .[dev]` - This will install the Python package in development
     mode.
   - `jupyter labextension install js` - This will add the lab extension in development
-    mode.
+    mode. (note: you might have to run `pip install -U jupyterlab` first to install the current JupyterLab package)
   - `jupyter serverextension enable --py nbcelltests` - This will enable the server extension (note: you might want to supply `--sys-prefix` or a related option here).
 - Validate the install by running the tests:
   - `py.test` - This command will run the Python tests.

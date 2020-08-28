@@ -112,7 +112,17 @@ def extract_extrametadata(notebook, override=None, noqa_regex=None):
     base['noqa'] = set()
 
     for c in notebook.cells:
-        if c['cell_type'] != 'code' or empty_ast(c['source']):
+        if c['cell_type'] != 'code':
+            continue
+
+        # noqa comments can be in otherwise code-less cells
+        if noqa_regex:
+            for line in c['source'].split('\n'):
+                noqa_match = noqa_regex.match(line)
+                if noqa_match:
+                    base['noqa'].add(noqa_match.group(1))
+
+        if empty_ast(c['source']):
             continue
 
         base['cell_lines'].append(0)
@@ -120,10 +130,6 @@ def extract_extrametadata(notebook, override=None, noqa_regex=None):
         base['cell_count'] += 1
 
         for line in c['source'].split('\n'):
-            if noqa_regex:
-                noqa_match = noqa_regex.match(line)
-                if noqa_match:
-                    base['noqa'].add(noqa_match.group(1))
             if not empty_ast(line):
                 base['lines'] += 1
                 base['cell_lines'][-1] += 1
