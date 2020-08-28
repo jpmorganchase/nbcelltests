@@ -31,7 +31,7 @@ div.CelltestsRules {
 
 div.CelltestsControls > label,
 div.CelltestsRules > label {
-        font-size: 13px;
+    font-size: 13px;
     width: 100%;
     margin-bottom: 5px;
 }
@@ -41,6 +41,11 @@ div.CelltestsControls > div {
     flex-direction: row;
     justify-content: space-between;
     width: 100%;
+}
+
+div.CelltestsControls > div > div {
+    display: flex;
+    flex-direction: row;
 }
 
 div.CelltestsControls > div > button {

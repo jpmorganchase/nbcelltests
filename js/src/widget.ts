@@ -30,6 +30,7 @@ const circleSvg = require("../style/circle.svg").default;
  */
 class ControlsWidget extends BoxPanel {
   public label: HTMLLabelElement;
+  public svglabel: HTMLElement;
   public svg: HTMLElement;
 
 
@@ -39,19 +40,27 @@ class ControlsWidget extends BoxPanel {
     /* Section Header */
     this.label = document.createElement("label");
     this.label.textContent = "Tests";
+
+    this.svglabel = document.createElement("label");
+
     this.svg = document.createElement("svg");
     this.svg.innerHTML = circleSvg;
     this.svg = (this.svg.firstChild as HTMLElement);
 
     const div1 = document.createElement("div");
     div1.appendChild(this.label);
-    div1.appendChild(this.svg);
+
+    const div2 = document.createElement("div");
+    div1.appendChild(div2);
+
+    div2.appendChild(this.svglabel);
+    div2.appendChild(this.svg);
 
     this.node.appendChild(div1);
     this.node.classList.add(CELLTEST_TOOL_CONTROLS_CLASS);
 
     /* Add button */
-    const div2 = document.createElement("div");
+    const div3 = document.createElement("div");
     const add = document.createElement("button");
     add.textContent = "Add";
     add.onclick = () => {
@@ -73,10 +82,10 @@ class ControlsWidget extends BoxPanel {
     };
 
     /* add to container */
-    div2.appendChild(add);
-    div2.appendChild(save);
-    div2.appendChild(clear);
-    this.node.appendChild(div2);
+    div3.appendChild(add);
+    div3.appendChild(save);
+    div3.appendChild(clear);
+    this.node.appendChild(div3);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -279,7 +288,7 @@ export class CelltestsWidget extends Widget {
     }
     if (this.currentActiveCell !== null && this.currentActiveCell.model.type === "code") {
       this.currentActiveCell.model.metadata.set("celltests", tests);
-      (this.controls.svg.firstElementChild.firstElementChild as HTMLElement).style.fill = "#008000";
+      this.setIndicatorTests();
     }
   }
 
@@ -289,18 +298,22 @@ export class CelltestsWidget extends Widget {
       let s = "";
       if (tests === undefined || tests.length === 0) {
         tests = ["# Use %cell to mark where the cell should be inserted, or add a line comment \"# no %cell\" to deliberately skip the cell\n", "%cell\n"];
-        (this.controls.svg.firstElementChild.firstElementChild as HTMLElement).style.fill = "#e75c57";
+        this.setIndicatorNoTests();
+      } else {
+        this.setIndicatorTests();
       }
+
       // eslint-disable-next-line @typescript-eslint/prefer-for-of
       for (let i = 0; i < tests.length; i++) {
         s += tests[i];
       }
       this.editor.model.value.text = s;
       this.editor.editor.setOption("readOnly", false);
+
     } else {
       this.editor.model.value.text = "# Not a code cell";
       this.editor.editor.setOption("readOnly", true);
-      (this.controls.svg.firstElementChild.firstElementChild as HTMLElement).style.fill = "var(--jp-inverse-layout-color3)";
+      this.setIndicatorNonCode();
     }
   }
 
@@ -314,18 +327,18 @@ export class CelltestsWidget extends Widget {
         tests.push(splits[i] + "\n");
       }
       this.currentActiveCell.model.metadata.set("celltests", tests);
-      (this.controls.svg.firstElementChild.firstElementChild as HTMLElement).style.fill = "#008000";
+      this.setIndicatorTests();
     } else if (this.currentActiveCell !== null) {
       // TODO this?
       this.currentActiveCell.model.metadata.delete("celltests");
-      (this.controls.svg.firstElementChild.firstElementChild as HTMLElement).style.fill = "var(--jp-inverse-layout-color3)";
+      this.setIndicatorNonCode();
     }
   }
 
   public deleteTestsForActiveCell(): void {
     if (this.currentActiveCell !== null) {
       this.currentActiveCell.model.metadata.delete("celltests");
-      (this.controls.svg.firstElementChild.firstElementChild as HTMLElement).style.fill = "#e75c57";
+      this.setIndicatorNoTests();
     }
   }
 
@@ -356,5 +369,20 @@ export class CelltestsWidget extends Widget {
 
   public get editorWidget(): CodeEditorWrapper {
     return this.editor;
+  }
+
+  private setIndicatorNoTests(): void {
+    (this.controls.svg.firstElementChild.firstElementChild as HTMLElement).style.fill = "#e75c57";
+    this.controls.svglabel.textContent = "(No Tests)";
+  }
+
+  private setIndicatorTests(): void {
+    (this.controls.svg.firstElementChild.firstElementChild as HTMLElement).style.fill = "#008000";
+    this.controls.svglabel.textContent = "(Tests Exist)";
+  }
+
+  private setIndicatorNonCode(): void {
+    (this.controls.svg.firstElementChild.firstElementChild as HTMLElement).style.fill = "var(--jp-inverse-layout-color3)";
+    this.controls.svglabel.textContent = "(Non Code Cell)";
   }
 }
