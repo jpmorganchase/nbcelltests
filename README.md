@@ -1,4 +1,6 @@
-# nbcelltests
+<img src="docs/logo.png" width=400></img>
+
+
 Cell-by-cell testing for production Jupyter notebooks in JupyterLab
 
 [![Build Status](https://dev.azure.com/tpaine154/jupyter/_apis/build/status/jpmorganchase.nbcelltests?branchName=master)](https://dev.azure.com/tpaine154/jupyter/_build/latest?definitionId=24&branchName=master)

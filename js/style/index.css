@@ -7,18 +7,31 @@
  *
  */
 div.CelltestTool {
+    border-top: 1px solid var(--jp-border-color2);
+    border-bottom: 1px solid var(--jp-border-color2);
 
 }
 
-div.CelltestsControls {
+div.CelltestTool > label {
+    flex: 0 0 auto;
+    font-size: var(--jp-ui-font-size0);
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin: 0px;
+    padding: 8px 0px;
+    text-transform: uppercase;
+}
+
+div.CelltestsControls,
+div.CelltestsRules {
     display: flex;
     flex-direction: column;
     padding: 7px;
 }
 
-div.CelltestsControls > label {
+div.CelltestsControls > label,
+div.CelltestsRules > label {
     font-size: 13px;
-    text-transform: uppercase;
     width: 100%;
     margin-bottom: 5px;
 }
@@ -26,7 +39,13 @@ div.CelltestsControls > label {
 div.CelltestsControls > div {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
     width: 100%;
+}
+
+div.CelltestsControls > div > div {
+    display: flex;
+    flex-direction: row;
 }
 
 div.CelltestsControls > div > button {
@@ -35,20 +54,6 @@ div.CelltestsControls > div > button {
 div.CelltestsControls > div > button:hover {
     background: var(--jp-layout-color2);
 }
-
-div.CelltestsRules {
-    display: flex;
-    flex-direction: column;
-    padding: 7px;
-}
-
-div.CelltestsRules > label {
-    font-size: 13px;
-    text-transform: uppercase;
-    width: 100%;
-    margin-bottom: 5px;
-}
-
 
 div.CelltestsRules > div {
     display: flex;
@@ -69,10 +74,8 @@ div.CelltestsRules > div > div > input[type="number"] {
 div.CelltestsEditor {
     display: flex;
     flex-direction: column;
-    background: cyan;
     margin-bottom: 5px;
 }
-
 
 div.CelltestsEditor div.CodeMirror-lines {
     border: 1px solid lightgrey;
