@@ -90,7 +90,7 @@ function runCellLints(app: JupyterFrontEnd, docManager: IDocumentManager): void 
 
     return new Promise((resolve) => {
       request("post",
-        PageConfig.getBaseUrl() + "nbcelltests/lint/run",
+        PageConfig.getBaseUrl() + "celltests/lint/run",
         {},
         {path, model},
       ).then((res: IRequestResult) => {
