@@ -1,6 +1,4 @@
-<p align="center">
-<img src="docs/logo.png" width=300></img>
-</p>
+<img src="docs/logo.png" width=400></img>
 
 
 Cell-by-cell testing for production Jupyter notebooks in JupyterLab
