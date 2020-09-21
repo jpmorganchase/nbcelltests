@@ -2,8 +2,6 @@
 <img src="docs/logo.png" width=300></img>
 </p>
 
-# 
-
 
 Cell-by-cell testing for production Jupyter notebooks in JupyterLab
 
