@@ -681,7 +681,7 @@ def test_kernel_selection(notebook, current_env, kernel_name, exception, expecte
 # https://github.com/jpmorganchase/nbcelltests/issues/125 before
 # deciding how to handle that better here.
 
-class TestConverage:
+class TestCoverage:
 
     # runWithReturn
 
