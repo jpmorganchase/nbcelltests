@@ -699,7 +699,6 @@ class TestCoverage:
             except Exception:
                 pass
 
-
     def test_basic_runWithReturn_fail(self):
         """Basic check - just that it fails"""
         generates = os.path.join(os.path.dirname(__file__), "__cell_coverage_test.py")
@@ -717,7 +716,6 @@ class TestCoverage:
                 os.remove(generates)
             except Exception:
                 pass
-
 
     # runWithReport
 
@@ -739,7 +737,6 @@ class TestCoverage:
         assert len(ret) == 1
         assert (ret[0].passed, ret[0].type, ret[0].message) == (1, TestType.CELL_COVERAGE, 'Testing cell coverage')
 
-
     # def test_basic_runWithReport_fail():
     #    from nbcelltests.define import TestType
     #    # TODO it fails here, but it shouldn't, right? we want to be able to report
@@ -747,13 +744,12 @@ class TestCoverage:
     #    assert len(ret) == 1
     #    assert (ret[0].passed, ret[0].type, ret[0].message) == (False, TestType.CELL_COVERAGE, 'Testing cell coverage')
 
-
     # runWithHTMLReturn
 
     def test_basic_runWithHTMLReturn_pass(self):
         """Check it runs without error and generates the expected files and html."""
         generates = [os.path.join(os.path.dirname(__file__), "__cell_coverage_test.py"),
-                    os.path.join(os.path.dirname(__file__), "__cell_coverage_test.html")]
+                     os.path.join(os.path.dirname(__file__), "__cell_coverage_test.html")]
         exists_check = [os.path.exists(f) for f in generates]
         if any(exists_check):
             raise ValueError("Going to generate %s but already exist(s)" % [f for f, exists in zip(generates, exists_check) if exists])
@@ -772,11 +768,10 @@ class TestCoverage:
 
         _check(ret, coverage_result="Passed")
 
-
     def test_basic_runWithHTMLReturn_fail(self):
         """Check it runs without error and generates the expected files and html."""
         generates = [os.path.join(os.path.dirname(__file__), "__cell_coverage_test.py"),
-                    os.path.join(os.path.dirname(__file__), "__cell_coverage_test.html")]
+                     os.path.join(os.path.dirname(__file__), "__cell_coverage_test.html")]
         exists_check = [os.path.exists(f) for f in generates]
         if any(exists_check):
             raise ValueError("Going to generate %s but already exist(s)" % [f for f, exists in zip(generates, exists_check) if exists])
