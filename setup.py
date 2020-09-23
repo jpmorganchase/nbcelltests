@@ -37,7 +37,7 @@ dev_requires = requires + [
     'jupyterlab>=1.0.0 ; python_version > "3"',
     'jupyterlab ; python_version < "3"',
     'mock',
-    'pytest-xdist ; sys_platform != "win32"',
+    'pytest-xdist',
 ]
 
 data_spec = [

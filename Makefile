@@ -10,8 +10,10 @@ testjs: ## Clean and Make js tests
 testpy: ## Clean and Make unit tests
 	${PYTHON} -m pytest -v nbcelltests/tests --cov=nbcelltests
 
-testpy-forked: ## Python unit tests --forked (not windows!)
-	${PYTHON} -m pytest -v --forked nbcelltests/tests
+testpy-distributed: ## Python unit tests parallelized across two CPUs
+# --dist=loadscope causes tests in the same class to be run sequentially
+# Required until https://github.com/jpmorganchase/nbcelltests/issues/207 is addressed
+	${PYTHON} -m pytest -v -n 2 --dist=loadscope nbcelltests/tests
 
 tests: lint ## run the tests
 	rm -rf nbcelltests/tests/_*_test.py

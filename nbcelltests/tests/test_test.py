@@ -56,9 +56,6 @@ INPUT_CELL_NEWLINE_STRING = os.path.join(os.path.dirname(__file__), '_input_cell
 INPUT_TEST_NEWLINE_STRING = os.path.join(os.path.dirname(__file__), '_input_test_newline_string.ipynb')
 INPUT_TEST_INJECTION_COMMENT = os.path.join(os.path.dirname(__file__), '_input_test_injection_comment.ipynb')
 
-# Hack. We want to test expected behavior in distributed situation,
-# which we are doing via pytest --forked.
-FORKED = '--forked' in sys.argv
 
 # Default to using kernel from current environment (like --current-env of nbval).
 TEST_RUN_KW = {
@@ -285,84 +282,56 @@ class TestCumulativeRun(_TestCellTests):
         t.test_code_cell_1()
         _assert_undefined(t, 'x')
         t.tearDown()
-        if FORKED:
-            t.tearDownClass()
 
         # check cell ran
         # (%cell in test)
-        if FORKED:
-            t.setUpClass()
         t.setUp()
         t.test_code_cell_2()
         t._run("""
         assert x == 0, x
         """)
         t.tearDown()
-        if FORKED:
-            t.tearDownClass()
 
         # check cumulative cells ran
-        if FORKED:
-            t.setUpClass()
         t.setUp()
         t.test_code_cell_3()
         t._run("""
         assert x == 1, x
         """)
         t.tearDown()
-        if FORKED:
-            t.tearDownClass()
 
         # check cumulative cells ran (but not multiple times!)
-        if FORKED:
-            t.setUpClass()
         t.setUp()
         t.test_code_cell_4()
         t._run("""
         assert x == 2, x
         """)
         t.tearDown()
-        if FORKED:
-            t.tearDownClass()
 
         # check test affects state
-        if FORKED:
-            t.setUpClass()
         t.setUp()
         t.test_code_cell_5()
         t._run("""
         assert x == 3, x
         """)
         t.tearDown()
-        if FORKED:
-            t.tearDownClass()
 
         # test defaults to %cell
-        if FORKED:
-            t.setUpClass()
         t.setUp()
         t.test_code_cell_6()
         t._run("""
         assert y == 10
         """)
         t.tearDown()
-        if FORKED:
-            t.tearDownClass()
 
         # deliberate no %cell; cell 8 will check it's also not subsequently run
         # i.e. a will never be defined
-        if FORKED:
-            t.setUpClass()
         t.setUp()
         t.test_code_cell_7()
         _assert_undefined(t, 'a')
         t.tearDown()
-        if FORKED:
-            t.tearDownClass()
 
         # check cell 7 above did not run
-        if FORKED:
-            t.setUpClass()
         t.setUp()
         t.test_code_cell_8()
         t._run("""
@@ -413,11 +382,6 @@ class TestExceptionInTest(_TestCellTests):
         t.test_code_cell_1()
 
         t.tearDown()
-        if FORKED:
-            t.tearDownClass()
-
-        if FORKED:
-            t.setUpClass()
         t.setUp()
 
         _assert_undefined(t, 'x')
@@ -455,11 +419,6 @@ class TestFailureInTest(_TestCellTests):
             raise Exception("Test should have failed")
 
         t.tearDown()
-        if FORKED:
-            t.tearDownClass()
-
-        if FORKED:
-            t.setUpClass()
         t.setUp()
         # subsequent cell should also fail
         try:
@@ -722,117 +681,116 @@ def test_kernel_selection(notebook, current_env, kernel_name, exception, expecte
 # https://github.com/jpmorganchase/nbcelltests/issues/125 before
 # deciding how to handle that better here.
 
-# runWithReturn
+# No need to group these tests in a class (to be run sequentially) once
+# https://github.com/jpmorganchase/nbcelltests/issues/207 is resolved.
+class TestCoverage:
 
-def test_basic_runWithReturn_pass():
-    """Basic check - just that it runs without error"""
-    generates = os.path.join(os.path.dirname(__file__), "__cell_coverage_test.py")
-    if os.path.exists(generates):
-        raise ValueError("Going to generate %s but it already exists." % generates)
+    # runWithReturn
 
-    try:
-        _ = run(COVERAGE, rules={'cell_coverage': 10}, **TEST_RUN_KW)
-    finally:
+    def test_basic_runWithReturn_pass(self):
+        """Basic check - just that it runs without error"""
+        generates = os.path.join(os.path.dirname(__file__), "__cell_coverage_test.py")
+        if os.path.exists(generates):
+            raise ValueError("Going to generate %s but it already exists." % generates)
+
         try:
-            os.remove(generates)
+            _ = run(COVERAGE, rules={'cell_coverage': 10}, **TEST_RUN_KW)
+        finally:
+            try:
+                os.remove(generates)
+            except Exception:
+                pass
+
+    def test_basic_runWithReturn_fail(self):
+        """Basic check - just that it fails"""
+        generates = os.path.join(os.path.dirname(__file__), "__cell_coverage_test.py")
+        if os.path.exists(generates):
+            raise ValueError("Going to generate %s but it already exists." % generates)
+
+        try:
+            _ = run(COVERAGE, rules={'cell_coverage': 100}, **TEST_RUN_KW)
         except Exception:
-            pass
+            pass  # would need to alter run fn or capture output to check more exactly
+        else:
+            raise ValueError("coverage check should have failed, but didn't")
+        finally:
+            try:
+                os.remove(generates)
+            except Exception:
+                pass
 
+    # runWithReport
 
-def test_basic_runWithReturn_fail():
-    """Basic check - just that it fails"""
-    generates = os.path.join(os.path.dirname(__file__), "__cell_coverage_test.py")
-    if os.path.exists(generates):
-        raise ValueError("Going to generate %s but it already exists." % generates)
+    def test_basic_runWithReport_pass(self):
+        """Basic check - just that it runs without error"""
+        generates = os.path.join(os.path.dirname(__file__), "__cell_coverage_test.py")
+        if os.path.exists(generates):
+            raise ValueError("Going to generate %s but it already exists." % generates)
 
-    try:
-        _ = run(COVERAGE, rules={'cell_coverage': 100}, **TEST_RUN_KW)
-    except Exception:
-        pass  # would need to alter run fn or capture output to check more exactly
-    else:
-        raise ValueError("coverage check should have failed, but didn't")
-    finally:
+        from nbcelltests.define import TestType
         try:
-            os.remove(generates)
-        except Exception:
-            pass
+            ret = runWithReport(COVERAGE, executable=None, rules={'cell_coverage': 10}, **TEST_RUN_KW)
+        finally:
+            try:
+                os.remove(generates)
+            except Exception:
+                pass
 
+        assert len(ret) == 1
+        assert (ret[0].passed, ret[0].type, ret[0].message) == (1, TestType.CELL_COVERAGE, 'Testing cell coverage')
 
-# runWithReport
+    # def test_basic_runWithReport_fail():
+    #    from nbcelltests.define import TestType
+    #    # TODO it fails here, but it shouldn't, right? we want to be able to report
+    #    ret = runWithReport(COVERAGE, executable=None, rules={'cell_coverage':100})
+    #    assert len(ret) == 1
+    #    assert (ret[0].passed, ret[0].type, ret[0].message) == (False, TestType.CELL_COVERAGE, 'Testing cell coverage')
 
-def test_basic_runWithReport_pass():
-    """Basic check - just that it runs without error"""
-    generates = os.path.join(os.path.dirname(__file__), "__cell_coverage_test.py")
-    if os.path.exists(generates):
-        raise ValueError("Going to generate %s but it already exists." % generates)
+    # runWithHTMLReturn
 
-    from nbcelltests.define import TestType
-    try:
-        ret = runWithReport(COVERAGE, executable=None, rules={'cell_coverage': 10}, **TEST_RUN_KW)
-    finally:
+    def test_basic_runWithHTMLReturn_pass(self):
+        """Check it runs without error and generates the expected files and html."""
+        generates = [os.path.join(os.path.dirname(__file__), "__cell_coverage_test.py"),
+                     os.path.join(os.path.dirname(__file__), "__cell_coverage_test.html")]
+        exists_check = [os.path.exists(f) for f in generates]
+        if any(exists_check):
+            raise ValueError("Going to generate %s but already exist(s)" % [f for f, exists in zip(generates, exists_check) if exists])
+
         try:
-            os.remove(generates)
-        except Exception:
-            pass
+            ret = run(COVERAGE, html=True, executable=None, rules={'cell_coverage': 10}, **TEST_RUN_KW)
 
-    assert len(ret) == 1
-    assert (ret[0].passed, ret[0].type, ret[0].message) == (1, TestType.CELL_COVERAGE, 'Testing cell coverage')
-
-
-# def test_basic_runWithReport_fail():
-#    from nbcelltests.define import TestType
-#    # TODO it fails here, but it shouldn't, right? we want to be able to report
-#    ret = runWithReport(COVERAGE, executable=None, rules={'cell_coverage':100})
-#    assert len(ret) == 1
-#    assert (ret[0].passed, ret[0].type, ret[0].message) == (False, TestType.CELL_COVERAGE, 'Testing cell coverage')
-
-
-# runWithHTMLReturn
-
-def test_basic_runWithHTMLReturn_pass():
-    """Check it runs without error and generates the expected files and html."""
-    generates = [os.path.join(os.path.dirname(__file__), "__cell_coverage_test.py"),
-                 os.path.join(os.path.dirname(__file__), "__cell_coverage_test.html")]
-    exists_check = [os.path.exists(f) for f in generates]
-    if any(exists_check):
-        raise ValueError("Going to generate %s but already exist(s)" % [f for f, exists in zip(generates, exists_check) if exists])
-
-    try:
-        ret = run(COVERAGE, html=True, executable=None, rules={'cell_coverage': 10}, **TEST_RUN_KW)
-
-        for f in generates:
-            assert os.path.exists(f), "Should have generated %s but did not" % f
-    finally:
-        try:
             for f in generates:
-                os.remove(f)
-        except Exception:
-            pass
+                assert os.path.exists(f), "Should have generated %s but did not" % f
+        finally:
+            try:
+                for f in generates:
+                    os.remove(f)
+            except Exception:
+                pass
 
-    _check(ret, coverage_result="Passed")
+        _check(ret, coverage_result="Passed")
 
+    def test_basic_runWithHTMLReturn_fail(self):
+        """Check it runs without error and generates the expected files and html."""
+        generates = [os.path.join(os.path.dirname(__file__), "__cell_coverage_test.py"),
+                     os.path.join(os.path.dirname(__file__), "__cell_coverage_test.html")]
+        exists_check = [os.path.exists(f) for f in generates]
+        if any(exists_check):
+            raise ValueError("Going to generate %s but already exist(s)" % [f for f, exists in zip(generates, exists_check) if exists])
 
-def test_basic_runWithHTMLReturn_fail():
-    """Check it runs without error and generates the expected files and html."""
-    generates = [os.path.join(os.path.dirname(__file__), "__cell_coverage_test.py"),
-                 os.path.join(os.path.dirname(__file__), "__cell_coverage_test.html")]
-    exists_check = [os.path.exists(f) for f in generates]
-    if any(exists_check):
-        raise ValueError("Going to generate %s but already exist(s)" % [f for f, exists in zip(generates, exists_check) if exists])
-
-    try:
-        ret = run(COVERAGE, html=True, executable=None, rules={'cell_coverage': 100}, **TEST_RUN_KW)
-
-        for f in generates:
-            assert os.path.exists(f), "Should have generated %s but did not" % f
-    finally:
         try:
-            for f in generates:
-                os.remove(f)
-        except Exception:
-            pass
+            ret = run(COVERAGE, html=True, executable=None, rules={'cell_coverage': 100}, **TEST_RUN_KW)
 
-    _check(ret, coverage_result="Failed")
+            for f in generates:
+                assert os.path.exists(f), "Should have generated %s but did not" % f
+        finally:
+            try:
+                for f in generates:
+                    os.remove(f)
+            except Exception:
+                pass
+
+        _check(ret, coverage_result="Failed")
 
 
 def _check(html, coverage_result):
