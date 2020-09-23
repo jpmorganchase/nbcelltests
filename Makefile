@@ -12,7 +12,7 @@ testpy: ## Clean and Make unit tests
 
 testpy-distributed: ## Python unit tests parallelized across two CPUs
 # --dist=loadscope causes tests in the same class to be run sequentially
-# This is useful when we want to prevent certain tests from running simultaneously.
+# Required until https://github.com/jpmorganchase/nbcelltests/issues/207 is addressed
 	${PYTHON} -m pytest -v -n 2 --dist=loadscope nbcelltests/tests
 
 tests: lint ## run the tests
