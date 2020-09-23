@@ -681,9 +681,8 @@ def test_kernel_selection(notebook, current_env, kernel_name, exception, expecte
 # https://github.com/jpmorganchase/nbcelltests/issues/125 before
 # deciding how to handle that better here.
 
-# All the tests in this class work on the same files and require that
-# those files do not already exist. Placing these tests in the same
-# class prevents them from running simultaneously.
+# No need to group these tests in a class (to be run sequentially) once
+# https://github.com/jpmorganchase/nbcelltests/issues/207 is resolved.
 class TestCoverage:
 
     # runWithReturn
