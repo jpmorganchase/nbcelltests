@@ -56,9 +56,6 @@ INPUT_CELL_NEWLINE_STRING = os.path.join(os.path.dirname(__file__), '_input_cell
 INPUT_TEST_NEWLINE_STRING = os.path.join(os.path.dirname(__file__), '_input_test_newline_string.ipynb')
 INPUT_TEST_INJECTION_COMMENT = os.path.join(os.path.dirname(__file__), '_input_test_injection_comment.ipynb')
 
-# Hack. We want to test expected behavior in distributed situation,
-# which we are doing via pytest --forked.
-FORKED = '--forked' in sys.argv
 
 # Default to using kernel from current environment (like --current-env of nbval).
 TEST_RUN_KW = {
@@ -285,84 +282,56 @@ class TestCumulativeRun(_TestCellTests):
         t.test_code_cell_1()
         _assert_undefined(t, 'x')
         t.tearDown()
-        if FORKED:
-            t.tearDownClass()
 
         # check cell ran
         # (%cell in test)
-        if FORKED:
-            t.setUpClass()
         t.setUp()
         t.test_code_cell_2()
         t._run("""
         assert x == 0, x
         """)
         t.tearDown()
-        if FORKED:
-            t.tearDownClass()
 
         # check cumulative cells ran
-        if FORKED:
-            t.setUpClass()
         t.setUp()
         t.test_code_cell_3()
         t._run("""
         assert x == 1, x
         """)
         t.tearDown()
-        if FORKED:
-            t.tearDownClass()
 
         # check cumulative cells ran (but not multiple times!)
-        if FORKED:
-            t.setUpClass()
         t.setUp()
         t.test_code_cell_4()
         t._run("""
         assert x == 2, x
         """)
         t.tearDown()
-        if FORKED:
-            t.tearDownClass()
 
         # check test affects state
-        if FORKED:
-            t.setUpClass()
         t.setUp()
         t.test_code_cell_5()
         t._run("""
         assert x == 3, x
         """)
         t.tearDown()
-        if FORKED:
-            t.tearDownClass()
 
         # test defaults to %cell
-        if FORKED:
-            t.setUpClass()
         t.setUp()
         t.test_code_cell_6()
         t._run("""
         assert y == 10
         """)
         t.tearDown()
-        if FORKED:
-            t.tearDownClass()
 
         # deliberate no %cell; cell 8 will check it's also not subsequently run
         # i.e. a will never be defined
-        if FORKED:
-            t.setUpClass()
         t.setUp()
         t.test_code_cell_7()
         _assert_undefined(t, 'a')
         t.tearDown()
-        if FORKED:
-            t.tearDownClass()
 
         # check cell 7 above did not run
-        if FORKED:
-            t.setUpClass()
         t.setUp()
         t.test_code_cell_8()
         t._run("""
@@ -413,11 +382,6 @@ class TestExceptionInTest(_TestCellTests):
         t.test_code_cell_1()
 
         t.tearDown()
-        if FORKED:
-            t.tearDownClass()
-
-        if FORKED:
-            t.setUpClass()
         t.setUp()
 
         _assert_undefined(t, 'x')
@@ -455,11 +419,6 @@ class TestFailureInTest(_TestCellTests):
             raise Exception("Test should have failed")
 
         t.tearDown()
-        if FORKED:
-            t.tearDownClass()
-
-        if FORKED:
-            t.setUpClass()
         t.setUp()
         # subsequent cell should also fail
         try:
