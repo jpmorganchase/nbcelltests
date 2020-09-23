@@ -10,8 +10,8 @@ testjs: ## Clean and Make js tests
 testpy: ## Clean and Make unit tests
 	${PYTHON} -m pytest -v nbcelltests/tests --cov=nbcelltests
 
-testpy-forked: ## Python unit tests --forked (not windows!)
-	${PYTHON} -m pytest -v --forked nbcelltests/tests
+testpy-forked: ## Python unit tests parallelized across two CPUs
+	${PYTHON} -m pytest -v -n 2 nbcelltests/tests
 
 tests: lint ## run the tests
 	rm -rf nbcelltests/tests/_*_test.py
