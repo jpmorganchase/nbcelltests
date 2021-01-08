@@ -69,12 +69,13 @@ labextension: js ## enable labextension
 dist: js  ## create dists
 	rm -rf dist build
 	${PYTHON} setup.py sdist bdist_wheel
+	${PYTHON} -m twine check dist/*
 
 publishpy: dist  ## dist to pypi
-	twine check dist/* && twine upload dist/*
+	${PYTHON} -m twine upload dist/* --skip-existing
 
 publishjs: dist  ## dist to npm
-	cd js; npm publish
+	cd js; npm publish || echo "can't publish - might already exist"
 
 publish: publishpy publishjs  ## dist to pypi and npm
 
