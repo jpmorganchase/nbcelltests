@@ -31,13 +31,15 @@ requires = [
 ]
 
 dev_requires = requires + [
-    'autopep8',
-    'beautifulsoup4',
-    'bump2version',
-    'jupyterlab>=3.0.0 ; python_version > "3"',
-    'jupyterlab ; python_version < "3"',
-    'mock',
-    'pytest-xdist',
+    "black>=20.",
+    "bump2version>=1.0.0",
+    "flake8>=3.7.8",
+    "flake8-black>=0.2.1",
+    "mock",
+    "pytest",
+    "pytest-cov>=2.6.1",
+    "Sphinx>=1.8.4",
+    "sphinx-markdown-builder>=0.5.2",
 ]
 
 data_spec = [
