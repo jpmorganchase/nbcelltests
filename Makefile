@@ -46,7 +46,7 @@ clean: ## clean the repository
 	find . -name ".ipynb_checkpoints" | xargs  rm -rf
 	find . -name "_*_test.py" | xargs rm -rf
 	find . -name "_*_test.html" | xargs rm -rf
-	rm -rf .coverage coverage cover htmlcov logs build dist *.egg-info lib node_modules
+	rm -rf .coverage coverage cover htmlcov logs build dist *.egg-info lib node_modules coverage.xml python_junit.xml
 	# make -C ./docs clean
 
 docs:  ## make documentation

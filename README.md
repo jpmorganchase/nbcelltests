@@ -1,10 +1,10 @@
-<img src="docs/logo.png" width=400></img>
+<img src="https://github.com/jpmorganchase/nbcelltests/raw/master/docs/logo.png" width=400></img>
 
 
 Cell-by-cell testing for production Jupyter notebooks in JupyterLab
 
-[![Build Status](https://dev.azure.com/tpaine154/jupyter/_apis/build/status/jpmorganchase.nbcelltests?branchName=master)](https://dev.azure.com/tpaine154/jupyter/_build/latest?definitionId=24&branchName=master)
-[![Coverage](https://img.shields.io/azure-devops/coverage/tpaine154/jupyter/24/master)](https://dev.azure.com/tpaine154/jupyter/_build?definitionId=24&_a=summary)
+[![Build Status](https://dev.azure.com/tpaine154/jupyter/_apis/build/status/jpmorganchase.nbcelltests?branchName=main)](https://dev.azure.com/tpaine154/jupyter/_build/latest?definitionId=24&branchName=main)
+[![Coverage](https://img.shields.io/azure-devops/coverage/tpaine154/jupyter/24/main)](https://dev.azure.com/tpaine154/jupyter/_build?definitionId=24&_a=summary)
 [![Docs](https://img.shields.io/readthedocs/nbcelltests.svg)](https://nbcelltests.readthedocs.io)
 [![PyPI](https://img.shields.io/pypi/l/nbcelltests.svg)](https://pypi.python.org/pypi/nbcelltests)
 [![PyPI](https://img.shields.io/pypi/v/nbcelltests.svg)](https://pypi.python.org/pypi/nbcelltests)
@@ -52,12 +52,12 @@ Given a notebook, you can write mocks and assertions for individual cells. You c
 
 ## Writing tests
 When you write tests for a cell, we create a new method on a `unittest` class corresponding to the index of your cell, and including the cumulative tests for all previous cells (to mimic what has happened so far in the notebook's linear execution). You can write whatever mocking and asserts you like, and can call `%cell` to inject the contents of the cell into your test. 
-![](https://raw.githubusercontent.com/timkpaine/nbcelltests/master/docs/demo.gif)
+![](https://raw.githubusercontent.com/timkpaine/nbcelltests/main/docs/demo.gif)
 The tests themselves are stored in the cell metadata, similar to celltags, slide information, etc. 
 
 ## Running tests
 You can run the tests offline from an `.ipynb` file, or you can execute them from the browser and view the results of `pytest-html`'s html plugin.
-![](https://raw.githubusercontent.com/timkpaine/nbcelltests/master/docs/demo2.gif)
+![](https://raw.githubusercontent.com/timkpaine/nbcelltests/main/docs/demo2.gif)
 
 ## Extra Tests
 - Max number of lines per cell
