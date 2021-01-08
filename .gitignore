@@ -164,9 +164,9 @@ ENV/
 
 .DS_Store
 .autoversion
-yarn.lock
 
 # generated
+*.ipynb
 Untitled_test.html
 Untitled_test.py
 docs/api
