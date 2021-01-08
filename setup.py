@@ -35,12 +35,14 @@ requires = [
 
 dev_requires = requires + [
     "black>=20.",
+    "beautifulsoup4",
     "bump2version>=1.0.0",
     "flake8>=3.7.8",
     "flake8-black>=0.2.1",
     "mock",
     "pytest",
     "pytest-cov>=2.6.1",
+    "pytest-xdist",
     "Sphinx>=1.8.4",
     "sphinx-markdown-builder>=0.5.2",
 ]
