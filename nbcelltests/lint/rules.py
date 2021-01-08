@@ -16,11 +16,13 @@ def lint_lines_per_cell(cell_lines, max_lines_per_cell=-1):
         ret.append(
             LintMessage(
                 i + 1,  # TODO: ambiguous - e.g. cell 0 or first cell?
-                'Checking lines in cell (max={max_}; actual={actual})'.format(
-                    max_=max_lines_per_cell,
-                    actual=lines_in_cell),
+                "Checking lines in cell (max={max_}; actual={actual})".format(
+                    max_=max_lines_per_cell, actual=lines_in_cell
+                ),
                 LintType.LINES_PER_CELL,
-                lines_in_cell <= max_lines_per_cell))
+                lines_in_cell <= max_lines_per_cell,
+            )
+        )
     return ret, all([x.passed for x in ret])
 
 
@@ -28,21 +30,48 @@ def lint_cells_per_notebook(cell_count, max_cells_per_notebook=-1):
     if max_cells_per_notebook < 0:
         return [], True
     passed = cell_count <= max_cells_per_notebook
-    return [LintMessage(-1, 'Checking cells per notebook (max={max_}; actual={actual})'.format(max_=max_cells_per_notebook, actual=cell_count), LintType.CELLS_PER_NOTEBOOK, passed)], passed
+    return [
+        LintMessage(
+            -1,
+            "Checking cells per notebook (max={max_}; actual={actual})".format(
+                max_=max_cells_per_notebook, actual=cell_count
+            ),
+            LintType.CELLS_PER_NOTEBOOK,
+            passed,
+        )
+    ], passed
 
 
 def lint_function_definitions(functions, max_function_definitions=-1):
     if max_function_definitions < 0:
         return [], True
     passed = functions <= max_function_definitions
-    return [LintMessage(-1, 'Checking functions per notebook (max={max_}; actual={actual})'.format(max_=max_function_definitions, actual=functions), LintType.FUNCTION_DEFINITIONS, passed)], passed
+    return [
+        LintMessage(
+            -1,
+            "Checking functions per notebook (max={max_}; actual={actual})".format(
+                max_=max_function_definitions, actual=functions
+            ),
+            LintType.FUNCTION_DEFINITIONS,
+            passed,
+        )
+    ], passed
 
 
 def lint_class_definitions(classes, max_class_definitions=-1):
     if max_class_definitions < 0:
         return [], True
     passed = classes <= max_class_definitions
-    return [LintMessage(-1, 'Checking classes per notebook (max={max_}; actual={actual})'.format(max_=max_class_definitions, actual=classes), LintType.CLASS_DEFINITIONS, passed)], passed
+    return [
+        LintMessage(
+            -1,
+            "Checking classes per notebook (max={max_}; actual={actual})".format(
+                max_=max_class_definitions, actual=classes
+            ),
+            LintType.CLASS_DEFINITIONS,
+            passed,
+        )
+    ], passed
 
 
 def lint_kernelspec(kernelspec, kernelspec_requirements=False):
@@ -60,7 +89,16 @@ def lint_kernelspec(kernelspec, kernelspec_requirements=False):
         return [], True
     # assumes kernelspec dict values are hashable (they're strings)
     passed = set(kernelspec.items()).issuperset(kernelspec_requirements.items())
-    return [LintMessage(-1, 'Checking kernelspec (min. required={required}; actual={actual})'.format(required=kernelspec_requirements, actual=kernelspec), LintType.KERNELSPEC, passed)], passed
+    return [
+        LintMessage(
+            -1,
+            "Checking kernelspec (min. required={required}; actual={actual})".format(
+                required=kernelspec_requirements, actual=kernelspec
+            ),
+            LintType.KERNELSPEC,
+            passed,
+        )
+    ], passed
 
 
 def lint_magics(magics, allowlist=None, denylist=None):
@@ -73,7 +111,11 @@ def lint_magics(magics, allowlist=None, denylist=None):
         return [], True
 
     if allowlist is not None and denylist is not None:
-        raise ValueError("Must specify either a allowlist or a denylist, not both. denylist: {}; allowlist: {}".format(denylist, allowlist))
+        raise ValueError(
+            "Must specify either a allowlist or a denylist, not both. denylist: {}; allowlist: {}".format(
+                denylist, allowlist
+            )
+        )
 
     if allowlist is not None:
         bad = set(magics) - set(allowlist)
@@ -82,5 +124,12 @@ def lint_magics(magics, allowlist=None, denylist=None):
         bad = set(magics) & set(denylist)
         msg = "present in denylist:"
 
-    passed = not(bad)
-    return [LintMessage(-1, 'Checking magics{}'.format(" ({} {})".format(msg, bad) if bad else ""), LintType.MAGICS, passed)], passed
+    passed = not (bad)
+    return [
+        LintMessage(
+            -1,
+            "Checking magics{}".format(" ({} {})".format(msg, bad) if bad else ""),
+            LintType.MAGICS,
+            passed,
+        )
+    ], passed

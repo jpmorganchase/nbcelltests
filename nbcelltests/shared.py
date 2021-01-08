@@ -47,9 +47,8 @@ class MagicsRecorder(ast.NodeVisitor):
 
     """
 
-    magic_fn_names_py3 = set(['run_line_magic',
-                              'run_cell_magic'])
-    magic_fn_names_py2 = set(['magic'])
+    magic_fn_names_py3 = set(["run_line_magic", "run_cell_magic"])
+    magic_fn_names_py2 = set(["magic"])
 
     magic_fn_names = magic_fn_names_py3 | magic_fn_names_py2
 
@@ -57,12 +56,14 @@ class MagicsRecorder(ast.NodeVisitor):
         self.seen = set()
 
     def visit_Call(self, node):
-        if hasattr(node.func, 'attr') and node.func.attr in self.magic_fn_names:
+        if hasattr(node.func, "attr") and node.func.attr in self.magic_fn_names:
             # should maybe find ipython's own parsing code and use that instead
-            if node.func.value.func.id == 'get_ipython':
+            if node.func.value.func.id == "get_ipython":
                 magic_name = node.args[0].s
                 if node.func.attr in self.magic_fn_names_py2:
-                    magic_name = magic_name.split()[0]  # (again, find ipython's parsing?)
+                    magic_name = magic_name.split()[
+                        0
+                    ]  # (again, find ipython's parsing?)
                 self.seen.add(magic_name)
 
 
@@ -76,66 +77,68 @@ def extract_extrametadata(notebook, override=None, noqa_regex=None):
     if noqa_regex is not None:
         noqa_regex = re.compile(noqa_regex)
         if not noqa_regex.groups == 1:
-            raise ValueError("noqa_regex must contain one capture group (specifying the rule)")
+            raise ValueError(
+                "noqa_regex must contain one capture group (specifying the rule)"
+            )
 
-    base = notebook.metadata.get('celltests', {})
+    base = notebook.metadata.get("celltests", {})
     override = override or {}
-    base['lines'] = 0  # TODO: is this used?
-    base['kernelspec'] = notebook.metadata.get('kernelspec', {})
+    base["lines"] = 0  # TODO: is this used?
+    base["kernelspec"] = notebook.metadata.get("kernelspec", {})
 
     # "python code" things (e.g. number of function definitions)...
     # note: no attempt to be clever here (so e.g. "%time def f: pass" would be missed, as would the contents of
     # a cell using %%capture cell magics; possible to handle those scenarios but would take more effort)
     code = nbconvert.PythonExporter(exclude_raw=True).from_notebook_node(notebook)[0]
     # notebooks start with "coding: utf-8"
-    parsed_source = ast.parse(code.encode('utf8') if sys.version_info[0] == 2 else code)
+    parsed_source = ast.parse(code.encode("utf8") if sys.version_info[0] == 2 else code)
 
     fn_def_counter = FnDefCounter()
     fn_def_counter.visit(parsed_source)
-    base['functions'] = fn_def_counter.count
+    base["functions"] = fn_def_counter.count
 
     class_counter = ClassDefCounter()
     class_counter.visit(parsed_source)
-    base['classes'] = class_counter.count
+    base["classes"] = class_counter.count
 
     # alternative to doing it this way would be to check the ipython
     # souce for %magic, %%magics before it's converted to regular python
     magics_recorder = MagicsRecorder()
     magics_recorder.visit(parsed_source)
-    base['magics'] = magics_recorder.seen
+    base["magics"] = magics_recorder.seen
 
     # "notebook structure" things...
-    base['cell_count'] = 0
-    base['cell_tested'] = []
-    base['test_count'] = 0
-    base['cell_lines'] = []
-    base['noqa'] = set()
+    base["cell_count"] = 0
+    base["cell_tested"] = []
+    base["test_count"] = 0
+    base["cell_lines"] = []
+    base["noqa"] = set()
 
     for c in notebook.cells:
-        if c['cell_type'] != 'code':
+        if c["cell_type"] != "code":
             continue
 
         # noqa comments can be in otherwise code-less cells
         if noqa_regex:
-            for line in c['source'].split('\n'):
+            for line in c["source"].split("\n"):
                 noqa_match = noqa_regex.match(line)
                 if noqa_match:
-                    base['noqa'].add(noqa_match.group(1))
+                    base["noqa"].add(noqa_match.group(1))
 
-        if empty_ast(c['source']):
+        if empty_ast(c["source"]):
             continue
 
-        base['cell_lines'].append(0)
-        base['cell_tested'].append(False)
-        base['cell_count'] += 1
+        base["cell_lines"].append(0)
+        base["cell_tested"].append(False)
+        base["cell_count"] += 1
 
-        for line in c['source'].split('\n'):
+        for line in c["source"].split("\n"):
             if not empty_ast(line):
-                base['lines'] += 1
-                base['cell_lines'][-1] += 1
+                base["lines"] += 1
+                base["cell_lines"][-1] += 1
         if cell_injected_into_test(get_test(c)):
-            base['test_count'] += 1
-            base['cell_tested'][-1] = True
+            base["test_count"] += 1
+            base["cell_tested"][-1] = True
 
     # in case you want to override notebook settings
     if override:
@@ -145,7 +148,7 @@ def extract_extrametadata(notebook, override=None, noqa_regex=None):
 
 
 def get_test(cell):
-    return lines2source(cell.get('metadata', {}).get('celltests', []))
+    return lines2source(cell.get("metadata", {}).get("celltests", []))
 
 
 def empty_ast(source):
@@ -232,12 +235,15 @@ def cell_injected_into_test(test_source):
             run = False
 
     if run is False and inject:
-        raise ValueError("'%s' and '%s' are mutually exclusive but both were supplied:\n%s" % (CELL_SKIP_TOKEN, CELL_INJ_TOKEN, test_source))
+        raise ValueError(
+            "'%s' and '%s' are mutually exclusive but both were supplied:\n%s"
+            % (CELL_SKIP_TOKEN, CELL_INJ_TOKEN, test_source)
+        )
 
     return inject or run
 
 
 def get_coverage(metadata):
-    if metadata['cell_count'] == 0:
+    if metadata["cell_count"] == 0:
         return 0
-    return 100.0 * metadata['test_count'] / metadata['cell_count']
+    return 100.0 * metadata["test_count"] / metadata["cell_count"]
