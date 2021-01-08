@@ -74,5 +74,9 @@
     "ts-jest": "^23.10.4",
     "tslint": "^5.14.0",
     "typescript": "^3.1.6"
+  },
+  "resolutions": {
+    "node-fetch": "^2.6.1",
+    "node-notifier": "^8.0.1"
   }
 }

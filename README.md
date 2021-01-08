@@ -1,10 +1,10 @@
-<img src="https://github.com/jpmorganchase/nbcelltests/raw/master/docs/logo.png" width=400></img>
+<img src="https://raw.githubusercontent.com/jpmorganchase/nbcelltests/main/docs/logo.png" width=400></img>
 
 
 Cell-by-cell testing for production Jupyter notebooks in JupyterLab
 
 [![Build Status](https://github.com/jpmorganchase/nbcelltests/workflows/Build%20Status/badge.svg?branch=main)](https://github.com/jpmorganchase/nbcelltests/actions?query=workflow%3A%22Build+Status)
-[![codecov](https://codecov.io/gh/jpmorganchase/nbcelltests/branch/master/graph/badge.svg)](https://codecov.io/gh/jpmorganchase/nbcelltests)
+[![codecov](https://codecov.io/gh/jpmorganchase/nbcelltests/branch/main/graph/badge.svg)](https://codecov.io/gh/jpmorganchase/nbcelltests)
 [![Docs](https://img.shields.io/readthedocs/nbcelltests.svg)](https://nbcelltests.readthedocs.io)
 [![PyPI](https://img.shields.io/pypi/l/nbcelltests.svg)](https://pypi.python.org/pypi/nbcelltests)
 [![PyPI](https://img.shields.io/pypi/v/nbcelltests.svg)](https://pypi.python.org/pypi/nbcelltests)
