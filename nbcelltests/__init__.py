@@ -11,12 +11,11 @@ from .test import run as runTest  # noqa: F401
 
 
 def _jupyter_server_extension_paths():
-    return [{
-        "module": "nbcelltests"
-    }]
+    return [{"module": "nbcelltests"}]
 
 
 def load_jupyter_server_extension(nb_server_app):
     # avoid pulling in extension whenever nbcelltests is imported (e.g. for cli)
     from .extension import _load_jupyter_server_extension
+
     _load_jupyter_server_extension(nb_server_app)

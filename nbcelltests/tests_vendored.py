@@ -57,7 +57,17 @@ import os
 import nbformat
 from nbval.kernel import RunningKernel, CURRENT_ENV_KERNEL_NAME
 
-from nbcelltests.shared import empty_ast, cell_injected_into_test, source2lines, lines2source, get_cell_inj_span, get_test, only_whitespace, CELL_SKIP_TOKEN, CELL_INJ_TOKEN
+from nbcelltests.shared import (
+    empty_ast,
+    cell_injected_into_test,
+    source2lines,
+    lines2source,
+    get_cell_inj_span,
+    get_test,
+    only_whitespace,
+    CELL_SKIP_TOKEN,
+    CELL_INJ_TOKEN,
+)
 
 
 def _inject_cell_into_test(cell_source, test_source):
@@ -96,14 +106,14 @@ def _inject_cell_into_test(cell_source, test_source):
     for test_line in source2lines(test_source):
         cell_inj_span = get_cell_inj_span(test_line)
         if cell_inj_span is not None:
-            prefix = test_line[0:cell_inj_span[0]]
+            prefix = test_line[0 : cell_inj_span[0]]
             for cell_line in source2lines(cell_source):
                 celltest_lines.append(prefix + cell_line)
 
-            suffix = test_line[cell_inj_span[1]::]
+            suffix = test_line[cell_inj_span[1] : :]
             if len(suffix) > 0:
                 if len(celltest_lines) == 0:
-                    celltest_lines.append('')
+                    celltest_lines.append("")
                 celltest_lines[-1] += suffix
         else:
             celltest_lines.append(test_line)
@@ -130,33 +140,39 @@ def get_celltests(path_to_notebook):
         test_source = lines2source(get_test(cell))
         test_ast_empty = empty_ast(_inject_cell_into_test("pass", test_source))
 
-        if cell.get('cell_type') != 'code':
+        if cell.get("cell_type") != "code":
             if not test_ast_empty:
-                raise ValueError("Cell %d is not a code cell, but metadata contains test code!" % i)
+                raise ValueError(
+                    "Cell %d is not a code cell, but metadata contains test code!" % i
+                )
             continue
 
         code_cell += 1
 
-        if empty_ast(cell['source']):  # TODO: maybe this should be only_whitespace?
+        if empty_ast(cell["source"]):  # TODO: maybe this should be only_whitespace?
             if not test_ast_empty:
-                raise ValueError("Code cell %d is empty, but test contains code." % code_cell)
+                raise ValueError(
+                    "Code cell %d is empty, but test contains code." % code_cell
+                )
             continue
 
         cell_injected = cell_injected_into_test(test_source)
 
         if only_whitespace(test_source):
-            celltest = cell['source']
+            celltest = cell["source"]
             cell_injected = True
         elif cell_injected is None:
             raise ValueError(
                 r"Test {}: cell code not injected into test; either add '{}' to the test, or add '{}' to deliberately suppress cell execution".format(
-                    code_cell, CELL_INJ_TOKEN, CELL_SKIP_TOKEN))
+                    code_cell, CELL_INJ_TOKEN, CELL_SKIP_TOKEN
+                )
+            )
         elif cell_injected is False:
             celltest = test_source
         else:
-            celltest = _inject_cell_into_test(cell['source'], test_source)
+            celltest = _inject_cell_into_test(cell["source"], test_source)
 
-        celltests[code_cell] = {'source': celltest, 'cell_injected': cell_injected}
+        celltests[code_cell] = {"source": celltest, "cell_injected": cell_injected}
 
     return celltests
 
@@ -227,6 +243,7 @@ class TestNotebookBase(unittest.TestCase):
     typically refers to code_cell+test (depending what is passed in).
 
     """
+
     # abstract - subclasses will define KERNEL_NAME and celltests
     # (TODO: make actually abstract...)
 
@@ -242,7 +259,9 @@ class TestNotebookBase(unittest.TestCase):
             kernel_name = cls._kernel_name
         else:
             notebook = nbformat.read(cls._notebook, 4)
-            kernel_name = notebook['metadata'].get('kernelspec', {}).get('name', 'python')
+            kernel_name = (
+                notebook["metadata"].get("kernelspec", {}).get("name", "python")
+            )
         cls.kernel = RunningKernel(kernel_name, os.path.dirname(cls._notebook))
 
     @classmethod
@@ -250,7 +269,12 @@ class TestNotebookBase(unittest.TestCase):
         cls.kernel.stop()
 
     def assert_coverage(self, cells_covered, min_required):
-        assert cells_covered >= min_required, "Actual cell coverage %s < minimum required of %s" % (cells_covered, min_required)
+        assert (
+            cells_covered >= min_required
+        ), "Actual cell coverage %s < minimum required of %s" % (
+            cells_covered,
+            min_required,
+        )
 
     def run_test(self, cell):
         """
@@ -261,7 +285,7 @@ class TestNotebookBase(unittest.TestCase):
         for preceding_cell in sorted(set(preceding_cells) - self.celltests_run):
             self._run_cell(preceding_cell)
         self._run_cell(cell)
-        if not self.celltests[cell]['cell_injected']:
+        if not self.celltests[cell]["cell_injected"]:
             # TODO: this will appear in the html report under the test
             # method as captured logging, but it would be better
             # reported as a warning by pytest. However, (a) pytest is
@@ -272,10 +296,12 @@ class TestNotebookBase(unittest.TestCase):
 
     def _run_cell(self, cell):
         """Run cell and record its execution"""
-        self._run(self.celltests[cell]["source"], "Running cell+test for code cell %d" % cell)
+        self._run(
+            self.celltests[cell]["source"], "Running cell+test for code cell %d" % cell
+        )
         self.celltests_run.add(cell)
 
-    def _run(self, cell_content, description=''):
+    def _run(self, cell_content, description=""):
         """
         Send supplied cell_content (cell source string) to kernel and
         check it runs without exception.
@@ -293,7 +319,7 @@ class TestNotebookBase(unittest.TestCase):
         try:
             self.kernel.await_reply(msg_id)
         except Empty:
-            raise Exception('%s; Kernel timed out waiting for message!' % description)
+            raise Exception("%s; Kernel timed out waiting for message!" % description)
 
         while True:
             # The iopub channel broadcasts a range of messages. We keep reading
@@ -301,47 +327,49 @@ class TestNotebookBase(unittest.TestCase):
             # code execution.
             try:
                 # Get a message from the kernel iopub channel
-                msg = self.kernel.get_message(stream='iopub')
+                msg = self.kernel.get_message(stream="iopub")
 
             except Empty:
-                raise Exception('%s; Kernel timed out waiting for message!' % description)
+                raise Exception(
+                    "%s; Kernel timed out waiting for message!" % description
+                )
 
             # now we must handle the message by checking the type and reply
             # info and we store the output of the cell in a notebook node object
-            msg_type = msg['msg_type']
-            reply = msg['content']
+            msg_type = msg["msg_type"]
+            reply = msg["content"]
 
             # Is the iopub message related to this cell execution?
-            if msg['parent_header'].get('msg_id') != msg_id:
+            if msg["parent_header"].get("msg_id") != msg_id:
                 continue
 
             # When the kernel starts to execute code, it will enter the 'busy'
             # state and when it finishes, it will enter the 'idle' state.
             # The kernel will publish state 'starting' exactly
             # once at process startup.
-            if msg_type == 'status':
-                if reply['execution_state'] == 'idle':
+            if msg_type == "status":
+                if reply["execution_state"] == "idle":
                     break
                 else:
                     continue
-            elif msg_type == 'execute_input':
+            elif msg_type == "execute_input":
                 continue
-            elif msg_type.startswith('comm'):
+            elif msg_type.startswith("comm"):
                 continue
-            elif msg_type == 'execute_reply':
+            elif msg_type == "execute_reply":
                 continue
-            elif msg_type in ('display_data', 'execute_result'):
+            elif msg_type in ("display_data", "execute_result"):
                 continue
-            elif msg_type == 'stream':
+            elif msg_type == "stream":
                 continue
 
             # if the message type is an error then an error has occurred during
             # cell execution. Therefore raise a cell error and pass the
             # traceback information.
-            elif msg_type == 'error':
-                traceback = '\\n' + '\\n'.join(reply['traceback'])
+            elif msg_type == "error":
+                traceback = "\\n" + "\\n".join(reply["traceback"])
                 msg = "%s; execution caused an exception" % description
-                raise Exception(msg + '\\n' + traceback)
+                raise Exception(msg + "\\n" + traceback)
 
             # any other message type is not expected
             # should this raise an error?
@@ -355,7 +383,7 @@ class TestNotebookBase(unittest.TestCase):
 # should do the dynamic test generation this way; first priority was
 # just to clean up so code's not built up in string.
 
-BASE = '''
+BASE = """
 from parameterized import parameterized
 from nbcelltests.tests_vendored import TestNotebookBase, get_celltests, generate_name
 
@@ -376,7 +404,7 @@ class TestNotebook(TestNotebookBase):
     @parameterized.expand({coverage}, skip_on_empty=True, name_func=lambda *args: "test_cell_coverage")
     def _test_coverage(self, actual,required):
         self.assert_coverage(actual,required)
-'''
+"""
 
 JSON_CONFD = '''
 import pytest

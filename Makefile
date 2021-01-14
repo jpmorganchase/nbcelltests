@@ -21,11 +21,11 @@ tests: lint ## run the tests
 	cd js; yarn test
 
 lint: ## run linter
-	flake8 nbcelltests setup.py
+	${PYTHON} -m flake8 nbcelltests setup.py
 	cd js; yarn lint
 
 fix:  ## run autopep8/tslint fix
-	autopep8 --in-place -r -a -a nbcelltests/
+	${PYTHON} -m black nbcelltests setup.py
 	cd js; yarn fix
 
 extest:  ## run example test
@@ -33,12 +33,6 @@ extest:  ## run example test
 
 exlint:  ## run example test
 	@ ${PYTHON} -m nbcelltests lint examples/Example.ipynb
-
-annotate: ## MyPy type annotation check
-	mypy -s nbcelltests
-
-annotate_l: ## MyPy type annotation check - count only
-	mypy -s nbcelltests | wc -l
 
 clean: ## clean the repository
 	find . -name "__pycache__" | xargs  rm -rf
@@ -57,14 +51,14 @@ install:  ## install to site-packages
 	${PIP} install .
 
 serverextension: install ## enable serverextension
-	jupyter serverextension enable --py nbcelltests
+	${PYTHON} -m jupyter serverextension enable --py nbcelltests
 
 js:  ## build javascript
 	cd js; yarn
 	cd js; yarn build
 
 labextension: js ## enable labextension
-	cd js; jupyter labextension install .
+	cd js; ${PYTHON} -m jupyter labextension install .
 
 dist: js  ## create dists
 	rm -rf dist build
@@ -81,7 +75,7 @@ publish: publishpy publishjs  ## dist to pypi and npm
 
 verify-install:  ## verify all components are installed and active
 	${PYTHON} -c "import nbcelltests"
-	jupyter labextension check jupyterlab_celltests
+	${PYTHON} -m jupyter labextension check jupyterlab_celltests
 # apparently can't ask serverextension about individual extensions (and it's OK on linux/mac but ok on windows :) )
 	${PYTHON} -c "import subprocess,re,sys; import nbcelltests;  ext=subprocess.check_output(['jupyter','serverextension','list'],stderr=subprocess.STDOUT).decode();  print(ext);  res0=re.search('.*nbcelltests.*{}.*ok'.format(nbcelltests.__version__),ext,re.IGNORECASE);  res1=re.search('nbcelltests.*enabled', ext);  sys.exit(not (res0 and res1))"
 

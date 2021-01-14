@@ -35,47 +35,66 @@ from nbcelltests.test import generateTests, run, runWithReport
 
 pytestmark = pytest.mark.skipif(sys.version_info.major < 3, reason="python 3 required")
 
-CUMULATIVE_RUN = os.path.join(os.path.dirname(__file__), '_cumulative_run.ipynb')
-CELL_ERROR = os.path.join(os.path.dirname(__file__), '_cell_error.ipynb')
-TEST_ERROR = os.path.join(os.path.dirname(__file__), '_test_error.ipynb')
-TEST_FAIL = os.path.join(os.path.dirname(__file__), '_test_fail.ipynb')
-COUNTING = os.path.join(os.path.dirname(__file__), '_cell_counting.ipynb')
-NONCODE = os.path.join(os.path.dirname(__file__), '_non_code_cell.ipynb')
-EMPTY_CELL_WITH_TEST = os.path.join(os.path.dirname(__file__), '_empty_cell_with_test.ipynb')
-EMPTYAST_CELL_WITH_TEST = os.path.join(os.path.dirname(__file__), '_emptyast_cell_with_test.ipynb')
-SKIPS = os.path.join(os.path.dirname(__file__), '_skips.ipynb')
-COVERAGE = os.path.join(os.path.dirname(__file__), '_cell_coverage.ipynb')
-CELL_NOT_INJECTED_OR_MOCKED = os.path.join(os.path.dirname(__file__), '_cell_not_injected_or_mocked.ipynb')
-BROKEN_MAGICS = os.path.join(os.path.dirname(__file__), '_broken_magics.ipynb')
-NO_CODE_CELLS = os.path.join(os.path.dirname(__file__), '_no_code_cells.ipynb')
-KERNEL_CWD = os.path.join(os.path.dirname(__file__), '_kernel_cwd.ipynb')
+CUMULATIVE_RUN = os.path.join(os.path.dirname(__file__), "_cumulative_run.ipynb")
+CELL_ERROR = os.path.join(os.path.dirname(__file__), "_cell_error.ipynb")
+TEST_ERROR = os.path.join(os.path.dirname(__file__), "_test_error.ipynb")
+TEST_FAIL = os.path.join(os.path.dirname(__file__), "_test_fail.ipynb")
+COUNTING = os.path.join(os.path.dirname(__file__), "_cell_counting.ipynb")
+NONCODE = os.path.join(os.path.dirname(__file__), "_non_code_cell.ipynb")
+EMPTY_CELL_WITH_TEST = os.path.join(
+    os.path.dirname(__file__), "_empty_cell_with_test.ipynb"
+)
+EMPTYAST_CELL_WITH_TEST = os.path.join(
+    os.path.dirname(__file__), "_emptyast_cell_with_test.ipynb"
+)
+SKIPS = os.path.join(os.path.dirname(__file__), "_skips.ipynb")
+COVERAGE = os.path.join(os.path.dirname(__file__), "_cell_coverage.ipynb")
+CELL_NOT_INJECTED_OR_MOCKED = os.path.join(
+    os.path.dirname(__file__), "_cell_not_injected_or_mocked.ipynb"
+)
+BROKEN_MAGICS = os.path.join(os.path.dirname(__file__), "_broken_magics.ipynb")
+NO_CODE_CELLS = os.path.join(os.path.dirname(__file__), "_no_code_cells.ipynb")
+KERNEL_CWD = os.path.join(os.path.dirname(__file__), "_kernel_cwd.ipynb")
 
-INPUT_CELL_MULTILINE_STRING = os.path.join(os.path.dirname(__file__), '_input_cell_multiline_string.ipynb')
-INPUT_TEST_MULTILINE_STRING = os.path.join(os.path.dirname(__file__), '_input_test_multiline_string.ipynb')
-INPUT_CELL_NEWLINE_STRING = os.path.join(os.path.dirname(__file__), '_input_cell_newline_string.ipynb')
-INPUT_TEST_NEWLINE_STRING = os.path.join(os.path.dirname(__file__), '_input_test_newline_string.ipynb')
-INPUT_TEST_INJECTION_COMMENT = os.path.join(os.path.dirname(__file__), '_input_test_injection_comment.ipynb')
+INPUT_CELL_MULTILINE_STRING = os.path.join(
+    os.path.dirname(__file__), "_input_cell_multiline_string.ipynb"
+)
+INPUT_TEST_MULTILINE_STRING = os.path.join(
+    os.path.dirname(__file__), "_input_test_multiline_string.ipynb"
+)
+INPUT_CELL_NEWLINE_STRING = os.path.join(
+    os.path.dirname(__file__), "_input_cell_newline_string.ipynb"
+)
+INPUT_TEST_NEWLINE_STRING = os.path.join(
+    os.path.dirname(__file__), "_input_test_newline_string.ipynb"
+)
+INPUT_TEST_INJECTION_COMMENT = os.path.join(
+    os.path.dirname(__file__), "_input_test_injection_comment.ipynb"
+)
 
 
 # Default to using kernel from current environment (like --current-env of nbval).
 TEST_RUN_KW = {
-    'current_env': int(os.environ.get("NBCELLTESTS_TESTS_CURRENT_ENV", "1")),
-    'kernel_name': os.environ.get("NBCELLTESTS_TESTS_KERNEL_NAME", "")
+    "current_env": int(os.environ.get("NBCELLTESTS_TESTS_CURRENT_ENV", "1")),
+    "kernel_name": os.environ.get("NBCELLTESTS_TESTS_KERNEL_NAME", ""),
 }
 
 
-def _assert_undefined(t, name='x'):
+def _assert_undefined(t, name="x"):
     """
     Convenience method to assert that x is not already defined in the kernel.
     """
-    t._run("""
+    t._run(
+        """
     try:
         %s
     except NameError:
         pass
     else:
         raise Exception('%s was already defined')
-    """ % (name, name))
+    """
+        % (name, name)
+    )
 
 
 def _import_from_path(path, module_name):
@@ -86,6 +105,7 @@ def _import_from_path(path, module_name):
     See e.g. https://stackoverflow.com/a/67692.
     """
     import importlib.util
+
     spec = importlib.util.spec_from_file_location(module_name, path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
@@ -100,13 +120,17 @@ def _generate_test_module(notebook, module_name, run_kw=None):
     if run_kw is None:
         run_kw = TEST_RUN_KW
 
-    tf = tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf8')
+    tf = tempfile.NamedTemporaryFile(
+        mode="w", suffix=".py", delete=False, encoding="utf8"
+    )
     tf_name = tf.name
     try:
         # the module name (__name__) doesn't really matter, but
         # will be nbcelltests.tests.test_tests.X, where X is
         # whatever concrete subclass is this method belongs to.
-        generated_module = _import_from_path(generateTests(notebook, filename=tf_name, **run_kw), module_name)
+        generated_module = _import_from_path(
+            generateTests(notebook, filename=tf_name, **run_kw), module_name
+        )
     finally:
         try:
             tf.close()
@@ -122,14 +146,19 @@ class _TestCellTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        assert hasattr(cls, "NBNAME"), "Subclasses must have NBNAME attribute."  # TODO: make actually abstract
-        cls.generated_tests = _generate_test_module(notebook=cls.NBNAME, module_name="nbcelltests.tests.%s.%s" % (__name__, cls.__name__))
+        assert hasattr(
+            cls, "NBNAME"
+        ), "Subclasses must have NBNAME attribute."  # TODO: make actually abstract
+        cls.generated_tests = _generate_test_module(
+            notebook=cls.NBNAME,
+            module_name="nbcelltests.tests.%s.%s" % (__name__, cls.__name__),
+        )
 
     def test_coverage(self):
         """
         Subclasses should override this if they want to check coverage.
         """
-        assert not hasattr(self, 'test_cell_coverage')
+        assert not hasattr(self, "test_cell_coverage")
 
 
 class TestMethodGenerationError(_TestCellTests):
@@ -144,7 +173,10 @@ class TestMethodGenerationError(_TestCellTests):
         try:
             _generate_test_module(NONCODE, "module.name.irrelevant")
         except ValueError as e:
-            assert e.args[0] == 'Cell 1 is not a code cell, but metadata contains test code!'
+            assert (
+                e.args[0]
+                == "Cell 1 is not a code cell, but metadata contains test code!"
+            )
         else:
             raise Exception("Test script should fail to generate")
 
@@ -152,7 +184,7 @@ class TestMethodGenerationError(_TestCellTests):
         try:
             _generate_test_module(EMPTY_CELL_WITH_TEST, "module.name.irrelevant")
         except ValueError as e:
-            assert e.args[0] == 'Code cell 2 is empty, but test contains code.'
+            assert e.args[0] == "Code cell 2 is empty, but test contains code."
         else:
             raise Exception("Test script should fail to generate")
 
@@ -160,7 +192,7 @@ class TestMethodGenerationError(_TestCellTests):
         try:
             _generate_test_module(EMPTYAST_CELL_WITH_TEST, "module.name.irrelevant")
         except ValueError as e:
-            assert e.args[0] == 'Code cell 2 is empty, but test contains code.'
+            assert e.args[0] == "Code cell 2 is empty, but test contains code."
         else:
             raise Exception("Test script should fail to generate")
 
@@ -168,7 +200,7 @@ class TestMethodGenerationError(_TestCellTests):
         try:
             _generate_test_module(CELL_NOT_INJECTED_OR_MOCKED, "module.name.irrelevant")
         except ValueError as e:
-            assert e.args[0].startswith('Test 5: cell code not injected into test')
+            assert e.args[0].startswith("Test 5: cell code not injected into test")
         else:
             raise Exception("Test script should fail to generate")
 
@@ -192,7 +224,9 @@ class TestNoCodeCells(_TestCellTests):
         self.t.tearDownClass()
 
     def test_no_code_cells(self):
-        test_methods = [mthd for mthd in dir(self.t) if mthd.startswith("test_code_cell")]
+        test_methods = [
+            mthd for mthd in dir(self.t) if mthd.startswith("test_code_cell")
+        ]
         assert len(test_methods) == 0
 
 
@@ -278,67 +312,79 @@ class TestCumulativeRun(_TestCellTests):
         # (deliberate no cell in test, no code in test)
         # TODO: should this be no method, as there's only empty ast in the test
         t.setUp()
-        _assert_undefined(t, 'x')
+        _assert_undefined(t, "x")
         t.test_code_cell_1()
-        _assert_undefined(t, 'x')
+        _assert_undefined(t, "x")
         t.tearDown()
 
         # check cell ran
         # (%cell in test)
         t.setUp()
         t.test_code_cell_2()
-        t._run("""
+        t._run(
+            """
         assert x == 0, x
-        """)
+        """
+        )
         t.tearDown()
 
         # check cumulative cells ran
         t.setUp()
         t.test_code_cell_3()
-        t._run("""
+        t._run(
+            """
         assert x == 1, x
-        """)
+        """
+        )
         t.tearDown()
 
         # check cumulative cells ran (but not multiple times!)
         t.setUp()
         t.test_code_cell_4()
-        t._run("""
+        t._run(
+            """
         assert x == 2, x
-        """)
+        """
+        )
         t.tearDown()
 
         # check test affects state
         t.setUp()
         t.test_code_cell_5()
-        t._run("""
+        t._run(
+            """
         assert x == 3, x
-        """)
+        """
+        )
         t.tearDown()
 
         # test defaults to %cell
         t.setUp()
         t.test_code_cell_6()
-        t._run("""
+        t._run(
+            """
         assert y == 10
-        """)
+        """
+        )
         t.tearDown()
 
         # deliberate no %cell; cell 8 will check it's also not subsequently run
         # i.e. a will never be defined
         t.setUp()
         t.test_code_cell_7()
-        _assert_undefined(t, 'a')
+        _assert_undefined(t, "a")
         t.tearDown()
 
         # check cell 7 above did not run
         t.setUp()
         t.test_code_cell_8()
-        t._run("""
+        t._run(
+            """
         assert z == 1
         assert y == 10
-        """)
-        _assert_undefined(t, 'a')
+        """
+        )
+        _assert_undefined(t, "a")
         t.tearDown()
 
         t.tearDownClass()
@@ -359,7 +405,9 @@ class TestExceptionInCell(_TestCellTests):
         try:
             t.test_code_cell_1()
         except Exception as e:
-            assert e.args[0].startswith("Running cell+test for code cell 1; execution caused an exception")
+            assert e.args[0].startswith(
+                "Running cell+test for code cell 1; execution caused an exception"
+            )
             assert e.args[0].endswith("My code does not even run")
         else:
             raise Exception("Cell should have errored out")
@@ -384,13 +432,15 @@ class TestExceptionInTest(_TestCellTests):
         t.tearDown()
         t.setUp()
 
-        _assert_undefined(t, 'x')
+        _assert_undefined(t, "x")
 
         # test should error out
         try:
             t.test_code_cell_2()
         except Exception as e:
-            assert e.args[0].startswith("Running cell+test for code cell 2; execution caused an exception")
+            assert e.args[0].startswith(
+                "Running cell+test for code cell 2; execution caused an exception"
+            )
             assert e.args[0].endswith("My test is bad too")
         else:
             raise Exception("Test should have failed")
@@ -413,7 +463,9 @@ class TestFailureInTest(_TestCellTests):
         try:
             t.test_code_cell_1()
         except Exception as e:
-            assert e.args[0].startswith("Running cell+test for code cell 1; execution caused an exception")
+            assert e.args[0].startswith(
+                "Running cell+test for code cell 1; execution caused an exception"
+            )
             assert e.args[0].endswith("x should have been -1 but was 1")
         else:
             raise Exception("Test should have failed")
@@ -424,7 +476,9 @@ class TestFailureInTest(_TestCellTests):
         try:
             t.test_code_cell_2()
         except Exception as e:
-            assert e.args[0].startswith("Running cell+test for code cell 1; execution caused an exception")
+            assert e.args[0].startswith(
+                "Running cell+test for code cell 1; execution caused an exception"
+            )
             assert e.args[0].endswith("x should have been -1 but was 1")
         else:
             raise Exception("Test should have failed at cell 1")
@@ -449,7 +503,9 @@ class TestSomeSanity(_TestCellTests):
         try:
             t.test_code_cell_1()
         except Exception as e:
-            assert e.args[0].startswith("UsageError: Line magic function `%magics2` not found.")
+            assert e.args[0].startswith(
+                "UsageError: Line magic function `%magics2` not found."
+            )
         else:
             raise Exception("Cell should have errored out")
         finally:
@@ -492,8 +548,12 @@ class TestCellCounting(_TestCellTests):
 
     def test_count(self):
         """No unexpected extra test methods"""
-        test_methods = [mthd for mthd in dir(self.t) if mthd.startswith("test_code_cell")]
-        self.assertListEqual(sorted(test_methods), ['test_code_cell_2', 'test_code_cell_3'])
+        test_methods = [
+            mthd for mthd in dir(self.t) if mthd.startswith("test_code_cell")
+        ]
+        self.assertListEqual(
+            sorted(test_methods), ["test_code_cell_2", "test_code_cell_3"]
+        )
 
 
 class TestCellCoverage(_TestCellTests):
@@ -522,7 +582,7 @@ class TestCellCoverage(_TestCellTests):
         try:
             self.t.test_cell_coverage()
         except AssertionError as e:
-            assert e.args[0] == 'Actual cell coverage 25.0 < minimum required of 50'
+            assert e.args[0] == "Actual cell coverage 25.0 < minimum required of 50"
         else:
             raise ValueError("Cell coverage test should have failed.")
 
@@ -534,8 +594,13 @@ class _TestInput(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        assert hasattr(cls, "NBNAME"), "Subclasses must have NBNAME attribute."  # TODO: make actually abstract
-        cls.generated_tests = _generate_test_module(notebook=cls.NBNAME, module_name="nbcelltests.tests.%s.%s" % (__name__, cls.__name__))
+        assert hasattr(
+            cls, "NBNAME"
+        ), "Subclasses must have NBNAME attribute."  # TODO: make actually abstract
+        cls.generated_tests = _generate_test_module(
+            notebook=cls.NBNAME,
+            module_name="nbcelltests.tests.%s.%s" % (__name__, cls.__name__),
+        )
 
     def setUp(self):
         self.t = self.generated_tests.TestNotebook()
@@ -622,10 +687,12 @@ class TestKernelCwd(_TestCellTests):
         """file in same dir as nb, which nb will look for"""
         target_file = os.path.join(os.path.dirname(self.NBNAME), "hello.txt")
         if os.path.exists(target_file):
-            raise ValueError("Going to generate %s but it already exists." % target_file)
+            raise ValueError(
+                "Going to generate %s but it already exists." % target_file
+            )
 
         try:
-            open(target_file, 'w').close()
+            open(target_file, "w").close()
             self.t.test_code_cell_1()
         finally:
             try:
@@ -636,19 +703,27 @@ class TestKernelCwd(_TestCellTests):
 
 # some cryptic interface going on here, could be improved :)
 
+
 @pytest.mark.parametrize(
-    "notebook, current_env, kernel_name, exception, expected_text", [
+    "notebook, current_env, kernel_name, exception, expected_text",
+    [
         # the notebook's own kernel
-        ('_kernel_check.ipynb', False, "", kspec.NoSuchKernel, "NOBODY WOULD EVER CALL A KERNEL THIS"),
+        (
+            "_kernel_check.ipynb",
+            False,
+            "",
+            kspec.NoSuchKernel,
+            "NOBODY WOULD EVER CALL A KERNEL THIS",
+        ),
         # current env's kernel
-        ('_kernel_check.ipynb', True, "", None, CURRENT_ENV_KERNEL_NAME),
+        ("_kernel_check.ipynb", True, "", None, CURRENT_ENV_KERNEL_NAME),
         # named kernel
-        ('_kernel_check.ipynb', False, "OR THIS", kspec.NoSuchKernel, None),
+        ("_kernel_check.ipynb", False, "OR THIS", kspec.NoSuchKernel, None),
         # default kernel if none specified or in nb
-        ('_kernel_check1.ipynb', False, "python3", None, None),
+        ("_kernel_check1.ipynb", False, "python3", None, None),
         # inconsistent request
-        ('_kernel_check.ipynb', True, "something", ValueError, "mutually exclusive"),
-    ]
+        ("_kernel_check.ipynb", True, "something", ValueError, "mutually exclusive"),
+    ],
 )
 def test_kernel_selection(notebook, current_env, kernel_name, exception, expected_text):
     if not expected_text:
@@ -657,8 +732,11 @@ def test_kernel_selection(notebook, current_env, kernel_name, exception, expecte
     nb = os.path.join(os.path.dirname(__file__), notebook)
 
     def make_test_mod():
-        return _generate_test_module(nb, module_name="nbcelltests.tests.%s.%s" % (__name__, "test_kernel_selection"),
-                                     run_kw=dict(current_env=current_env, kernel_name=kernel_name))
+        return _generate_test_module(
+            nb,
+            module_name="nbcelltests.tests.%s.%s" % (__name__, "test_kernel_selection"),
+            run_kw=dict(current_env=current_env, kernel_name=kernel_name),
+        )
 
     if exception:
         try:
@@ -667,11 +745,14 @@ def test_kernel_selection(notebook, current_env, kernel_name, exception, expecte
         except exception as e:
             assert e.args[0].endswith(expected_text)
         else:
-            raise ValueError("Expected exception %s(%s) to be raised", (exception, expected_text))
+            raise ValueError(
+                "Expected exception %s(%s) to be raised", (exception, expected_text)
+            )
     else:
         test_mod = make_test_mod()
         test_mod.TestNotebook.setUpClass()
         assert test_mod.TestNotebook.kernel.km.kernel_name == expected_text
+
 
 ######
 
@@ -694,7 +775,7 @@ class TestCoverage:
             raise ValueError("Going to generate %s but it already exists." % generates)
 
         try:
-            _ = run(COVERAGE, rules={'cell_coverage': 10}, **TEST_RUN_KW)
+            _ = run(COVERAGE, rules={"cell_coverage": 10}, **TEST_RUN_KW)
         finally:
             try:
                 os.remove(generates)
@@ -708,7 +789,7 @@ class TestCoverage:
             raise ValueError("Going to generate %s but it already exists." % generates)
 
         try:
-            _ = run(COVERAGE, rules={'cell_coverage': 100}, **TEST_RUN_KW)
+            _ = run(COVERAGE, rules={"cell_coverage": 100}, **TEST_RUN_KW)
         except Exception:
             pass  # would need to alter run fn or capture output to check more exactly
         else:
@@ -728,8 +809,11 @@ class TestCoverage:
             raise ValueError("Going to generate %s but it already exists." % generates)
 
         from nbcelltests.define import TestType
+
         try:
-            ret = runWithReport(COVERAGE, executable=None, rules={'cell_coverage': 10}, **TEST_RUN_KW)
+            ret = runWithReport(
+                COVERAGE, executable=None, rules={"cell_coverage": 10}, **TEST_RUN_KW
+            )
         finally:
             try:
                 os.remove(generates)
@@ -737,7 +821,11 @@ class TestCoverage:
                 pass
 
         assert len(ret) == 1
-        assert (ret[0].passed, ret[0].type, ret[0].message) == (1, TestType.CELL_COVERAGE, 'Testing cell coverage')
+        assert (ret[0].passed, ret[0].type, ret[0].message) == (
+            1,
+            TestType.CELL_COVERAGE,
+            "Testing cell coverage",
+        )
 
     # def test_basic_runWithReport_fail():
     #    from nbcelltests.define import TestType
@@ -750,14 +838,25 @@ class TestCoverage:
 
     def test_basic_runWithHTMLReturn_pass(self):
         """Check it runs without error and generates the expected files and html."""
-        generates = [os.path.join(os.path.dirname(__file__), "__cell_coverage_test.py"),
-                     os.path.join(os.path.dirname(__file__), "__cell_coverage_test.html")]
+        generates = [
+            os.path.join(os.path.dirname(__file__), "__cell_coverage_test.py"),
+            os.path.join(os.path.dirname(__file__), "__cell_coverage_test.html"),
+        ]
         exists_check = [os.path.exists(f) for f in generates]
         if any(exists_check):
-            raise ValueError("Going to generate %s but already exist(s)" % [f for f, exists in zip(generates, exists_check) if exists])
+            raise ValueError(
+                "Going to generate %s but already exist(s)"
+                % [f for f, exists in zip(generates, exists_check) if exists]
+            )
 
         try:
-            ret = run(COVERAGE, html=True, executable=None, rules={'cell_coverage': 10}, **TEST_RUN_KW)
+            ret = run(
+                COVERAGE,
+                html=True,
+                executable=None,
+                rules={"cell_coverage": 10},
+                **TEST_RUN_KW
+            )
 
             for f in generates:
                 assert os.path.exists(f), "Should have generated %s but did not" % f
@@ -772,14 +871,25 @@ class TestCoverage:
 
     def test_basic_runWithHTMLReturn_fail(self):
         """Check it runs without error and generates the expected files and html."""
-        generates = [os.path.join(os.path.dirname(__file__), "__cell_coverage_test.py"),
-                     os.path.join(os.path.dirname(__file__), "__cell_coverage_test.html")]
+        generates = [
+            os.path.join(os.path.dirname(__file__), "__cell_coverage_test.py"),
+            os.path.join(os.path.dirname(__file__), "__cell_coverage_test.html"),
+        ]
         exists_check = [os.path.exists(f) for f in generates]
         if any(exists_check):
-            raise ValueError("Going to generate %s but already exist(s)" % [f for f, exists in zip(generates, exists_check) if exists])
+            raise ValueError(
+                "Going to generate %s but already exist(s)"
+                % [f for f, exists in zip(generates, exists_check) if exists]
+            )
 
         try:
-            ret = run(COVERAGE, html=True, executable=None, rules={'cell_coverage': 100}, **TEST_RUN_KW)
+            ret = run(
+                COVERAGE,
+                html=True,
+                executable=None,
+                rules={"cell_coverage": 100},
+                **TEST_RUN_KW
+            )
 
             for f in generates:
                 assert os.path.exists(f), "Should have generated %s but did not" % f
@@ -823,8 +933,10 @@ def _check(html, coverage_result):
 
     assert len(actual_results) == len(expected_results)
 
-    for actual_result, expected_name in zip(sorted(actual_results, key=lambda x: x.find_next(class_="col-name").text),
-                                            sorted(expected_results)):
+    for actual_result, expected_name in zip(
+        sorted(actual_results, key=lambda x: x.find_next(class_="col-name").text),
+        sorted(expected_results),
+    ):
         name = actual_result.find_next(class_="col-name").text
         state = actual_result.find_next(class_="col-result").text
 
