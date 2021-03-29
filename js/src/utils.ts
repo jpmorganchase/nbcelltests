@@ -6,49 +6,75 @@
  * the Apache License 2.0.  The full license can be found in the LICENSE file.
  *
  */
-import {JupyterFrontEnd} from "@jupyterlab/application";
-import {IDocumentManager} from "@jupyterlab/docmanager";
+import { JupyterFrontEnd } from "@jupyterlab/application";
+import { IDocumentManager } from "@jupyterlab/docmanager";
 
-export
-const CELLTESTS_CATEGORY = "Celltests";
+export const CELLTESTS_CATEGORY = "Celltests";
 
-export
-const CELLTESTS_TEST_ID = "celltests:test";
+export const CELLTESTS_TEST_ID = "celltests:test";
 
-export
-const CELLTESTS_LINT_ID = "celltests:lint";
+export const CELLTESTS_LINT_ID = "celltests:lint";
 
-export
-const CELLTESTS_TEST_CAPTION = "Run Celltests";
+export const CELLTESTS_TEST_CAPTION = "Run Celltests";
 
-export
-const CELLTESTS_LINT_CAPTION = "Run Lint";
+export const CELLTESTS_LINT_CAPTION = "Run Lint";
 
-export
-const CELLTEST_TOOL_CLASS = "CelltestTool";
+export const CELLTEST_TOOL_CLASS = "CelltestTool";
 
-export
-const CELLTEST_TOOL_CONTROLS_CLASS = "CelltestsControls";
+export const CELLTEST_TOOL_CONTROLS_CLASS = "CelltestsControls";
 
-export
-const CELLTEST_TOOL_RULES_CLASS = "CelltestsRules";
+export const CELLTEST_TOOL_RULES_CLASS = "CelltestsRules";
 
-export
-const CELLTEST_TOOL_EDITOR_CLASS = "CelltestsEditor";
+export const CELLTEST_TOOL_EDITOR_CLASS = "CelltestsEditor";
 
-export
-const CELLTEST_RULES = [
+export const CELLTEST_RULES = [
   // TODO fetch from server
-  {label: "Lines per Cell", key: "lines_per_cell", min: 1, step: 1, value: 10},
-  {label: "Cells per Notebook", key: "cells_per_notebook", min: 1, step: 1, value: 20},
-  {label: "Function definitions", key: "function_definitions", min: 0, step: 1, value: 10},
-  {label: "Class definitions", key: "class_definitions", min: 0, step: 1, value: 5},
-  {label: "Cell test coverage (%)", key: "cell_coverage", min: 1, max: 100, step: 1, value: 50},
+  {
+    key: "lines_per_cell",
+    label: "Lines per Cell",
+    min: 1,
+    step: 1,
+    value: 10,
+  },
+  {
+    key: "cells_per_notebook",
+    label: "Cells per Notebook",
+    min: 1,
+    step: 1,
+    value: 20,
+  },
+  {
+    key: "function_definitions",
+    label: "Function definitions",
+    min: 0,
+    step: 1,
+    value: 10,
+  },
+  {
+    key: "class_definitions",
+    label: "Class definitions",
+    min: 0,
+    step: 1,
+    value: 5,
+  },
+  {
+    key: "cell_coverage",
+    label: "Cell test coverage (%)",
+    max: 100,
+    min: 1,
+    step: 1,
+    value: 50,
+  },
 ];
 
-export
-function isEnabled(app: JupyterFrontEnd, docManager: IDocumentManager): () => boolean {
-  return () => (app.shell.currentWidget &&
-                docManager.contextForWidget(app.shell.currentWidget) &&
-                docManager.contextForWidget(app.shell.currentWidget).model) ? true : false;
+export function isEnabled(
+  app: JupyterFrontEnd,
+  docManager: IDocumentManager,
+): () => boolean {
+  return () =>
+    app.shell.currentWidget &&
+    docManager.contextForWidget(app.shell.currentWidget) &&
+    docManager.contextForWidget(app.shell.currentWidget).model
+      ? true
+      : false;
 }

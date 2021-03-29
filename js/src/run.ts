@@ -6,16 +6,18 @@
  * the Apache License 2.0.  The full license can be found in the LICENSE file.
  *
  */
-import {JupyterFrontEnd} from "@jupyterlab/application";
-import {Dialog, showDialog} from "@jupyterlab/apputils";
-import {PageConfig} from "@jupyterlab/coreutils";
-import {IDocumentManager} from "@jupyterlab/docmanager";
-import {Widget} from "@lumino/widgets";
+import { JupyterFrontEnd } from "@jupyterlab/application";
+import { Dialog, showDialog } from "@jupyterlab/apputils";
+import { PageConfig } from "@jupyterlab/coreutils";
+import { IDocumentManager } from "@jupyterlab/docmanager";
+import { Widget } from "@lumino/widgets";
 
-import {IRequestResult, request} from "requests-helper";
+import { IRequestResult, request } from "requests-helper";
 
-export
-function runCellTests(app: JupyterFrontEnd, docManager: IDocumentManager): void {
+export function runCellTests(
+  app: JupyterFrontEnd,
+  docManager: IDocumentManager,
+): void {
   showDialog({
     buttons: [Dialog.cancelButton(), Dialog.okButton({ label: "Ok" })],
     title: "Run tests?",
@@ -32,16 +34,17 @@ function runCellTests(app: JupyterFrontEnd, docManager: IDocumentManager): void 
     }
 
     return new Promise((resolve) => {
-      request("post",
+      request(
+        "post",
         PageConfig.getBaseUrl() + "celltests/test/run",
         {},
-        {path, model},
+        { path, model },
       ).then((res: IRequestResult) => {
         if (res.ok) {
           const div = document.createElement("div");
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
           div.innerHTML = (res.json() as any).test;
-          const body = new Widget({node: div});
+          const body = new Widget({ node: div });
 
           const dialog = new Dialog({
             body,
@@ -53,7 +56,7 @@ function runCellTests(app: JupyterFrontEnd, docManager: IDocumentManager): void 
           (dialog.node.lastChild as HTMLDivElement).style.width = "800px";
 
           dialog.launch().then(() => {
-            resolve();
+            resolve(null);
           });
         } else {
           showDialog({
@@ -61,18 +64,18 @@ function runCellTests(app: JupyterFrontEnd, docManager: IDocumentManager): void 
             buttons: [Dialog.okButton({ label: "Ok" })],
             title: "Something went wrong!",
           }).then(() => {
-            resolve();
-          }
-          );
+            resolve(null);
+          });
         }
       });
     });
-  },
-  );
+  });
 }
 
-export
-function runCellLints(app: JupyterFrontEnd, docManager: IDocumentManager): void {
+export function runCellLints(
+  app: JupyterFrontEnd,
+  docManager: IDocumentManager,
+): void {
   showDialog({
     buttons: [Dialog.cancelButton(), Dialog.okButton({ label: "Ok" })],
     title: "Run Lint?",
@@ -89,16 +92,17 @@ function runCellLints(app: JupyterFrontEnd, docManager: IDocumentManager): void 
     }
 
     return new Promise((resolve) => {
-      request("post",
+      request(
+        "post",
         PageConfig.getBaseUrl() + "celltests/lint/run",
         {},
-        {path, model},
+        { path, model },
       ).then((res: IRequestResult) => {
         if (res.ok) {
           const div = document.createElement("div");
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
           div.innerHTML = (res.json() as any).lint;
-          const body = new Widget({node: div});
+          const body = new Widget({ node: div });
 
           const dialog = new Dialog({
             body,
@@ -110,7 +114,7 @@ function runCellLints(app: JupyterFrontEnd, docManager: IDocumentManager): void 
           (dialog.node.lastChild as HTMLDivElement).style.width = "500px";
 
           dialog.launch().then(() => {
-            resolve();
+            resolve(null);
           });
         } else {
           showDialog({
@@ -118,11 +122,10 @@ function runCellLints(app: JupyterFrontEnd, docManager: IDocumentManager): void 
             buttons: [Dialog.okButton({ label: "Ok" })],
             title: "Something went wrong!",
           }).then(() => {
-            resolve();
+            resolve(null);
           });
         }
       });
     });
-  },
-  );
+  });
 }
