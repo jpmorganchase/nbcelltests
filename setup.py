@@ -57,7 +57,7 @@ data_spec = [
 
 cmdclass = create_cmdclass("js", data_files_spec=data_spec)
 cmdclass["js"] = combine_commands(
-    install_npm(jshere, build_cmd="build:all"),
+    install_npm(jshere, build_cmd="build"),
     ensure_targets(
         [pjoin(jshere, "lib", "index.js"), pjoin(jshere, "style", "index.css")]
     ),

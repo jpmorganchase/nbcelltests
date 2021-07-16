@@ -10,7 +10,11 @@ import { Message } from "@lumino/messaging";
 import { PanelLayout, Widget } from "@lumino/widgets";
 
 import { JupyterFrontEnd } from "@jupyterlab/application";
-import { INotebookTools, INotebookTracker, NotebookTools } from "@jupyterlab/notebook";
+import {
+  INotebookTools,
+  INotebookTracker,
+  NotebookTools,
+} from "@jupyterlab/notebook";
 import { ObservableJSON } from "@jupyterlab/observables";
 
 import { CELLTEST_TOOL_CLASS } from "./utils";
@@ -21,7 +25,11 @@ export class CelltestsTool extends NotebookTools.Tool {
   public cellTools: INotebookTools = null;
 
   private widget: CelltestsWidget = null;
-  public constructor(app: JupyterFrontEnd, notebook_Tracker: INotebookTracker, cellTools: INotebookTools) {
+  public constructor(
+    app: JupyterFrontEnd,
+    notebook_Tracker: INotebookTracker,
+    cellTools: INotebookTools,
+  ) {
     super();
     this.notebookTracker = notebook_Tracker;
     this.cellTools = cellTools;
@@ -30,7 +38,7 @@ export class CelltestsTool extends NotebookTools.Tool {
     /* Section Header */
     const label = document.createElement("label");
     label.textContent = "Celltests";
-    layout.addWidget(new Widget({node: label}));
+    layout.addWidget(new Widget({ node: label }));
 
     this.addClass(CELLTEST_TOOL_CLASS);
     this.widget = new CelltestsWidget();
@@ -48,9 +56,7 @@ export class CelltestsTool extends NotebookTools.Tool {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  protected onAfterShow() {
-
-  }
+  protected onAfterShow() {}
 
   protected onAfterAttach() {
     this.notebookTracker.currentWidget.context.ready.then(() => {
@@ -71,5 +77,4 @@ export class CelltestsTool extends NotebookTools.Tool {
     this.widget.loadTestsForActiveCell();
     this.widget.loadRulesForCurrentNotebook();
   }
-
 }

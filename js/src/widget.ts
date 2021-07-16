@@ -11,15 +11,16 @@
 import { BoxPanel, PanelLayout, Widget } from "@lumino/widgets";
 
 import { Cell, CodeCellModel } from "@jupyterlab/cells";
-import { CodeEditorWrapper} from "@jupyterlab/codeeditor";
+import { CodeEditorWrapper } from "@jupyterlab/codeeditor";
 import { editorServices } from "@jupyterlab/codemirror";
 import { INotebookTracker } from "@jupyterlab/notebook";
 
-
-import {CELLTEST_RULES,
+import {
+  CELLTEST_RULES,
   CELLTEST_TOOL_CONTROLS_CLASS,
   CELLTEST_TOOL_EDITOR_CLASS,
-  CELLTEST_TOOL_RULES_CLASS} from "./utils";
+  CELLTEST_TOOL_RULES_CLASS,
+} from "./utils";
 
 const circleSvg = require("../style/circle.svg").default;
 
@@ -33,9 +34,8 @@ class ControlsWidget extends BoxPanel {
   public svglabel: HTMLElement;
   public svg: HTMLElement;
 
-
   public constructor() {
-    super({direction: "top-to-bottom"});
+    super({ direction: "top-to-bottom" });
 
     /* Section Header */
     this.label = document.createElement("label");
@@ -45,7 +45,7 @@ class ControlsWidget extends BoxPanel {
 
     this.svg = document.createElement("svg");
     this.svg.innerHTML = circleSvg;
-    this.svg = (this.svg.firstChild as HTMLElement);
+    this.svg = this.svg.firstChild as HTMLElement;
 
     const div1 = document.createElement("div");
     div1.appendChild(this.label);
@@ -111,7 +111,7 @@ class RulesWidget extends BoxPanel {
   public cell_coverage: HTMLDivElement;
 
   public constructor() {
-    super({direction: "top-to-bottom"});
+    super({ direction: "top-to-bottom" });
 
     /* Section Header */
     this.label = document.createElement("label");
@@ -167,51 +167,110 @@ class RulesWidget extends BoxPanel {
 
   public getByKey(key: string) {
     switch (key) {
-    case "lines_per_cell": {return this.lines_per_cell; }
-    case "cells_per_notebook": {return this.cells_per_notebook; }
-    case "function_definitions": {return this.function_definitions; }
-    case "class_definitions": {return this.class_definitions; }
-    case "cell_coverage": {return this.cell_coverage; }
+      case "lines_per_cell": {
+        return this.lines_per_cell;
+      }
+      case "cells_per_notebook": {
+        return this.cells_per_notebook;
+      }
+      case "function_definitions": {
+        return this.function_definitions;
+      }
+      case "class_definitions": {
+        return this.class_definitions;
+      }
+      case "cell_coverage": {
+        return this.cell_coverage;
+      }
     }
   }
 
   public setByKey(key: string, elem: HTMLDivElement) {
     switch (key) {
-    case "lines_per_cell": {this.lines_per_cell = elem; break; }
-    case "cells_per_notebook": {this.cells_per_notebook = elem; break; }
-    case "function_definitions": {this.function_definitions = elem; break; }
-    case "class_definitions": {this.class_definitions = elem; break; }
-    case "cell_coverage": {this.cell_coverage = elem; break; }
+      case "lines_per_cell": {
+        this.lines_per_cell = elem;
+        break;
+      }
+      case "cells_per_notebook": {
+        this.cells_per_notebook = elem;
+        break;
+      }
+      case "function_definitions": {
+        this.function_definitions = elem;
+        break;
+      }
+      case "class_definitions": {
+        this.class_definitions = elem;
+        break;
+      }
+      case "cell_coverage": {
+        this.cell_coverage = elem;
+        break;
+      }
     }
   }
 
   public getValuesByKey(key: string) {
     let elem;
     switch (key) {
-    case "lines_per_cell": {elem = this.lines_per_cell; break; }
-    case "cells_per_notebook": {elem = this.cells_per_notebook; break; }
-    case "function_definitions": {elem = this.function_definitions; break; }
-    case "class_definitions": {elem = this.class_definitions; break; }
-    case "cell_coverage": {elem = this.cell_coverage; break; }
+      case "lines_per_cell": {
+        elem = this.lines_per_cell;
+        break;
+      }
+      case "cells_per_notebook": {
+        elem = this.cells_per_notebook;
+        break;
+      }
+      case "function_definitions": {
+        elem = this.function_definitions;
+        break;
+      }
+      case "class_definitions": {
+        elem = this.class_definitions;
+        break;
+      }
+      case "cell_coverage": {
+        elem = this.cell_coverage;
+        break;
+      }
     }
-    const chkbx: HTMLInputElement = elem.querySelector('input[type="checkbox"]');
+    const chkbx: HTMLInputElement = elem.querySelector(
+      'input[type="checkbox"]',
+    );
     const input: HTMLInputElement = elem.querySelector('input[type="number"]');
-    return {key, enabled: chkbx.checked, value: Number(input.value)};
+    return { key, enabled: chkbx.checked, value: Number(input.value) };
   }
 
-  public setValuesByKey(key: string, checked= true, value: number = null) {
+  public setValuesByKey(key: string, checked = true, value: number = null) {
     let elem;
     switch (key) {
-    case "lines_per_cell": {elem = this.lines_per_cell; break; }
-    case "cells_per_notebook": {elem = this.cells_per_notebook; break; }
-    case "function_definitions": {elem = this.function_definitions; break; }
-    case "class_definitions": {elem = this.class_definitions; break; }
-    case "cell_coverage": {elem = this.cell_coverage; break; }
+      case "lines_per_cell": {
+        elem = this.lines_per_cell;
+        break;
+      }
+      case "cells_per_notebook": {
+        elem = this.cells_per_notebook;
+        break;
+      }
+      case "function_definitions": {
+        elem = this.function_definitions;
+        break;
+      }
+      case "class_definitions": {
+        elem = this.class_definitions;
+        break;
+      }
+      case "cell_coverage": {
+        elem = this.cell_coverage;
+        break;
+      }
     }
-    const chkbx: HTMLInputElement = elem.querySelector('input[type="checkbox"]');
+    const chkbx: HTMLInputElement = elem.querySelector(
+      'input[type="checkbox"]',
+    );
     const input: HTMLInputElement = elem.querySelector('input[type="number"]');
     if (input) {
-      input.value = (value === null ? "" : String(value));
+      input.value = value === null ? "" : String(value);
       input.disabled = !checked;
     }
     if (chkbx) {
@@ -236,7 +295,6 @@ export class CelltestsWidget extends Widget {
   private rules: RulesWidget;
   private controls: ControlsWidget;
 
-
   public constructor() {
     super();
 
@@ -250,8 +308,11 @@ export class CelltestsWidget extends Widget {
     const rules = (this.rules = new RulesWidget());
 
     /* create codemirror editor */
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    const editorOptions = { model: new CodeCellModel({}), factory: editorServices.factoryService.newInlineEditor };
+    const editorOptions = {
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      factory: editorServices.factoryService.newInlineEditor,
+      model: new CodeCellModel({}),
+    };
     const editor = (this.editor = new CodeEditorWrapper(editorOptions));
     editor.addClass(CELLTEST_TOOL_EDITOR_CLASS);
     editor.model.mimeType = "text/x-ipython";
@@ -263,15 +324,18 @@ export class CelltestsWidget extends Widget {
 
     /* set add button functionality */
     controls.add = () => {
-      this.fetchAndSetTests(); return true;
+      this.fetchAndSetTests();
+      return true;
     };
     /* set save button functionality */
     controls.save = () => {
-      this.saveTestsForActiveCell(); return true;
+      this.saveTestsForActiveCell();
+      return true;
     };
     /* set clear button functionality */
     controls.clear = () => {
-      this.deleteTestsForActiveCell(); return true;
+      this.deleteTestsForActiveCell();
+      return true;
     };
 
     rules.save = () => {
@@ -286,18 +350,29 @@ export class CelltestsWidget extends Widget {
     for (let i = 0; i < splits.length; i++) {
       tests.push(splits[i] + "\n");
     }
-    if (this.currentActiveCell !== null && this.currentActiveCell.model.type === "code") {
+    if (
+      this.currentActiveCell !== null &&
+      this.currentActiveCell.model.type === "code"
+    ) {
       this.currentActiveCell.model.metadata.set("celltests", tests);
       this.setIndicatorTests();
     }
   }
 
   public loadTestsForActiveCell(): void {
-    if (this.currentActiveCell !== null && this.currentActiveCell.model.type === "code") {
-      let tests = this.currentActiveCell.model.metadata.get("celltests") as string[];
+    if (
+      this.currentActiveCell !== null &&
+      this.currentActiveCell.model.type === "code"
+    ) {
+      let tests = this.currentActiveCell.model.metadata.get(
+        "celltests",
+      ) as string[];
       let s = "";
       if (tests === undefined || tests.length === 0) {
-        tests = ["# Use %cell to mark where the cell should be inserted, or add a line comment \"# no %cell\" to deliberately skip the cell\n", "%cell\n"];
+        tests = [
+          '# Use %cell to mark where the cell should be inserted, or add a line comment "# no %cell" to deliberately skip the cell\n',
+          "%cell\n",
+        ];
         this.setIndicatorNoTests();
       } else {
         this.setIndicatorTests();
@@ -309,7 +384,6 @@ export class CelltestsWidget extends Widget {
       }
       this.editor.model.value.text = s;
       this.editor.editor.setOption("readOnly", false);
-
     } else {
       this.editor.model.value.text = "# Not a code cell";
       this.editor.editor.setOption("readOnly", true);
@@ -319,7 +393,10 @@ export class CelltestsWidget extends Widget {
 
   public saveTestsForActiveCell(): void {
     /* if currentActiveCell exists */
-    if (this.currentActiveCell !== null && this.currentActiveCell.model.type === "code") {
+    if (
+      this.currentActiveCell !== null &&
+      this.currentActiveCell.model.type === "code"
+    ) {
       const tests = [];
       const splits = this.editor.model.value.text.split(/\n/);
       // eslint-disable-next-line @typescript-eslint/prefer-for-of
@@ -344,18 +421,24 @@ export class CelltestsWidget extends Widget {
 
   public loadRulesForCurrentNotebook(): void {
     if (this.notebookTracker !== null) {
-      const metadata: {[key: string]: number} = this.notebookTracker.currentWidget
-        .model.metadata.get("celltests") as {[key: string]: number} || {};
+      const metadata: { [key: string]: number } =
+        (this.notebookTracker.currentWidget.model.metadata.get("celltests") as {
+          [key: string]: number;
+        }) || {};
 
       for (const rule of [].slice.call(CELLTEST_RULES)) {
-        this.rules.setValuesByKey(rule.key, rule.key in metadata, metadata[rule.key]);
+        this.rules.setValuesByKey(
+          rule.key,
+          rule.key in metadata,
+          metadata[rule.key],
+        );
       }
     }
   }
 
   public saveRulesForCurrentNotebook(): void {
     if (this.notebookTracker !== null) {
-      const metadata = {} as {[key: string]: number};
+      const metadata = {} as { [key: string]: number };
 
       for (const rule of [].slice.call(CELLTEST_RULES)) {
         const settings = this.rules.getValuesByKey(rule.key);
@@ -363,7 +446,10 @@ export class CelltestsWidget extends Widget {
           metadata[settings.key] = settings.value;
         }
       }
-      this.notebookTracker.currentWidget.model.metadata.set("celltests", metadata);
+      this.notebookTracker.currentWidget.model.metadata.set(
+        "celltests",
+        metadata,
+      );
     }
   }
 
@@ -372,17 +458,21 @@ export class CelltestsWidget extends Widget {
   }
 
   private setIndicatorNoTests(): void {
-    (this.controls.svg.firstElementChild.firstElementChild as HTMLElement).style.fill = "#e75c57";
+    (this.controls.svg.firstElementChild
+      .firstElementChild as HTMLElement).style.fill = "#e75c57";
     this.controls.svglabel.textContent = "(No Tests)";
   }
 
   private setIndicatorTests(): void {
-    (this.controls.svg.firstElementChild.firstElementChild as HTMLElement).style.fill = "#008000";
+    (this.controls.svg.firstElementChild
+      .firstElementChild as HTMLElement).style.fill = "#008000";
     this.controls.svglabel.textContent = "(Tests Exist)";
   }
 
   private setIndicatorNonCode(): void {
-    (this.controls.svg.firstElementChild.firstElementChild as HTMLElement).style.fill = "var(--jp-inverse-layout-color3)";
+    (this.controls.svg.firstElementChild
+      .firstElementChild as HTMLElement).style.fill =
+      "var(--jp-inverse-layout-color3)";
     this.controls.svglabel.textContent = "(Non Code Cell)";
   }
 }
