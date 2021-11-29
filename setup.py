@@ -11,7 +11,7 @@ from jupyter_packaging import (
 )
 
 pjoin = path.join
- 
+
 name = "nbcelltests"
 here = path.abspath(path.dirname(__file__))
 jshere = path.join(here, "js")
