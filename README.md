@@ -98,3 +98,13 @@ NB: In jupyterlab, notebooks will be lint checked in-process using the version o
 python that is running jupyter lab itself. A notebook intended to be
 run with a Python 2 kernel could therefore generate syntax errors
 during lint checking.
+
+## Development
+
+See [CONTRIBUTING.md](https://github.com/jpmorganchase/nbcelltests/blob/master/CONTRIBUTING.md) for guidelines.
+
+
+## License
+
+This software is licensed under the Apache 2.0 license. See the
+[LICENSE](https://github.com/jpmorganchase/nbcelltests/blob/master/LICENSE) and [AUTHORS](https://github.com/jpmorganchase/nbcelltests/blob/master/AUTHORS) files for details.
