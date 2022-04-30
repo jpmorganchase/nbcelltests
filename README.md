@@ -101,10 +101,10 @@ during lint checking.
 
 ## Development
 
-See [CONTRIBUTING.md](https://github.com/jpmorganchase/nbcelltests/blob/master/CONTRIBUTING.md) for guidelines.
+See [CONTRIBUTING.md](https://github.com/jpmorganchase/nbcelltests/blob/main/CONTRIBUTING.md) for guidelines.
 
 
 ## License
 
 This software is licensed under the Apache 2.0 license. See the
-[LICENSE](https://github.com/jpmorganchase/nbcelltests/blob/master/LICENSE) and [AUTHORS](https://github.com/jpmorganchase/nbcelltests/blob/master/AUTHORS) files for details.
+[LICENSE](https://github.com/jpmorganchase/nbcelltests/blob/main/LICENSE) and [AUTHORS](https://github.com/jpmorganchase/nbcelltests/blob/main/AUTHORS) files for details.
