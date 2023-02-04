@@ -1,7 +1,7 @@
 [build-system]
 # Minimum requirements for the build system to execute.
 requires = [
-  "setuptools",
+  "setuptools<66",
   "wheel",
   "jupyter-packaging <0.5 ; python_version <'3'",
   "jupyter-packaging ; python_version >='3'",  
