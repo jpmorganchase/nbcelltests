@@ -23,6 +23,7 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
 requires = [
     'backports.tempfile ; python_version < "3"',
     "flake8",
+    "jupyter-server",
     "nbconvert",
     "nbformat>=4.0.0",
     "nbval>=0.9.1",
