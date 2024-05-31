@@ -15,7 +15,7 @@ import tornado.web
 from tornado.concurrent import run_on_executor
 from concurrent.futures import ThreadPoolExecutor
 from jupyter_server.base.handlers import JupyterHandler
-from notebook.utils import url_path_join
+from jupyter_server.utils import url_path_join
 
 try:
     from tempfile import TemporaryDirectory
