@@ -58,9 +58,7 @@ class TestMessage(object):
         ret = (
             "PASSED: "
             if self.passed > 0
-            else "FAILED: "
-            if self.passed < 0
-            else "NOT RUN: "
+            else "FAILED: " if self.passed < 0 else "NOT RUN: "
         )
         ret += self.message
         ret += " (Cell %d)" % self.cell if self.cell > 0 else ""
