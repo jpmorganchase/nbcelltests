@@ -11,6 +11,7 @@ import sys
 import unittest
 
 from bs4 import BeautifulSoup
+import json
 import pytest
 from nbval.kernel import CURRENT_ENV_KERNEL_NAME
 import jupyter_client.kernelspec as kspec
@@ -916,7 +917,7 @@ def _check(html, coverage_result):
     tests_ran = False
     for p in html_soup.find_all("p"):
         # 1 cell test plus coverage test
-        if p.text.startswith("5 tests ran in"):
+        if p.text.startswith("5 tests "):
             tests_ran = True
             break
 
@@ -930,19 +931,16 @@ def _check(html, coverage_result):
         "test_cell_coverage": coverage_result,
     }
 
-    actual_results = html_soup.find_all(class_="results-table-row")
+    actual_results = json.loads(
+        html_soup.find("div", {"id": "data-container"}).get("data-jsonblob")
+    )["tests"]
 
     assert len(actual_results) == len(expected_results)
 
-    for actual_result, expected_name in zip(
-        sorted(actual_results, key=lambda x: x.find_next(class_="col-name").text),
-        sorted(expected_results),
-    ):
-        name = actual_result.find_next(class_="col-name").text
-        state = actual_result.find_next(class_="col-result").text
-
-        assert name.endswith(expected_name)
-        assert state == expected_results[expected_name]
+    for actual_result, data in actual_results.items():
+        actual_result_name = actual_result.rsplit("::", 1)[-1]
+        expected_result = expected_results[actual_result_name]
+        assert data[0]["result"] == expected_result
 
 
 # TODO: either make genuinely abstract, or don't use classes/inheritance at all here (since classes/inheritance are not meaningful here anyway).

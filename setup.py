@@ -31,7 +31,7 @@ requires = [
     "parameterized",
     "pytest>=4.4.0",
     "pytest-cov",
-    "pytest-html>=1.20.0",
+    "pytest-html>=4",
 ]
 
 dev_requires = requires + [
