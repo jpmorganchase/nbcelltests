@@ -14,8 +14,8 @@ import tornado.gen
 import tornado.web
 from tornado.concurrent import run_on_executor
 from concurrent.futures import ThreadPoolExecutor
-from notebook.base.handlers import IPythonHandler
-from notebook.utils import url_path_join
+from jupyter_server.base.handlers import JupyterHandler
+from jupyter_server.utils import url_path_join
 
 try:
     from tempfile import TemporaryDirectory
@@ -26,7 +26,7 @@ from .test import run as runTest
 from .lint import run as runLint
 
 
-class RunCelltestsHandler(IPythonHandler):
+class RunCelltestsHandler(JupyterHandler):
     executor = ThreadPoolExecutor(4)
 
     def initialize(self, rules=None, executable=None):
@@ -56,7 +56,7 @@ class RunCelltestsHandler(IPythonHandler):
         self.finish({"status": 0, "test": ret})
 
 
-class RunLintsHandler(IPythonHandler):
+class RunLintsHandler(JupyterHandler):
     executor = ThreadPoolExecutor(4)
 
     def initialize(self, rules=None, executable=None):

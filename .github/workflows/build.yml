@@ -4,15 +4,24 @@ on:
   push:
     branches:
       - main
+    tags:
+      - v*
+    paths-ignore:
+      - docs/
+      - CONTRIBUTING.md
+      - LICENSE
+      - README.md
   pull_request:
-  schedule:
-    - cron:  '0 0 * * 0'
   workflow_dispatch:
 
 concurrency:
-   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-   cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
+permissions:
+  checks: write
+  pull-requests: write
+  
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -21,19 +30,19 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: [3.9]
-        node-version: [12.x]
+        node-version: [16.x]
         event-name: [push]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
 
@@ -53,18 +62,18 @@ jobs:
     - name: Test
       run: |
         make tests
-      if: ${{ github.event_name == matrix.event-name || matrix.os == 'ubuntu-latest' }}
+      if: ${{ matrix.os == 'ubuntu-latest' }}
 
     - name: Twine check
       run: |
         make dist
 
     - name: Upload test results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: pytest-results-${{ matrix.os }}-${{ matrix.python-version }}
         path: python_junit.xml
       if: ${{ always() }}
 
     - name: Upload coverage
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v4

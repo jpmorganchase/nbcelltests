@@ -142,6 +142,7 @@ def test_extract_extrametadata_magics_noncode():
 # D = contribs to denominator of calc
 # - = contribs nothing
 
+
 # --  empty code cell with test
 # --  markdown cell
 # ND  code cell with valid test

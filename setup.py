@@ -23,6 +23,7 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
 requires = [
     'backports.tempfile ; python_version < "3"',
     "flake8",
+    "jupyter-server",
     "nbconvert",
     "nbformat>=4.0.0",
     "nbval>=0.9.1",
@@ -30,11 +31,11 @@ requires = [
     "parameterized",
     "pytest>=4.4.0",
     "pytest-cov",
-    "pytest-html>=1.20.0",
+    "pytest-html>=4",
 ]
 
 dev_requires = requires + [
-    "black>=20.",
+    "black>=20",
     "beautifulsoup4",
     "bump2version>=1.0.0",
     "flake8>=3.7.8",
