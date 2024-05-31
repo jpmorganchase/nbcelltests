@@ -34,7 +34,7 @@ requires = [
 ]
 
 dev_requires = requires + [
-    "black>=20.",
+    "black>=20",
     "beautifulsoup4",
     "bump2version>=1.0.0",
     "flake8>=3.7.8",
