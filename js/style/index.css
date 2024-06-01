@@ -51,8 +51,9 @@ div.CelltestsControls > div > div {
 div.CelltestsControls > div > button {
     width: 50%;
 }
+
 div.CelltestsControls > div > button:hover {
-    background: var(--jp-layout-color2);
+    background: var(--jp-layout-color3);
 }
 
 div.CelltestsRules > div {
