@@ -5,25 +5,25 @@
 # This file is part of the nbcelltests library, distributed under the terms of
 # the Apache License 2.0.  The full license can be found in the LICENSE file.
 #
+import nbformat
+import os
+import subprocess
+import sys
+from nbconvert import PythonExporter
+from tempfile import NamedTemporaryFile
+
+from ..define import LintMessage, LintType
+from ..shared import extract_extrametadata
 from .rules import (
-    lint_lines_per_cell,
     lint_cells_per_notebook,
-    lint_function_definitions,
     lint_class_definitions,
+    lint_function_definitions,
     lint_kernelspec,
+    lint_lines_per_cell,
     lint_magics,
 )
 
 # noqa: F401
-
-import nbformat
-import os
-import sys
-import subprocess
-from nbconvert import PythonExporter
-from tempfile import NamedTemporaryFile
-from ..shared import extract_extrametadata
-from ..define import LintMessage, LintType
 
 
 def run(
@@ -112,9 +112,7 @@ def run(
             msg = ret2.stdout + "\t" + ret2.stderr
             msg = "\n".join(
                 "\t{}".format(_)
-                for _ in msg.strip()
-                .replace(tf_name, "{} (in {})".format(notebook, tf_name))
-                .split("\n")
+                for _ in msg.strip().replace(tf_name, "{} (in {})".format(notebook, tf_name)).split("\n")
             )
             ret.append(
                 LintMessage(
@@ -133,9 +131,7 @@ def run(
             lint = lint.to_html()
             ret_html += "<p>" + lint + "</p>"
         return (
-            '<div style="display: flex; flex-direction: column;">'
-            + ret_html
-            + "</div>",
+            '<div style="display: flex; flex-direction: column;">' + ret_html + "</div>",
             passed,
         )
 
@@ -144,16 +140,7 @@ def run(
 
 def _run_and_capture_utf8(args):
     # PYTHONIOENCODING for pyflakes on Windows
-    run_kw = (
-        {"env": dict(os.environ, PYTHONIOENCODING="utf8")}
-        if sys.platform == "win32"
-        else {}
-    )
+    run_kw = {"env": dict(os.environ, PYTHONIOENCODING="utf8")} if sys.platform == "win32" else {}
     return subprocess.run(
-        args,
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        encoding="utf-8",
-        **run_kw
+        args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding="utf-8", **run_kw
     )

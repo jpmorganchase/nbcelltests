@@ -6,24 +6,24 @@
 # the Apache License 2.0.  The full license can be found in the LICENSE file.
 #
 import json
+import nbformat
 import os
 import os.path
-import nbformat
 import sys
 import tornado.gen
 import tornado.web
-from tornado.concurrent import run_on_executor
 from concurrent.futures import ThreadPoolExecutor
 from jupyter_server.base.handlers import JupyterHandler
 from jupyter_server.utils import url_path_join
+from tornado.concurrent import run_on_executor
 
 try:
     from tempfile import TemporaryDirectory
 except ImportError:
     from backports.tempfile import TemporaryDirectory
 
-from .test import run as runTest
 from .lint import run as runLint
+from .test import run as runTest
 
 
 class RunCelltestsHandler(JupyterHandler):
@@ -73,9 +73,7 @@ class RunLintsHandler(JupyterHandler):
             path = os.path.abspath(os.path.join(tempdir, name))
             node = nbformat.from_dict(body.get("model"))
             nbformat.write(node, path)
-            ret, status = runLint(
-                path, html=True, executable=self.executable, rules=self.rules
-            )
+            ret, status = runLint(path, html=True, executable=self.executable, rules=self.rules)
             return ret, status
             self.finish({"status": status, "lint": ret})
 
@@ -101,10 +99,7 @@ def _load_jupyter_server_extension(nb_server_app):
     host_pattern = ".*$"
     base_url = web_app.settings["base_url"]
     # host_pattern = '.*$'
-    print(
-        "Installing nbcelltests handler on path %s"
-        % url_path_join(base_url, "celltests")
-    )
+    print("Installing nbcelltests handler on path %s" % url_path_join(base_url, "celltests"))
 
     rules = nb_server_app.config.get("JupyterLabCelltests", {}).get("rules", {})
     test_executable = nb_server_app.config.get("JupyterLabCelltests", {}).get(

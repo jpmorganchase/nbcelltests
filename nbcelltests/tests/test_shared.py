@@ -5,18 +5,17 @@
 # This file is part of the nbcelltests library, distributed under the terms of
 # the Apache License 2.0.  The full license can be found in the LICENSE file.
 #
-import os
-
-import pytest
 import nbformat
+import os
+import pytest
 
 from nbcelltests.shared import (
-    extract_extrametadata,
-    get_coverage,
-    empty_ast,
-    only_whitespace,
     cell_injected_into_test,
+    empty_ast,
+    extract_extrametadata,
     get_cell_inj_span,
+    get_coverage,
+    only_whitespace,
 )
 
 # TODO: should generate these
@@ -25,9 +24,7 @@ MORE_NB = os.path.join(os.path.dirname(__file__), "more.ipynb")
 MAGICS_NB = os.path.join(os.path.dirname(__file__), "magics.ipynb")
 COVERAGE_NB = os.path.join(os.path.dirname(__file__), "_cell_coverage.ipynb")
 LINT_DISABLE_NB = os.path.join(os.path.dirname(__file__), "_lint_disable.ipynb")
-LINT_DISABLE_NB_EMPTY_CELL = os.path.join(
-    os.path.dirname(__file__), "_lint_disable_empty_cell.ipynb"
-)
+LINT_DISABLE_NB_EMPTY_CELL = os.path.join(os.path.dirname(__file__), "_lint_disable_empty_cell.ipynb")
 
 # TODO should parameterize test_empty_ast _whitespace
 
@@ -188,16 +185,12 @@ def test_extract_extrametadata_disable_none():
 
 
 def test_extract_extrametadata_disable_notpresent():
-    metadata = extract_extrametadata(
-        nbformat.read(LINT_DISABLE_NB, 4), noqa_regex=r"^# don't noqa notebook:\s*(.*)$"
-    )
+    metadata = extract_extrametadata(nbformat.read(LINT_DISABLE_NB, 4), noqa_regex=r"^# don't noqa notebook:\s*(.*)$")
     assert len(metadata["noqa"]) == 0
 
 
 def test_extract_extrametadata_disable_cells_count():
-    metadata = extract_extrametadata(
-        nbformat.read(LINT_DISABLE_NB, 4), noqa_regex=r"^# noqa notebook:\s*(.*)$"
-    )
+    metadata = extract_extrametadata(nbformat.read(LINT_DISABLE_NB, 4), noqa_regex=r"^# noqa notebook:\s*(.*)$")
     assert metadata["noqa"] == {"cells_per_notebook"}
 
 
@@ -211,14 +204,9 @@ def test_extract_extrametadata_disable_cells_count_in_empty_cell():
 
 def test_extract_extrametadata_disable_bad_regex():
     try:
-        _ = extract_extrametadata(
-            nbformat.read(LINT_DISABLE_NB, 4), noqa_regex=r"^# noqa notebook:\s*.*$"
-        )
+        _ = extract_extrametadata(nbformat.read(LINT_DISABLE_NB, 4), noqa_regex=r"^# noqa notebook:\s*.*$")
     except ValueError as e:
-        assert (
-            e.args[0]
-            == "noqa_regex must contain one capture group (specifying the rule)"
-        )
+        assert e.args[0] == "noqa_regex must contain one capture group (specifying the rule)"
     else:
         assert False, "should have raised a ValueError"
 
@@ -231,9 +219,7 @@ def test_extract_extrametadata_disable_bad_regex():
         pytest.param(
             r"%celll",
             None,
-            marks=pytest.mark.xfail(
-                reason="need to decide rules/really treat as token"
-            ),
+            marks=pytest.mark.xfail(reason="need to decide rules/really treat as token"),
         ),
         (r"", None),
         (r"    %cell", (4, 9)),
@@ -277,9 +263,7 @@ def test_get_cell_inj_span(test_line, expected):
 """,
             None,
             None,
-            marks=pytest.mark.xfail(
-                reason="need to decide rules/really treat as token"
-            ),
+            marks=pytest.mark.xfail(reason="need to decide rules/really treat as token"),
         ),
         (
             r"""\

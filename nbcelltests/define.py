@@ -55,11 +55,7 @@ class TestMessage(object):
         self.passed = passed
 
     def __repr__(self):
-        ret = (
-            "PASSED: "
-            if self.passed > 0
-            else "FAILED: " if self.passed < 0 else "NOT RUN: "
-        )
+        ret = "PASSED: " if self.passed > 0 else "FAILED: " if self.passed < 0 else "NOT RUN: "
         ret += self.message
         ret += " (Cell %d)" % self.cell if self.cell > 0 else ""
         return ret

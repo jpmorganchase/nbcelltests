@@ -9,17 +9,16 @@ import json
 import nbformat
 import os
 import shutil
-import sys
 import subprocess
+import sys
 import tempfile
+
 from .define import TestMessage, TestType
 from .shared import extract_extrametadata, get_coverage
 from .tests_vendored import BASE, JSON_CONFD
 
 
-def generateTests(
-    notebook, rules=None, filename=None, kernel_name="", current_env=False
-):
+def generateTests(notebook, rules=None, filename=None, kernel_name="", current_env=False):
     """Runs no tests: just generates test script for supplied notebook. kernel_name and current_env 'will be passed to nbval'.
 
     Args:
@@ -33,9 +32,7 @@ def generateTests(
     """
     nb = nbformat.read(notebook, 4)
     path = os.path.splitext(notebook)[0].split(os.path.sep)
-    py_path = filename or os.path.join(
-        os.path.sep.join(path[:-1]), "_{}_test.py".format(path[-1])
-    )
+    py_path = filename or os.path.join(os.path.sep.join(path[:-1]), "_{}_test.py".format(path[-1]))
     extra_metadata = extract_extrametadata(nb)
     rules = rules or {}
     extra_metadata.update(rules)
@@ -94,9 +91,7 @@ def runWithReport(notebook, executable=None, collect_only=False, **run_kw):
     """Run notebook's celltests in a subprocess and return exit status."""
     tmpd = tempfile.mkdtemp()
     py_file = os.path.join(tmpd, os.path.basename(notebook).replace(".ipynb", ".py"))
-    json_file = os.path.join(
-        tmpd, os.path.basename(notebook).replace(".ipynb", ".json")
-    )
+    json_file = os.path.join(tmpd, os.path.basename(notebook).replace(".ipynb", ".json"))
     _ = run(notebook, filename=py_file, **run_kw)
     ret = []
     try:
@@ -130,18 +125,10 @@ def runWithReport(notebook, executable=None, collect_only=False, **run_kw):
                 outcome = -1
 
             if "test_cell_coverage" in node["nodeid"]:
-                ret.append(
-                    TestMessage(
-                        -1, "Testing cell coverage", TestType.CELL_COVERAGE, outcome
-                    )
-                )
+                ret.append(TestMessage(-1, "Testing cell coverage", TestType.CELL_COVERAGE, outcome))
             elif "test_cell" in node["nodeid"]:
                 cell_no = node["nodeid"].rsplit("_", 1)[-1]
-                ret.append(
-                    TestMessage(
-                        int(cell_no) + 1, "Testing cell", TestType.CELL_TEST, outcome
-                    )
-                )
+                ret.append(TestMessage(int(cell_no) + 1, "Testing cell", TestType.CELL_TEST, outcome))
             else:
                 continue
     finally:

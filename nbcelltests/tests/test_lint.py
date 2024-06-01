@@ -5,22 +5,22 @@
 # This file is part of the nbcelltests library, distributed under the terms of
 # the Apache License 2.0.  The full license can be found in the LICENSE file.
 #
-from collections import namedtuple
 import os
-from operator import itemgetter
-from bs4 import BeautifulSoup
 import pytest
+from bs4 import BeautifulSoup
+from collections import namedtuple
+from operator import itemgetter
 
+from nbcelltests.define import LintType
 from nbcelltests.lint import (
-    lint_lines_per_cell,
     lint_cells_per_notebook,
-    lint_function_definitions,
     lint_class_definitions,
+    lint_function_definitions,
     lint_kernelspec,
+    lint_lines_per_cell,
     lint_magics,
     run,
 )
-from nbcelltests.define import LintType
 
 LR = namedtuple("lint_result", ["passed", "type"])
 
@@ -60,9 +60,7 @@ def test_lines_per_cell(max_lines_per_cell, cell_lines, expected_ret, expected_p
         (-1, 10, [], True),
     ],
 )
-def test_cells_per_notebook(
-    max_cells_per_notebook, cell_count, expected_ret, expected_pass
-):
+def test_cells_per_notebook(max_cells_per_notebook, cell_count, expected_ret, expected_pass):
     ret, passed = lint_cells_per_notebook(cell_count, max_cells_per_notebook)
     _verify(ret, passed, expected_ret, expected_pass)
 
@@ -77,9 +75,7 @@ def test_cells_per_notebook(
         (-1, 10, [], True),
     ],
 )
-def test_lint_function_definitions(
-    max_function_definitions, functions, expected_ret, expected_pass
-):
+def test_lint_function_definitions(max_function_definitions, functions, expected_ret, expected_pass):
     ret, passed = lint_function_definitions(functions, max_function_definitions)
     _verify(ret, passed, expected_ret, expected_pass)
 
@@ -94,9 +90,7 @@ def test_lint_function_definitions(
         (-1, 10, [], True),
     ],
 )
-def test_lint_class_definitions(
-    max_class_definitions, classes, expected_ret, expected_pass
-):
+def test_lint_class_definitions(max_class_definitions, classes, expected_ret, expected_pass):
     ret, passed = lint_class_definitions(classes, max_class_definitions)
     _verify(ret, passed, expected_ret, expected_pass)
 
@@ -148,9 +142,7 @@ def test_kernelspec(kernelspec_requirements, kernelspec, expected_ret, expected_
     ],
 )
 def test_magics(magics_allowlist, magics_denylist, magics, expected_ret, expected_pass):
-    ret, passed = lint_magics(
-        magics, allowlist=magics_allowlist, denylist=magics_denylist
-    )
+    ret, passed = lint_magics(magics, allowlist=magics_allowlist, denylist=magics_denylist)
     _verify(ret, passed, expected_ret, expected_pass)
 
 
@@ -188,8 +180,7 @@ def test_magics_lists_sanity():
         (
             {"lines_per_cell": 5, "cells_per_notebook": 1},
             None,
-            [LR(True, LintType.LINES_PER_CELL)] * 4
-            + [LR(False, LintType.CELLS_PER_NOTEBOOK)],
+            [LR(True, LintType.LINES_PER_CELL)] * 4 + [LR(False, LintType.CELLS_PER_NOTEBOOK)],
             False,
         ),
         # multiple rules, one disabled, combo pass
@@ -203,8 +194,7 @@ def test_magics_lists_sanity():
         (
             {"lines_per_cell": 5, "cells_per_notebook": 10},
             None,
-            [LR(True, LintType.LINES_PER_CELL)] * 4
-            + [LR(True, LintType.CELLS_PER_NOTEBOOK)],
+            [LR(True, LintType.LINES_PER_CELL)] * 4 + [LR(True, LintType.CELLS_PER_NOTEBOOK)],
             True,
         ),
         # all the expected rules
@@ -235,9 +225,7 @@ def test_run(rules, noqa_regex, expected_ret, expected_pass):
 
 
 def _verify(ret, passed, expected_ret, expected_pass):
-    assert [(r.passed, r.type) for r in ret] == [
-        (e.passed, e.type) for e in expected_ret
-    ]
+    assert [(r.passed, r.type) for r in ret] == [(e.passed, e.type) for e in expected_ret]
     assert passed is expected_pass
 
 
@@ -260,9 +248,7 @@ def test_runWithHTMLReturn_pass():
 def test_runWithHTMLReturn_fail():
     # checks should fail
     nb = os.path.join(os.path.dirname(__file__), "more.ipynb")
-    html, passed = run(
-        nb, html=True, rules={"cells_per_notebook": 1, "lines_per_cell": 2}
-    )
+    html, passed = run(nb, html=True, rules={"cells_per_notebook": 1, "lines_per_cell": 2})
     assert passed is False
     _check(
         html,
