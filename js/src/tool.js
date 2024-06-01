@@ -6,59 +6,53 @@
  * the Apache License 2.0.  The full license can be found in the LICENSE file.
  *
  */
-import { Message } from "@lumino/messaging";
-import { PanelLayout, Widget } from "@lumino/widgets";
+import {PanelLayout, Widget} from "@lumino/widgets";
 
-import { JupyterFrontEnd } from "@jupyterlab/application";
-import {
-  INotebookTools,
-  INotebookTracker,
-  NotebookTools,
-} from "@jupyterlab/notebook";
-import { ObservableJSON } from "@jupyterlab/observables";
+import {NotebookTools} from "@jupyterlab/notebook";
 
-import { CELLTEST_TOOL_CLASS } from "./utils";
-import { CelltestsWidget } from "./widget";
+import {CELLTEST_TOOL_CLASS} from "./utils";
+import {CelltestsWidget} from "./widget";
 
 export class CelltestsTool extends NotebookTools.Tool {
-  public notebookTracker: INotebookTracker = null;
-  public cellTools: INotebookTools = null;
+  notebookTracker = null;
 
-  private widget: CelltestsWidget = null;
-  public constructor(
-    app: JupyterFrontEnd,
-    notebook_Tracker: INotebookTracker,
-    cellTools: INotebookTools,
-  ) {
+  cellTools = null;
+
+  widget = null;
+
+  constructor(app, notebook_Tracker, cellTools, editorServices) {
     super();
     this.notebookTracker = notebook_Tracker;
     this.cellTools = cellTools;
-    const layout = (this.layout = new PanelLayout());
+    this.layout = new PanelLayout();
 
     /* Section Header */
     const label = document.createElement("label");
     label.textContent = "Celltests";
-    layout.addWidget(new Widget({ node: label }));
+    this.layout.addWidget(new Widget({node: label}));
 
     this.addClass(CELLTEST_TOOL_CLASS);
-    this.widget = new CelltestsWidget();
+    this.widget = new CelltestsWidget(editorServices);
     this.widget.notebookTracker = notebook_Tracker;
 
-    layout.addWidget(this.widget);
+    this.layout.addWidget(this.widget);
   }
 
   /**
    * Handle a change to the active cell.
    */
-  protected onActiveCellChanged(msg: Message): void {
+  onActiveCellChanged(msg) {
     this.widget.currentActiveCell = this.cellTools.activeCell;
     this.widget.loadTestsForActiveCell();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  protected onAfterShow() {}
+  onAfterShow() {}
 
-  protected onAfterAttach() {
+  onAfterAttach() {
+    if (this.notebookTracker.currentWidget === null) {
+      return;
+    }
+
     this.notebookTracker.currentWidget.context.ready.then(() => {
       this.widget.loadTestsForActiveCell();
       this.widget.loadRulesForCurrentNotebook();
@@ -73,7 +67,7 @@ export class CelltestsTool extends NotebookTools.Tool {
     });
   }
 
-  protected onMetadataChanged(msg: ObservableJSON.ChangeMessage): void {
+  onMetadataChanged(msg) {
     this.widget.loadTestsForActiveCell();
     this.widget.loadRulesForCurrentNotebook();
   }

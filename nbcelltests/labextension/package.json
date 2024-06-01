@@ -43,6 +43,10 @@
           "pip"
         ]
       }
+    },
+    "_build": {
+      "load": "static/remoteEntry.23ad066dcafea34b1db5.js",
+      "extension": "./extension"
     }
   },
   "dependencies": {

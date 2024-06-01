@@ -1,8 +1,160 @@
 [build-system]
-# Minimum requirements for the build system to execute.
 requires = [
-  "setuptools<66",
-  "wheel",
-  "jupyter-packaging <0.5 ; python_version <'3'",
-  "jupyter-packaging ; python_version >='3'",  
+    "hatchling>=1.3.1",
+    "hatch-jupyter-builder",
+    "jupyterlab>=4,<5",
 ]
+build-backend = "hatchling.build"
+
+[project]
+name = "nbcelltests"
+description = "Cell-by-cell tests for JupyterLab"
+version = "0.2.4"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.8"
+authors = [
+    { name = "The nbcelltests authors", email = "t.paine154@gmail.com" },
+]
+keywords = [
+    "Jupyter",
+    "JupyterLab",
+    "Notebook",
+    "Notebooks",
+    "Testing",
+    "Tests",
+    "Celltests",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: Jupyter",
+    "Framework :: Jupyter :: JupyterLab",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: Apache Software License",
+]
+
+dependencies = [
+    "flake8",
+    "jupyter-server",
+    "jupyterlab",
+    "nbconvert",
+    "nbformat>=4.0.0",
+    "nbval>=0.9.1",
+    "notebook",
+    "parameterized",
+    "pytest>=4.4.0",
+    "pytest-cov",
+    "pytest-html>=4",
+]
+
+[project.optional-dependencies]
+develop = [
+    "check-manifest",
+    "isort>=5,<6",
+    "jupyterlab>=4,<5",
+    "ruff>=0.3,<0.4",
+    # test
+    "pytest",
+    "pytest-cov",
+]
+test = [
+    "pytest",
+    "pytest-cov",
+]
+
+[project.scripts]
+nbcelltests = "nbcelltests.__main__:main"
+
+[project.urls]
+Repository = "https://github.com/jpmorganchase/nbcelltests"
+Homepage = "https://github.com/jpmorganchase/nbcelltests"
+
+[tool.hatch.build]
+artifacts = [
+    "nbcelltests/templates",
+    "nbcelltests/extension",
+]
+
+[tool.hatch.build.sources]
+src = "/"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/nbcelltests",
+    "/js",
+    "LICENSE",
+    "README.md",
+]
+exclude = [
+    "/.github",
+    "/.gitignore",
+    "/.mypy_cache",
+    "/.ruff_cache",
+    "/dist",
+    "/examples",
+    "/js/node_modules",
+]
+
+[tool.hatch.build.targets.wheel]
+include = [
+    "/nbcelltests",
+]
+exclude = [
+    "/.github",
+    "/.gitignore",
+    "/.mypy_cache",
+    "/.ruff_cache",
+    "/pyproject.toml",
+    "/dist",
+    "/examples",
+    "/js/node_modules"
+]
+
+[tool.hatch.build.targets.wheel.shared-data]
+"nbcelltests/labextension" = "share/jupyter/labextensions/nbcelltests"
+"nbcelltests/extension/install.json" = "share/jupyter/labextensions/nbcelltests/install.json"
+"nbcelltests/extension/nbcelltests.json" = "etc/jupyter/jupyter_server_config.d/nbcelltests.json"
+"nbcelltests/extension/notebook_templates" = "share/jupyter/notebook"
+
+[tool.hatch.build.hooks.jupyter-builder]
+build-function = "hatch_jupyter_builder.npm_builder"
+ensured-targets = [
+    "nbcelltests/labextension/package.json",
+]
+skip-if-exists = [
+    "nbcelltests/labextension/package.json",
+]
+dependencies = [
+    "hatch-jupyter-builder>=0.5.0",
+]
+
+
+[tool.hatch.build.hooks.jupyter-builder.build-kwargs]
+path = "js"
+build_cmd = "build"
+
+[tool.isort]
+combine_as_imports = true
+include_trailing_comma = true
+line_length = 120
+profile = "black"
+
+default_section = "THIRDPARTY"
+sections = "FUTURE,THIRDPARTY,FIRSTPARTY,LOCALFOLDER"
+
+known_first_party = "nbcelltests"
+
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
+testpaths = "nbcelltests/tests"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "F403"]
