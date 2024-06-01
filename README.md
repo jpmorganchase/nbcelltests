@@ -3,7 +3,7 @@
 
 Cell-by-cell testing for production Jupyter notebooks in JupyterLab
 
-[![Build Status](https://github.com/jpmorganchase/nbcelltests/workflows/Build%20Status/badge.svg?branch=main)](https://github.com/jpmorganchase/nbcelltests/actions?query=workflow%3A%22Build+Status%22)
+[![Build Status](https://github.com/jpmorganchase/nbcelltests/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/jpmorganchase/nbcelltests/actions?query=workflow%3A%22Build+Status%22)
 [![codecov](https://codecov.io/gh/jpmorganchase/nbcelltests/branch/main/graph/badge.svg)](https://codecov.io/gh/jpmorganchase/nbcelltests)
 [![PyPI](https://img.shields.io/pypi/l/nbcelltests.svg)](https://pypi.python.org/pypi/nbcelltests)
 [![PyPI](https://img.shields.io/pypi/v/nbcelltests.svg)](https://pypi.python.org/pypi/nbcelltests)
