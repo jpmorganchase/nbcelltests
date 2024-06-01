@@ -1,4 +1,7 @@
 examples/* linguist-documentation
 docs/* linguist-documentation
 *.ipynb linguist-documentation
+Makefile linguist-documentation
 
+*.py text=auto eol=lf
+*.js text=auto eol=lf
