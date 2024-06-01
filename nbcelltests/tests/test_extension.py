@@ -6,13 +6,13 @@
 # the Apache License 2.0.  The full license can be found in the LICENSE file.
 #
 # for Coverage
-from mock import MagicMock
+from unittest.mock import MagicMock
+
 from nbcelltests import load_jupyter_server_extension
 
 
 class TestExtension:
     def test_load_jupyter_server_extension(self):
-
         m = MagicMock()
 
         m.web_app.settings = {}

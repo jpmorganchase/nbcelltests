@@ -172,6 +172,7 @@ Untitled_test.py
 docs/api
 docs/index.md
 python_junit.xml
+junit.xml
 examples/_*
 *_test.py
 *_test.html

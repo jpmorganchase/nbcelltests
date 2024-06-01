@@ -6,14 +6,13 @@
  * the Apache License 2.0.  The full license can be found in the LICENSE file.
  *
  */
-import { JupyterFrontEnd } from "@jupyterlab/application";
-import { IDocumentManager } from "@jupyterlab/docmanager";
+export const CELLTESTS_ID = "nbcelltests";
 
-export const CELLTESTS_CATEGORY = "Celltests";
+export const CELLTESTS_CATEGORY = "Cell Tests";
 
-export const CELLTESTS_TEST_ID = "celltests:test";
+export const CELLTESTS_TEST_ID = "nbcelltests:test";
 
-export const CELLTESTS_LINT_ID = "celltests:lint";
+export const CELLTESTS_LINT_ID = "nbcelltests:lint";
 
 export const CELLTESTS_TEST_CAPTION = "Run Celltests";
 
@@ -67,14 +66,6 @@ export const CELLTEST_RULES = [
   },
 ];
 
-export function isEnabled(
-  app: JupyterFrontEnd,
-  docManager: IDocumentManager,
-): () => boolean {
-  return () =>
-    app.shell.currentWidget &&
-    docManager.contextForWidget(app.shell.currentWidget) &&
-    docManager.contextForWidget(app.shell.currentWidget).model
-      ? true
-      : false;
+export function isEnabled(app, docManager) {
+  return () => !!(app.shell.currentWidget && docManager.contextForWidget(app.shell.currentWidget) && docManager.contextForWidget(app.shell.currentWidget).model);
 }

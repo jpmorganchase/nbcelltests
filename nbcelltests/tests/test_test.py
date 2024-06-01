@@ -5,16 +5,15 @@
 # This file is part of the nbcelltests library, distributed under the terms of
 # the Apache License 2.0.  The full license can be found in the LICENSE file.
 #
-import tempfile
-import os
-import sys
-import unittest
-
-from bs4 import BeautifulSoup
 import json
-import pytest
-from nbval.kernel import CURRENT_ENV_KERNEL_NAME
 import jupyter_client.kernelspec as kspec
+import os
+import pytest
+import sys
+import tempfile
+import unittest
+from bs4 import BeautifulSoup
+from nbval.kernel import CURRENT_ENV_KERNEL_NAME
 
 from nbcelltests.test import generateTests, run, runWithReport
 

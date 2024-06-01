@@ -50,23 +50,23 @@ try:
     from Queue import Empty
 except ImportError:
     from queue import Empty
-import logging
-import unittest
-import os
 
+import logging
 import nbformat
-from nbval.kernel import RunningKernel, CURRENT_ENV_KERNEL_NAME
+import os
+import unittest
+from nbval.kernel import CURRENT_ENV_KERNEL_NAME, RunningKernel
 
 from nbcelltests.shared import (
-    empty_ast,
+    CELL_INJ_TOKEN,
+    CELL_SKIP_TOKEN,
     cell_injected_into_test,
-    source2lines,
-    lines2source,
+    empty_ast,
     get_cell_inj_span,
     get_test,
+    lines2source,
     only_whitespace,
-    CELL_SKIP_TOKEN,
-    CELL_INJ_TOKEN,
+    source2lines,
 )
 
 
@@ -142,18 +142,14 @@ def get_celltests(path_to_notebook):
 
         if cell.get("cell_type") != "code":
             if not test_ast_empty:
-                raise ValueError(
-                    "Cell %d is not a code cell, but metadata contains test code!" % i
-                )
+                raise ValueError("Cell %d is not a code cell, but metadata contains test code!" % i)
             continue
 
         code_cell += 1
 
         if empty_ast(cell["source"]):  # TODO: maybe this should be only_whitespace?
             if not test_ast_empty:
-                raise ValueError(
-                    "Code cell %d is empty, but test contains code." % code_cell
-                )
+                raise ValueError("Code cell %d is empty, but test contains code." % code_cell)
             continue
 
         cell_injected = cell_injected_into_test(test_source)
@@ -259,9 +255,7 @@ class TestNotebookBase(unittest.TestCase):
             kernel_name = cls._kernel_name
         else:
             notebook = nbformat.read(cls._notebook, 4)
-            kernel_name = (
-                notebook["metadata"].get("kernelspec", {}).get("name", "python")
-            )
+            kernel_name = notebook["metadata"].get("kernelspec", {}).get("name", "python")
         cls.kernel = RunningKernel(kernel_name, os.path.dirname(cls._notebook))
 
     @classmethod
@@ -269,9 +263,7 @@ class TestNotebookBase(unittest.TestCase):
         cls.kernel.stop()
 
     def assert_coverage(self, cells_covered, min_required):
-        assert (
-            cells_covered >= min_required
-        ), "Actual cell coverage %s < minimum required of %s" % (
+        assert cells_covered >= min_required, "Actual cell coverage %s < minimum required of %s" % (
             cells_covered,
             min_required,
         )
@@ -296,9 +288,7 @@ class TestNotebookBase(unittest.TestCase):
 
     def _run_cell(self, cell):
         """Run cell and record its execution"""
-        self._run(
-            self.celltests[cell]["source"], "Running cell+test for code cell %d" % cell
-        )
+        self._run(self.celltests[cell]["source"], "Running cell+test for code cell %d" % cell)
         self.celltests_run.add(cell)
 
     def _run(self, cell_content, description=""):
@@ -330,9 +320,7 @@ class TestNotebookBase(unittest.TestCase):
                 msg = self.kernel.get_message(stream="iopub")
 
             except Empty:
-                raise Exception(
-                    "%s; Kernel timed out waiting for message!" % description
-                )
+                raise Exception("%s; Kernel timed out waiting for message!" % description)
 
             # now we must handle the message by checking the type and reply
             # info and we store the output of the cell in a notebook node object

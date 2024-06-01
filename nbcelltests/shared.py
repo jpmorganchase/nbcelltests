@@ -5,10 +5,10 @@
 # This file is part of the nbcelltests library, distributed under the terms of
 # the Apache License 2.0.  The full license can be found in the LICENSE file.
 #
-import sys
 import ast
-import re
 import nbconvert
+import re
+import sys
 
 
 # note: could consider combining these separate classes
@@ -61,9 +61,7 @@ class MagicsRecorder(ast.NodeVisitor):
             if node.func.value.func.id == "get_ipython":
                 magic_name = node.args[0].s
                 if node.func.attr in self.magic_fn_names_py2:
-                    magic_name = magic_name.split()[
-                        0
-                    ]  # (again, find ipython's parsing?)
+                    magic_name = magic_name.split()[0]  # (again, find ipython's parsing?)
                 self.seen.add(magic_name)
 
 
@@ -77,9 +75,7 @@ def extract_extrametadata(notebook, override=None, noqa_regex=None):
     if noqa_regex is not None:
         noqa_regex = re.compile(noqa_regex)
         if not noqa_regex.groups == 1:
-            raise ValueError(
-                "noqa_regex must contain one capture group (specifying the rule)"
-            )
+            raise ValueError("noqa_regex must contain one capture group (specifying the rule)")
 
     base = notebook.metadata.get("celltests", {})
     override = override or {}

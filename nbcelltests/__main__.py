@@ -1,14 +1,13 @@
-import sys
 import argparse
+import sys
+
 from .lint import run as runLint
 from .test import run as runTest
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "option", help="Which option to run", default="lint", choices=("lint", "test")
-    )
+    parser.add_argument("option", help="Which option to run", default="lint", choices=("lint", "test"))
 
     parser.add_argument("notebook", help="On which notebook to run")
 
