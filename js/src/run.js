@@ -36,7 +36,7 @@ export async function runCellTests(app, docManager) {
     iframe.onload = () => {
       // write iframe content
       iframe.contentWindow.document.write(html_data);
-    }
+    };
     const body = new Widget({node: iframe});
 
     const dialog = new Dialog({
