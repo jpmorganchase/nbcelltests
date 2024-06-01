@@ -176,3 +176,6 @@ junit.xml
 examples/_*
 *_test.py
 *_test.html
+
+nbcelltests/labextension/*.tgz
+nbcelltests/labextension

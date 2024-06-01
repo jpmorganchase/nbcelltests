@@ -41,7 +41,6 @@ class ControlsWidget extends BoxPanel {
 
     this.svg = document.createElement("svg");
     this.svg.innerHTML = circleSvg;
-    console.log("check this");
     this.svg = this.svg.firstChild;
 
     const div1 = document.createElement("div");

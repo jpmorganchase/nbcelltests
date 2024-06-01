@@ -28,21 +28,27 @@ export async function runCellTests(app, docManager) {
   }
 
   const settings = ServerConnection.makeSettings();
-  const res = await ServerConnection.makeRequest(`${settings.baseUrl}celltests/test/run`, {method: "post", body: {path, model}}, settings);
+  const res = await ServerConnection.makeRequest(`${settings.baseUrl}celltests/test/run`, {method: "post", body: JSON.stringify({path, model})}, settings);
 
   if (res.ok) {
-    const div = document.createElement("div");
-    div.innerHTML = (await res.json()).test;
-    const body = new Widget({node: div});
+    const iframe = document.createElement("iframe");
+    const html_data = (await res.json()).test;
+    iframe.onload = () => {
+      // write iframe content
+      iframe.contentWindow.document.write(html_data);
+    }
+    const body = new Widget({node: iframe});
 
     const dialog = new Dialog({
       body,
       buttons: [Dialog.okButton({label: "Ok"})],
       title: "Tests run!",
     });
-    dialog.node.lastChild.style.maxHeight = "750px";
-    dialog.node.lastChild.style.maxWidth = "800px";
-    dialog.node.lastChild.style.width = "800px";
+
+    dialog.node.lastChild.style.maxHeight = "1600px";
+    dialog.node.lastChild.style.maxWidth = "2000px";
+    dialog.node.lastChild.style.width = "900px";
+    dialog.node.lastChild.style.height = "900px";
 
     await dialog.launch();
   } else {
@@ -72,7 +78,7 @@ export async function runCellLints(app, docManager) {
   }
 
   const settings = ServerConnection.makeSettings();
-  const res = await ServerConnection.makeRequest(`${settings.baseUrl}celltests/lint/run`, {method: "post", body: {path, model}}, settings);
+  const res = await ServerConnection.makeRequest(`${settings.baseUrl}celltests/lint/run`, {method: "post", body: JSON.stringify({path, model})}, settings);
 
   if (res.ok) {
     const div = document.createElement("div");
@@ -85,9 +91,10 @@ export async function runCellLints(app, docManager) {
       title: "Lints run!",
     });
 
-    dialog.node.lastChild.style.maxHeight = "750px";
-    dialog.node.lastChild.style.maxWidth = "500px";
-    dialog.node.lastChild.style.width = "500px";
+    dialog.node.lastChild.style.maxHeight = "1600px";
+    dialog.node.lastChild.style.maxWidth = "2000px";
+    dialog.node.lastChild.style.width = "600px";
+    dialog.node.lastChild.style.height = "800px";
 
     await dialog.launch();
   } else {
