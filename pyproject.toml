@@ -137,6 +137,7 @@ dependencies = [
 [tool.hatch.build.hooks.jupyter-builder.build-kwargs]
 path = "js"
 build_cmd = "build"
+npm = "jlpm"
 
 [tool.isort]
 combine_as_imports = true

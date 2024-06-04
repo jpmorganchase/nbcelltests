@@ -7,12 +7,11 @@
  *
  */
 const esModules = [
-  "@finos",
   "@jupyter",
   "@jupyterlab",
   "@jupyter-widgets",
+  "@lumino",
   "@microsoft",
-  "@rjsf",
   "delaunator",
   "exenv-es6",
   "internmap",
@@ -25,17 +24,25 @@ const esModules = [
 ].join("|");
 
 module.exports = {
-  moduleDirectories: ["node_modules", "src", "tests"],
+  preset: "ts-jest/presets/js-with-babel",
   moduleNameMapper: {
     "\\.(css|less|sass|scss)$": "<rootDir>/tests/styleMock.js",
-    "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/tests/fileMock.js",
+    "\\.(jpg|jpeg|png|gif|eot|svg)$": "<rootDir>/tests/fileMock.js",
   },
+  moduleFileExtensions: ["ts", "tsx", "js"],
   reporters: [ "default", "jest-junit" ],
-  setupFiles: ["<rootDir>/tests/setup.js"],
+  setupFilesAfterEnv: ["./tests/setup.js"],
   testEnvironment: "jsdom",
+  testPathIgnorePatterns: ["/lib/", "/node_modules/"],
+  testRegex: "tests\/.*\.test\.ts[x]?$",  // eslint-disable-line no-useless-escape
   transform: {
-    "^.+\\.jsx?$": "babel-jest",
-    ".+\\.(css|styl|less|sass|scss)$": "jest-transform-css",
+    "\\.tsx?$": [
+      "ts-jest", {
+        // in tsconfig.test.json, rootDir is parent of both tests and src dirs
+        tsconfig: "tsconfig.test.json",
+      },
+    ],
+    "\\.jsx?$": "babel-jest",
   },
-  transformIgnorePatterns: [`/node_modules/(?!(${esModules}))`],
+  transformIgnorePatterns: [`node_modules/(?!(${esModules}))`],
 };

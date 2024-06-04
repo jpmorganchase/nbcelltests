@@ -8,13 +8,15 @@
  */
 /* eslint-disable max-classes-per-file */
 /* eslint-disable id-blacklist */
-import {BoxPanel, PanelLayout, Widget} from "@lumino/widgets";
+import { BoxPanel, PanelLayout, Widget } from "@lumino/widgets";
 
-import {CodeCellModel} from "@jupyterlab/cells";
-import {CodeEditorWrapper} from "@jupyterlab/codeeditor";
+import { Cell, CodeCellModel } from "@jupyterlab/cells";
+
+import { CodeEditorWrapper, IEditorServices } from "@jupyterlab/codeeditor";
 
 import circleSvg from "../style/circle.svg";
-import {CELLTEST_RULES, CELLTEST_TOOL_CONTROLS_CLASS, CELLTEST_TOOL_EDITOR_CLASS, CELLTEST_TOOL_RULES_CLASS} from "./utils";
+import { CELLTEST_RULES, CELLTEST_TOOL_CONTROLS_CLASS, CELLTEST_TOOL_EDITOR_CLASS, CELLTEST_TOOL_RULES_CLASS } from "./utils";
+import { INotebookTracker } from "@jupyterlab/notebook";
 
 const DEFAULT_TESTS = ['# Use %cell to mark where the cell should be inserted, or add a line comment "# no %cell" to deliberately skip the cell\n', "%cell\n"];
 
@@ -24,14 +26,14 @@ const DEFAULT_TESTS = ['# Use %cell to mark where the cell should be inserted, o
  * @class      ControlsWidget (name)
  */
 class ControlsWidget extends BoxPanel {
-  label;
+  label: HTMLLabelElement;
 
-  svglabel;
+  svglabel: HTMLLabelElement;
 
-  svg;
+  svg: HTMLElement;
 
   constructor() {
-    super({direction: "top-to-bottom"});
+    super({ direction: "top-to-bottom" });
 
     /* Section Header */
     this.label = document.createElement("label");
@@ -41,7 +43,7 @@ class ControlsWidget extends BoxPanel {
 
     this.svg = document.createElement("svg");
     this.svg.innerHTML = circleSvg;
-    this.svg = this.svg.firstChild;
+    this.svg = (this.svg.firstChild as HTMLElement);
 
     const div1 = document.createElement("div");
     div1.appendChild(this.label);
@@ -82,16 +84,15 @@ class ControlsWidget extends BoxPanel {
     div3.appendChild(save);
     div3.appendChild(clear);
     this.node.appendChild(div3);
-
-    this.add.bind(this);
-    this.save.bind(this);
-    this.clear.bind(this);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   add = () => {};
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   save = () => {};
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   clear = () => {};
 }
 
@@ -101,20 +102,15 @@ class ControlsWidget extends BoxPanel {
  * @class      ControlsWidget (name)
  */
 class RulesWidget extends BoxPanel {
-  label;
-
-  lines_per_cell;
-
-  cells_per_notebook;
-
-  function_definitions;
-
-  class_definitions;
-
-  cell_coverage;
+  label: HTMLLabelElement;
+  lines_per_cell: HTMLDivElement;
+  cells_per_notebook: HTMLDivElement;
+  function_definitions: HTMLDivElement;
+  class_definitions: HTMLDivElement;
+  cell_coverage: HTMLDivElement;
 
   constructor() {
-    super({direction: "top-to-bottom"});
+    super({ direction: "top-to-bottom" });
 
     /* Section Header */
     this.label = document.createElement("label");
@@ -126,7 +122,7 @@ class RulesWidget extends BoxPanel {
     /* Add button */
     const div = document.createElement("div");
 
-    [].slice.call(CELLTEST_RULES).forEach((val) => {
+    [].slice.call(CELLTEST_RULES).forEach((val: {[key: string]: string}) => {
       const row = document.createElement("div");
       const span = document.createElement("span");
       span.textContent = val.label;
@@ -168,7 +164,7 @@ class RulesWidget extends BoxPanel {
     this.node.appendChild(div);
   }
 
-  getByKey(key) {
+  getByKey(key: string) {
     switch (key) {
       case "lines_per_cell": {
         return this.lines_per_cell;
@@ -190,7 +186,7 @@ class RulesWidget extends BoxPanel {
     }
   }
 
-  setByKey(key, elem) {
+  setByKey(key: string, elem: HTMLDivElement) {
     switch (key) {
       case "lines_per_cell": {
         this.lines_per_cell = elem;
@@ -216,8 +212,8 @@ class RulesWidget extends BoxPanel {
     }
   }
 
-  getValuesByKey(key) {
-    let elem;
+  getValuesByKey(key: string) {
+    let elem: HTMLDivElement;
     switch (key) {
       case "lines_per_cell": {
         elem = this.lines_per_cell;
@@ -240,15 +236,15 @@ class RulesWidget extends BoxPanel {
         break;
       }
       default:
-        break;
+        return { key, enabled: false, value: 0 };
     }
-    const chkbx = elem.querySelector('input[type="checkbox"]');
-    const input = elem.querySelector('input[type="number"]');
-    return {key, enabled: chkbx.checked, value: Number(input.value)};
+    const chkbx = (elem.querySelector('input[type="checkbox"]') as HTMLInputElement);
+    const input = (elem.querySelector('input[type="number"]') as HTMLInputElement);
+    return { key, enabled: chkbx.checked, value: Number(input.value) };
   }
 
-  setValuesByKey(key, checked = true, value = null) {
-    let elem;
+  setValuesByKey(key: string, checked = true, value: any = null) {
+    let elem: HTMLDivElement;
     switch (key) {
       case "lines_per_cell": {
         elem = this.lines_per_cell;
@@ -271,10 +267,10 @@ class RulesWidget extends BoxPanel {
         break;
       }
       default:
-        break;
+        return;
     }
-    const chkbx = elem.querySelector('input[type="checkbox"]');
-    const input = elem.querySelector('input[type="number"]');
+    const chkbx = (elem.querySelector('input[type="checkbox"]') as HTMLInputElement);
+    const input = (elem.querySelector('input[type="number"]') as HTMLInputElement);
     if (input) {
       input.value = value === null ? "" : String(value);
       input.disabled = !checked;
@@ -284,6 +280,7 @@ class RulesWidget extends BoxPanel {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   save = () => {};
 }
 
@@ -293,17 +290,13 @@ class RulesWidget extends BoxPanel {
  * @class      CelltestsWidget (name)
  */
 export class CelltestsWidget extends Widget {
-  currentActiveCell = null;
+  currentActiveCell: Cell;
+  notebookTracker: INotebookTracker;
+  editor: CodeEditorWrapper;
+  rules: RulesWidget;
+  controls: ControlsWidget;
 
-  notebookTracker = null;
-
-  editor = null;
-
-  rules;
-
-  controls;
-
-  constructor(editorServices) {
+  constructor(editorServices: IEditorServices) {
     super();
 
     /* create layout */
@@ -325,9 +318,9 @@ export class CelltestsWidget extends Widget {
     this.editor.model.mimeType = "text/x-ipython";
 
     /* add options and editor to widget */
-    this.layout.addWidget(this.controls);
-    this.layout.addWidget(this.editor);
-    this.layout.addWidget(this.rules);
+    (this.layout as PanelLayout).addWidget(this.controls);
+    (this.layout as PanelLayout).addWidget(this.editor);
+    (this.layout as PanelLayout).addWidget(this.rules);
 
     /* set add button functionality */
     this.controls.add = () => {
@@ -360,9 +353,9 @@ export class CelltestsWidget extends Widget {
   }
 
   fetchAndSetTests() {
-    const tests = [];
+    const tests: string[] = [];
     const splits = this.editor.model.sharedModel.source.split(/\n/);
-    splits.forEach((split) => {
+    splits.forEach(split => {
       tests.push(`${split}\n`);
     });
     if (this.currentActiveCell !== null && this.currentActiveCell.model.type === "code") {
@@ -373,7 +366,7 @@ export class CelltestsWidget extends Widget {
 
   loadTestsForActiveCell() {
     if (this.currentActiveCell !== null && this.currentActiveCell.model.type === "code") {
-      let {tests} = this.currentActiveCell.model.getMetadata();
+      let tests = this.currentActiveCell.model.getMetadata("tests");
       if (tests === undefined || tests.length === 0) {
         tests = DEFAULT_TESTS;
         this.setIndicatorNoTests();
@@ -393,9 +386,9 @@ export class CelltestsWidget extends Widget {
   saveTestsForActiveCell() {
     /* if currentActiveCell exists */
     if (this.currentActiveCell !== null && this.currentActiveCell.model.type === "code") {
-      const tests = [];
+      const tests: string[] = [];
       const splits = this.editor.model.sharedModel.getSource().split(/\n/);
-      splits.forEach((split) => {
+      splits.forEach(split => {
         tests.push(`${split}\n`);
       });
       this.currentActiveCell.model.setMetadata("tests", tests);
@@ -417,9 +410,9 @@ export class CelltestsWidget extends Widget {
 
   loadRulesForCurrentNotebook() {
     if (this.notebookTracker !== null) {
-      const metadata = this.notebookTracker.currentWidget.model.getMetadata().celltests || {};
+      const metadata: {[key: string]: string} = this.notebookTracker.currentWidget?.model?.getMetadata("celltests") || {};
 
-      [].slice.call(CELLTEST_RULES).forEach((rule) => {
+      [].slice.call(CELLTEST_RULES).forEach((rule: {[key: string]: string}) => {
         this.rules.setValuesByKey(rule.key, rule.key in metadata, metadata[rule.key]);
       });
     }
@@ -427,15 +420,15 @@ export class CelltestsWidget extends Widget {
 
   saveRulesForCurrentNotebook() {
     if (this.notebookTracker !== null) {
-      const metadata = {};
+      const metadata: {[key: string]: number} = {};
 
-      [].slice.call(CELLTEST_RULES).forEach((rule) => {
+      [].slice.call(CELLTEST_RULES).forEach((rule: {[key: string]: string}) => {
         const settings = this.rules.getValuesByKey(rule.key);
         if (settings.enabled) {
           metadata[settings.key] = settings.value;
         }
       });
-      this.notebookTracker.currentWidget.model.setMetadata("celltests", metadata);
+      this.notebookTracker.currentWidget?.model?.setMetadata("celltests", metadata);
     }
   }
 
@@ -444,17 +437,17 @@ export class CelltestsWidget extends Widget {
   }
 
   setIndicatorNoTests() {
-    this.controls.svg.firstElementChild.firstElementChild.style.fill = "#e75c57";
+    (this.controls.svg.firstElementChild?.firstElementChild as HTMLElement).style.fill = "#e75c57";
     this.controls.svglabel.textContent = "(No Tests)";
   }
 
   setIndicatorTests() {
-    this.controls.svg.firstElementChild.firstElementChild.style.fill = "#008000";
+    (this.controls.svg.firstElementChild?.firstElementChild as HTMLElement).style.fill = "#008000";
     this.controls.svglabel.textContent = "(Tests Exist)";
   }
 
   setIndicatorNonCode() {
-    this.controls.svg.firstElementChild.firstElementChild.style.fill = "var(--jp-inverse-layout-color3)";
+    (this.controls.svg.firstElementChild?.firstElementChild as HTMLElement).style.fill = "var(--jp-inverse-layout-color3)";
     this.controls.svglabel.textContent = "(Non Code Cell)";
   }
 }

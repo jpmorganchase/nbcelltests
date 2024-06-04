@@ -6,17 +6,18 @@
  * the Apache License 2.0.  The full license can be found in the LICENSE file.
  *
  */
-import {ICommandPalette} from "@jupyterlab/apputils";
-import {IDocumentManager} from "@jupyterlab/docmanager";
-import {ILauncher} from "@jupyterlab/launcher";
-import {INotebookTools, INotebookTracker} from "@jupyterlab/notebook";
-import {IEditorServices} from "@jupyterlab/codeeditor";
+import { ICommandPalette } from "@jupyterlab/apputils";
+import { IDocumentManager } from "@jupyterlab/docmanager";
+import { ILauncher } from "@jupyterlab/launcher";
+import { INotebookTools, INotebookTracker } from "@jupyterlab/notebook";
+import { IEditorServices } from "@jupyterlab/codeeditor";
 
 import "../style/index.css";
-import {activate} from "./activate";
-import {CELLTESTS_ID} from "./utils";
+import { activate } from "./activate";
+import { CELLTESTS_ID } from "./utils";
+import { JupyterFrontEndPlugin } from "@jupyterlab/application";
 
-const extension = {
+const extension: JupyterFrontEndPlugin<void> = {
   activate,
   autoStart: true,
   id: CELLTESTS_ID,
@@ -25,4 +26,4 @@ const extension = {
 };
 
 export default extension;
-export {activate as _activate};
+export { activate as _activate };

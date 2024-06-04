@@ -5,8 +5,8 @@ build:  ## build python/javascript
 	python -m build .
 
 develop:  ## install to site-packages in editable mode
-	python -m pip install --upgrade build pip setuptools twine wheel
-	cd js; yarn && npx playwright install
+	python -m pip install --upgrade build jupyterlab pip setuptools twine wheel
+	cd js; jlpm && npx playwright install
 	python -m pip install -e .[develop]
 
 install:  ## install to site-packages
@@ -19,7 +19,7 @@ testpy: ## clean and Make unit tests
 	python -m pytest -v nbcelltests/tests --junitxml=junit.xml --cov=nbcelltests --cov-report=xml:.coverage.xml --cov-branch --cov-fail-under=0 --cov-report term-missing
 
 testjs: ## clean and Make js tests
-	cd js; yarn test
+	cd js; jlpm test
 
 test: tests
 tests: testpy testjs ## run the tests
@@ -33,7 +33,7 @@ lintpy:  ## lint python with ruff and isort
 	python -m ruff format --check nbcelltests setup.py
 
 lintjs:  ## lint javascript with eslint
-	cd js; yarn lint
+	cd js; jlpm lint
 
 lint: lintpy lintjs  ## run linters
 
@@ -42,7 +42,7 @@ fixpy:  ## autoformat python with ruff and isort
 	python -m ruff format nbcelltests setup.py
 
 fixjs:  ## autoformat javascript with eslint
-	cd js; yarn fix
+	cd js; jlpm fix
 
 fix: fixpy fixjs  ## run black/tslint fix
 format: fix
@@ -85,7 +85,7 @@ clean: ## clean the repository
 	find . -name ".ipynb_checkpoints" | xargs  rm -rf
 	rm -rf .coverage coverage *.xml build dist *.egg-info lib node_modules .pytest_cache *.egg-info
 	rm -rf nbcelltests/extension
-	cd js && yarn clean
+	cd js && jlpm clean
 	git clean -fd
 
 ###########

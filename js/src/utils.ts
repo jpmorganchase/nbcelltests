@@ -1,3 +1,6 @@
+import { JupyterFrontEnd } from "@jupyterlab/application";
+import { IDocumentManager } from "@jupyterlab/docmanager";
+
 /******************************************************************************
  *
  * Copyright (c) 2019, the nbcelltest authors.
@@ -66,6 +69,6 @@ export const CELLTEST_RULES = [
   },
 ];
 
-export function isEnabled(app, docManager) {
-  return () => !!(app.shell.currentWidget && docManager.contextForWidget(app.shell.currentWidget) && docManager.contextForWidget(app.shell.currentWidget).model);
+export function isEnabled(app: JupyterFrontEnd, docManager: IDocumentManager) {
+  return () => !!(app.shell.currentWidget && docManager.contextForWidget(app.shell.currentWidget) && docManager.contextForWidget(app.shell.currentWidget)?.model);
 }
