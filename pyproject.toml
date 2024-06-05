@@ -9,7 +9,7 @@ build-backend = "hatchling.build"
 [project]
 name = "nbcelltests"
 description = "Cell-by-cell tests for JupyterLab"
-version = "0.3.1"
+version = "0.3.2"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.8"
