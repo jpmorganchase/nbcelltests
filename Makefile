@@ -84,7 +84,7 @@ clean: ## clean the repository
 	find . -name "*.pyc" | xargs rm -rf
 	find . -name ".ipynb_checkpoints" | xargs  rm -rf
 	rm -rf .coverage coverage *.xml build dist *.egg-info lib node_modules .pytest_cache *.egg-info
-	rm -rf nbcelltests/extension
+	rm -rf nbcelltests/labextension
 	cd js && jlpm clean
 	git clean -fd
 
