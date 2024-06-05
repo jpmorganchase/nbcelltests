@@ -77,7 +77,7 @@ target/
 
 # IPython Notebook
 .ipynb_checkpoints
-*.ipynb
+Untitled*.ipynb
 .autoversion
 
 # pyenv
@@ -165,7 +165,6 @@ nbcelltests/labextension/*.tgz
 nbcelltests/labextension
 
 # generated
-*.ipynb
 Untitled_test.html
 Untitled_test.py
 docs/api
