@@ -57,7 +57,7 @@ develop = [
     "check-manifest",
     "isort>=5,<6",
     "jupyterlab>=4,<5",
-    "ruff>=0.5.0,<0.7",
+    "ruff>=0.6,<0.7",
     # test
     "pytest",
     "pytest-cov",
@@ -157,5 +157,9 @@ testpaths = "nbcelltests/tests"
 [tool.ruff]
 line-length = 120
 
+[tool.ruff.format]
+exclude = ["nbcelltests/tests/*"]
+
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401", "F403"]
+"nbcelltests/tests/*" = ["E701", "E731", "F811", "F821"]
