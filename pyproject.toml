@@ -57,7 +57,7 @@ develop = [
     "check-manifest",
     "isort>=5,<7",
     "jupyterlab>=4,<5",
-    "ruff>=0.6,<0.10",
+    "ruff>=0.6,<0.12",
     # test
     "pytest",
     "pytest-cov",
