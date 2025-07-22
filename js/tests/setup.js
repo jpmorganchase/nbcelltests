@@ -6,6 +6,7 @@
  * the Apache License 2.0.  The full license can be found in the LICENSE file.
  *
  */
+
 Object.defineProperty(window, "DragEvent", {
   value: class DragEvent {},
 });
@@ -23,3 +24,14 @@ Object.defineProperty(window, "matchMedia", {
     dispatchEvent: jest.fn(),
   })),
 });
+
+
+class MockTool {
+  constructor() {}
+}
+
+jest.mock("@jupyterlab/notebook", () => ({
+  INotebookTracker: "notebook-tracker",
+  NotebookTools: { Tool: MockTool },
+}));
+
