@@ -28,9 +28,9 @@ tests: testpy testjs ## run the tests
 # Linting #
 ###########
 lintpy:  ## lint python with ruff and isort
-	python -m isort --check nbcelltests setup.py
-	python -m ruff check nbcelltests setup.py
-	python -m ruff format --check nbcelltests setup.py
+	python -m isort --check nbcelltests
+	python -m ruff check nbcelltests
+	python -m ruff format --check nbcelltests
 
 lintjs:  ## lint javascript with eslint
 	cd js; jlpm lint
@@ -38,8 +38,8 @@ lintjs:  ## lint javascript with eslint
 lint: lintpy lintjs  ## run linters
 
 fixpy:  ## autoformat python with ruff and isort
-	python -m isort nbcelltests setup.py
-	python -m ruff format nbcelltests setup.py
+	python -m isort nbcelltests
+	python -m ruff format nbcelltests
 
 fixjs:  ## autoformat javascript with eslint
 	cd js; jlpm fix
