@@ -12,7 +12,7 @@ description = "Cell-by-cell tests for JupyterLab"
 version = "0.3.2"
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 authors = [
     { name = "The nbcelltests authors", email = "t.paine154@gmail.com" },
 ]
@@ -31,10 +31,11 @@ classifiers = [
     "Framework :: Jupyter :: JupyterLab",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "License :: OSI Approved :: Apache Software License",
 ]
 
@@ -93,8 +94,6 @@ include = [
 exclude = [
     "/.github",
     "/.gitignore",
-    "/.mypy_cache",
-    "/.ruff_cache",
     "/dist",
     "/examples",
     "/js/node_modules",
@@ -107,8 +106,6 @@ include = [
 exclude = [
     "/.github",
     "/.gitignore",
-    "/.mypy_cache",
-    "/.ruff_cache",
     "/pyproject.toml",
     "/dist",
     "/examples",
