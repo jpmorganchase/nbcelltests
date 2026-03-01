@@ -56,7 +56,7 @@ dependencies = [
 [project.optional-dependencies]
 develop = [
     "check-manifest",
-    "isort>=5,<8",
+    "isort>=5,<9",
     "jupyterlab>=4,<5",
     "ruff>=0.6,<0.15",
     # test
