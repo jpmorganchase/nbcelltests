@@ -61,7 +61,7 @@
     "@lumino/disposable": "^2.1.5"
   },
   "devDependencies": {
-    "@babel/core": "^7.29.7",
+    "@babel/core": "^8.0.0",
     "@babel/preset-env": "^7.29.7",
     "@jupyterlab/builder": "^4.5.9",
     "@rjsf/utils": "^5.24.13",
