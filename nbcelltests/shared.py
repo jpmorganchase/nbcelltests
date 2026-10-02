@@ -56,13 +56,23 @@ class MagicsRecorder(ast.NodeVisitor):
         self.seen = set()
 
     def visit_Call(self, node):
-        if hasattr(node.func, "attr") and node.func.attr in self.magic_fn_names:
-            # should maybe find ipython's own parsing code and use that instead
-            if node.func.value.func.id == "get_ipython":
-                magic_name = node.args[0].s
-                if node.func.attr in self.magic_fn_names_py2:
-                    magic_name = magic_name.split()[0]  # (again, find ipython's parsing?)
+        if (
+            isinstance(node.func, ast.Attribute)
+            and node.func.attr in self.magic_fn_names
+            and isinstance(node.func.value, ast.Call)
+            and isinstance(node.func.value.func, ast.Name)
+            and node.func.value.func.id == "get_ipython"
+            and node.args
+            and isinstance(node.args[0], ast.Constant)
+            and isinstance(node.args[0].value, str)
+        ):
+            magic_name = node.args[0].value
+            if node.func.attr in self.magic_fn_names_py2:
+                names = magic_name.split()
+                magic_name = names[0] if names else ""
+            if magic_name:
                 self.seen.add(magic_name)
+        self.generic_visit(node)
 
 
 # Note: I think it's confusing to insert the actual counts into the
