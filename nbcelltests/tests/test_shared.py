@@ -107,6 +107,29 @@ def test_extract_extrametadata_magics():
     assert _metadata(MAGICS_NB, "magics") == set(["magics1", "magics2", "magics3"])
 
 
+@pytest.mark.parametrize(
+    "source",
+    [
+        "obj.run_line_magic('example', '')",
+        "factory().run_cell_magic('example', '', '')",
+        "module.factory().magic('example')",
+        "get_ipython().run_line_magic(name, '')",
+        "get_ipython().run_line_magic()",
+        "get_ipython().magic('   ')",
+    ],
+)
+def test_magic_detection_ignores_unrecognized_calls(source):
+    notebook = nbformat.v4.new_notebook(cells=[nbformat.v4.new_code_cell(source)])
+    assert extract_extrametadata(notebook)["magics"] == set()
+
+
+def test_magic_detection_visits_nested_calls():
+    notebook = nbformat.v4.new_notebook(
+        cells=[nbformat.v4.new_code_cell("print(get_ipython().run_line_magic('time', '1 + 1'))")]
+    )
+    assert extract_extrametadata(notebook)["magics"] == {"time"}
+
+
 # with non-code cells present
 
 
